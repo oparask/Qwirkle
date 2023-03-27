@@ -1,9 +1,6 @@
 package g60085.qwirkle;
 
-import g60085.qwirkle.model.Color;
-import g60085.qwirkle.model.Shape;
-import g60085.qwirkle.model.Tile;
-import g60085.qwirkle.model.Tile_Bis;
+import g60085.qwirkle.model.*;
 
 public class App {
     public static void main(String[] args) {
@@ -25,7 +22,8 @@ public class App {
         tile_bis.color(); //getter que le record a cree lui meme;
      */
 
-
+        Bag tiles = new Bag();
+        System.out.println(tiles);
 
 
     }
