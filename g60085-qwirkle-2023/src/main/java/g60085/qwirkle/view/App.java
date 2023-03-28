@@ -1,14 +1,20 @@
-package g60085.qwirkle;
+package g60085.qwirkle.view;
 
 import g60085.qwirkle.model.*;
+
+import java.util.Arrays;
 
 public class App {
     public static void main(String[] args) {
         System.out.println("DEV2: jeu de QWIRKLE");
-     /*
-        Color color = new Color();
-        color.values(); //tableau reprenant toutes le couleurs de l'enumeration
-     */
+
+/*
+        System.out.println(Arrays.toString(Color.values())); //tableau reprenant toutes le couleurs de l'enumeration
+
+        for(int i = 0; i<Color.values().length; i++){
+            System.out.print(Color.values()[i] + ", ");
+        }*/
+
 
      /*
         Tile tile = new Tile(Color.RED, Shape.SQUARE);
@@ -22,8 +28,13 @@ public class App {
         tile_bis.color(); //getter que le record a cree lui meme;
      */
 
-        Bag tiles = new Bag();
-        System.out.println(tiles);
+
+       /* Bag tiles = new Bag();
+        System.out.println(tiles);*/
+
+        System.out.println(Color.values().length);
+        System.out.println(Shape.values().length);
+
 
 
     }
