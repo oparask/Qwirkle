@@ -16,11 +16,11 @@ public class App {
         }*/
 
 
-     /*
+
         Tile tile = new Tile(Color.RED, Shape.SQUARE);
         System.out.println(tile); //Grace à la methode toString
         //c'est ici qu'on donnera les vrai valeur des shape et color
-     */
+
     /*
         Tile_Bis tile_bis = new Tile_Bis(Color.BLUE, Shape.CROSS);
         System.out.println(tile_bis); //Grace à la methode toString;

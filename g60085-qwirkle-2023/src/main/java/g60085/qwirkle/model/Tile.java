@@ -21,12 +21,12 @@ public class Tile {
     public Shape getShape() {
         return this.shape;
     }
-     /*
+
     //toString javadoc
     @Override
     public String toString() {
         return this.shape.name() + ":" + this.color.name(); //on peut checher le nom d'une enum
     }
-    */
+
 
 }
