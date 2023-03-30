@@ -9,7 +9,7 @@ import java.util.List;
  */
 public class Bag {
     private List<Tile> tiles;
-    private static Bag bag = new Bag();
+    private static Bag instance;
 
     //constructeur
     private Bag() {
@@ -25,25 +25,29 @@ public class Bag {
     }
 
     public static Bag getInstance() {
-        return bag;
+        if(instance == null){
+            instance = new Bag();
+        }
+        return instance;
     }
 
     public Tile[] getRandomTiles(int n) {
         if (this.tiles == null) {
             return null;
         }
-        Tile[] randomTiles = new Tile[n];
         if (n <= this.tiles.size()) {
+            Tile[] randomTiles = new Tile[n];
             for (int i = 0; i < n; i++) {
                 randomTiles[i] = tiles.remove(tiles.size() - 1); //retourne l'élément supprimé
             }
+            return randomTiles;
         } else {
-           /* for (int i = 0; i < this.tiles.size(); i++) {
+            Tile[] randomTiles = new Tile[tiles.size()];
+            for (int i = 0; i < randomTiles.length; i++) {
                 randomTiles[i] = tiles.remove(tiles.size() - 1);
-            }*/
-            size();
+            }
+            return randomTiles;
         }
-        return randomTiles;
     }
 
     @Override
@@ -51,15 +55,9 @@ public class Bag {
         return "tiles = " + this.tiles;
     }
 
-    public int size(){
+    public int size() {
         return this.tiles.size();
     }
 
-    public static void main(String[] args) {
-        Bag bag = new Bag();
-        System.out.println(bag);
-        Bag tilesBag = Bag.getInstance();
-        System.out.println(tilesBag);
 
-    }
 }
