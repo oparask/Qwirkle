@@ -1,7 +1,6 @@
 package g60085.qwirkle.model;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -49,9 +48,7 @@ public class Bag {
 
     @Override
     public String toString() {
-        return "Bag{" +
-                "tiles=" + tiles +
-                '}';
+        return "tiles = " + this.tiles;
     }
 
     public int size(){
@@ -61,8 +58,8 @@ public class Bag {
     public static void main(String[] args) {
         Bag bag = new Bag();
         System.out.println(bag);
-        Tile tile = new Tile(Color.RED, Shape.CROSS);
-        System.out.println(tile);
+        Bag tilesBag = Bag.getInstance();
+        System.out.println(tilesBag);
 
     }
 }
