@@ -19,14 +19,18 @@ public class Grid {
     }
 
     //ajouter les premieres tuiles
-    public void firstAdd(Direction d, Tile... line){ //var rags; line represente un tableau de tuiles passees en parametres
-        if(!isEmpty){
+    public void firstAdd(Direction d, Tile... line) { //var rags; line represente un tableau de tuiles passees en parametres
+        if (!isEmpty) {
+            //;
         }
-        this.tiles[45][45] = line[0];
-        for(int i =1; i< line.length ; i++){
-            
+        int row = 45;
+        int col = 45;
+        this.tiles[row][col] = line[0];
+        for (int i = 1; i < line.length; i++) {
+            row = row +d.getDeltaRow();
+            col = col+d.getDeltaCol();
+            this.tiles[row][col] = line[i];
         }
-
-
     }
+
 }
