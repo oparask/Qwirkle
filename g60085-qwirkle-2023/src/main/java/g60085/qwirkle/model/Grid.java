@@ -82,4 +82,19 @@ public class Grid {
     }
 
 
+//ajoute une tuile à une certaine position en respectant les règles du jeu
+public void add(int row, int col, Tile tile) throws QwirkleException{
+        if(row>91 || row <0 ||  col>91 || col<0){
+            throw new NullPointerException();
+        }
+        if(row==45 && col==45){
+            throw new QwirkleException("at this position you must call the firtAdd method");
+        }
+        if(this.tiles[row][col]!= null){
+            throw new QwirkleException("there is already a tile at this position");
+        }
+        this.tiles[row][col]=tile;
+}
+
+
 }

@@ -24,6 +24,7 @@ public class Bag {
         Collections.shuffle(tiles);
     }
 
+
     public static Bag getInstance() {
         if(instance == null){
             instance = new Bag();

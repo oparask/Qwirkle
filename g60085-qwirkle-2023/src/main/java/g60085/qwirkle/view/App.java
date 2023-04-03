@@ -2,6 +2,8 @@ package g60085.qwirkle.view;
 
 import g60085.qwirkle.model.*;
 
+import java.util.Arrays;
+
 public class App {
     public static void main(String[] args) {
         System.out.println("DEV2: jeu de QWIRKLE");
@@ -55,6 +57,20 @@ public class App {
         //pas sassez de tuiles dans le sac:
         Tile[] randomTilesBag2 = bag1.getRandomTiles(106);
         afficherTab(randomTilesBag2);
+
+        Tile tile4 = new Tile(Color.GREEN, Shape.ROUND);
+        Tile tile5 = new Tile(Color.GREEN, Shape.ROUND);
+        if(tile4.color()==tile5.color() && tile5.shape()==tile4.shape()){
+            System.out.println("meme color bro");
+        }else {
+            System.out.println("pas  color shape");
+        }
+
+        if(tile4.equals(tile5)){
+            System.out.println("egaux");
+        }else{
+            System.out.println("pas egaux");
+        }
 
 
     }

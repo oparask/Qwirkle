@@ -32,8 +32,8 @@ class GridTest {
         var t3 = new Tile(RED, PLUS);
         grid.firstAdd(UP, t1, t2, t3);
         assertEquals(t1, grid.get(45, 45));
-        assertEquals(t2, grid.get(45-1, 45));
-        assertEquals(t3, grid.get(45-2, 45));
+        assertEquals(t2, grid.get(45 - 1, 45));
+        assertEquals(t3, grid.get(45 - 2, 45));
     }
 
     @Test
@@ -45,8 +45,8 @@ class GridTest {
             grid.firstAdd(UP, t1, t2, t3);
         });
         assertNull(grid.get(45, 45));
-        assertNull(grid.get(45-1, 45));
-        assertNull(grid.get(45-2, 45));
+        assertNull(grid.get(45 - 1, 45));
+        assertNull(grid.get(45 - 2, 45));
     }
 
     @Test
@@ -56,19 +56,37 @@ class GridTest {
         grid.firstAdd(UP, redcross, reddiamond);
         assertThrows(QwirkleException.class, () -> grid.firstAdd(DOWN, redcross, reddiamond));
     }
-/*
+
+
+    //add
+
     @Test
     void firstAdd_must_be_called_first_simple() {
         Tile redcross = new Tile(RED, CROSS);
-        assertThrows(QwirkleException.class, () -> add(grid, 0, 0, redcross));
+        assertThrows(QwirkleException.class, () -> grid.add(45, 45, redcross));
     }
 
+
+       /* @Test
+        @DisplayName("get outside the grid should return null, not throw")
+        void can_get_tile_outside_virtual_grid() {
+            var g = new Grid();
+            assertDoesNotThrow(() -> grid.get(-250, 500));
+            assertNull(grid.get(-250, 500));
+        }*/
     @Test
-    @DisplayName("get outside the grid should return null, not throw")
-    void can_get_tile_outside_virtual_grid() {
-        var g = new Grid();
-        assertDoesNotThrow(() -> get(g, -250, 500));
-        assertNull(get(g, -250, 500));
-    }*/
+    void add_one_tile() {
+        Tile bluecross = new Tile(BLUE, CROSS);
+        grid.add(3, 3, bluecross);
+        assertEquals(bluecross, grid.get(3, 3));
+    }
+    @Test
+    void add_a_tile_to_a_position_already_taken() {
+        Tile bluecross = new Tile(BLUE, CROSS);
+        Tile redsquare = new Tile(RED, SQUARE);
+        grid.add(3, 3, bluecross);
+        assertThrows(QwirkleException.class, () -> grid.add(3,3, redsquare));
+    }
+
 
 }
