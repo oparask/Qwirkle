@@ -171,4 +171,25 @@ class GridTest {
         assertEquals(t2, grid.get(45, 44));
         assertEquals(t3, grid.get(43,44));
     }
+
+    //third add method
+    @Test
+    void tileAtPosition() {
+        var t1 = new TileAtPosition(44, 44, new Tile(RED, SQUARE));
+        var t2 = new TileAtPosition(43, 47, new Tile(BLUE, SQUARE));
+        grid.add(t1, t2);
+        assertEquals(t1.tile(), grid.get(44, 44));
+        assertEquals(t2.tile(), grid.get(43, 47));
+    }
+
+    @Test
+    void tileAtPosition_different_colorAndSpahe() {
+        var t1 = new TileAtPosition(44, 44, new Tile(RED, DIAMOND));
+        var t2 = new TileAtPosition(43, 47, new Tile(BLUE, SQUARE));
+        var t3 = new TileAtPosition(43, 47, new Tile(BLUE, ROUND));
+        assertThrows(QwirkleException.class, ()->{
+            grid.add(t1, t2, t3);
+        });
+    }
+
 }

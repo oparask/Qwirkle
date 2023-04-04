@@ -20,6 +20,10 @@ public class Grid {
 
     //ajouter les premieres tuiles
     public void firstAdd(Direction d, Tile... line) throws QwirkleException { //var rags; line represente un tableau de tuiles passees en parametres
+        if (line == null) {
+            throw new QwirkleException("line is not initalized");
+        }
+
         if (!this.isEmpty) {
             throw new QwirkleException("Not empty");
         }
@@ -95,7 +99,11 @@ public class Grid {
         }
         this.tiles[row][col] = tile;
     }
-    public void add(int row, int col, Direction d, Tile... line){
+
+    public void add(int row, int col, Direction d, Tile... line) {
+        if (line == null) {
+            throw new QwirkleException("line is not initalized");
+        }
         if (row > 91 || row < 0 || col > 91 || col < 0) {
             throw new NullPointerException();
         }
@@ -118,20 +126,58 @@ public class Grid {
                 throw new QwirkleException("Cannot have the same tile twice");
             }
         }
-        if(row+line.length >91 || row- line.length <0 || col+ line.length>91 ||col- line.length<0){
+        if (row + line.length > 91 || row - line.length < 0 || col + line.length > 91 || col - line.length < 0) {
             throw new QwirkleException("Cannot have the same tile twice");
         }
 
 
         this.tiles[row][col] = line[0];
-        for (int i = 1; i< line.length; i++){
+        for (int i = 1; i < line.length; i++) {
             row = row + d.getDeltaRow();
-            col = col+d.getDeltaCol();
-            if(this.tiles[row][col]!= null){
+            col = col + d.getDeltaCol();
+            if (this.tiles[row][col] != null) {
                 throw new QwirkleException("there is already a tile at this position");
             }
-            this.tiles[row][col] =line[i];
+            this.tiles[row][col] = line[i];
         }
     }
+
+    public void add(TileAtPosition... line) {
+        if (line == null) {
+            throw new QwirkleException("line is not initalized");
+        }
+        if (line.length > 6) {
+            throw new QwirkleException("The length is above the limit");
+        }
+
+        Tile[] lineTiles = new Tile[line.length];
+        for (int i = 0; i < line.length; i++) {
+            lineTiles[i] = line[i].tile();
+        }
+        if (line.length > 1) {
+            if (!sameColor(lineTiles)) {
+                if (!sameShape(lineTiles)) {
+                    throw new QwirkleException("Tiles must be of the same color or shape");
+                }
+            }
+            if (sameTile(lineTiles)) {
+                throw new QwirkleException("Cannot have the same tile twice");
+            }
+        }
+
+        for (int i = 0; i < line.length; i++) {
+            if (line[i].row() > 91 || line[i].row() < 0 || line[i].col() > 91 || line[i].col() < 0) {
+                throw new NullPointerException();
+            }
+            if (line[i].row() == 45 && line[i].col() == 45) {
+                throw new QwirkleException("at this position you must call the firtAdd method");
+            }
+            if (this.tiles[line[i].row()][line[i].col()] != null) {
+                throw new QwirkleException("there is already a tile at this position");
+            }
+            this.tiles[line[i].row()][line[i].col()] = line[i].tile();
+        }
+    }
+
 
 }
