@@ -36,7 +36,7 @@ public class App {
         System.out.println(Color.values().length);
         System.out.println(Shape.values().length);
 
-*/
+*//*
         Bag bag1 = Bag.getInstance();
         System.out.println("bag1: " + bag1);
         Bag bag2 = Bag.getInstance();
@@ -70,7 +70,21 @@ public class App {
             System.out.println("egaux");
         }else{
             System.out.println("pas egaux");
-        }
+        }*/
+
+        Player olivia = new Player("Olivia");
+        olivia.refill();
+        System.out.println(olivia.getTiles());
+
+        Player olivia2 = new Player("Olivia");
+        olivia2.refill();
+        System.out.println(olivia2.getTiles());
+
+
+        olivia.remove(olivia.getTiles().get(0), olivia.getTiles().get(3) );
+        System.out.println(olivia.getTiles());
+
+
 
 
     }
@@ -83,4 +97,7 @@ public class App {
         System.out.println(randomTilesBag[randomTilesBag.length - 1] + "]");
         System.out.println();
     }
+
+
+
 }
