@@ -75,14 +75,17 @@ public class App {
         Player olivia = new Player("Olivia");
         olivia.refill();
         System.out.println(olivia.getTiles());
+        olivia.remove(olivia.getTiles().get(0), olivia.getTiles().get(3) );
+        System.out.println(olivia.getTiles());
 
         Player olivia2 = new Player("Olivia");
         olivia2.refill();
         System.out.println(olivia2.getTiles());
+        olivia2.remove(olivia2.getTiles().get(0), olivia2.getTiles().get(3) );
+        System.out.println(olivia2.getTiles());
 
 
-        olivia.remove(olivia.getTiles().get(0), olivia.getTiles().get(3) );
-        System.out.println(olivia.getTiles());
+
 
 
 
