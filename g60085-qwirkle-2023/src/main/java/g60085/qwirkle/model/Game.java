@@ -46,14 +46,14 @@ public class Game {
     public void play(int... is) {
         Player player = this.players[this.currentPlayer];
         TileAtPosition[] tiles = new TileAtPosition[is.length / 3];
-        for (int tilesIndex = 0; tilesIndex < tiles.length; tilesIndex++) {
+        int tilesIndex = 0;
             for (int i = 0; i < is.length; i = i + 3) {
                 int row = is[i];
                 int col = is[i + 1];
                 Tile tile = player.getTiles().get(is[i + 2]);
                 tiles[tilesIndex] = new TileAtPosition(row, col, tile);
+                tilesIndex++;
             }
-        }
         this.grid.add(tiles);
         this.currentPlayer++;
     }
