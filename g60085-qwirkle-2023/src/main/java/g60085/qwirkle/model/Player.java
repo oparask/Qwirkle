@@ -23,17 +23,16 @@ public class Player {
     }
 
     public void refill(){
-        Bag bag1 = Bag.getInstance();
-        System.out.println(bag1);
-        System.out.println(bag1.size());
-        Tile[]refill = bag1.getRandomTiles(6-this.tiles.size());
+        Bag bag = Bag.getInstance();
+        //System.out.println(bag);
+        //System.out.println(bag.size());
+        Tile[]refill = bag.getRandomTiles(6-this.tiles.size());
         Collections.addAll(this.tiles, refill);
     }
 
     public void remove(Tile... ts){
          for(int i = 0; i< ts.length; i++){
              this.tiles.remove(this.tiles.indexOf(ts[i]));
-
          }
     }
 }
