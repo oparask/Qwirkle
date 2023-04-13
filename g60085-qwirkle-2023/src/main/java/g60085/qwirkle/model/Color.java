@@ -1,7 +1,7 @@
 package g60085.qwirkle.model;
 
 /**
- * Color represent color of tile.
+ * Color represents the color of a tile.
  */
 public enum Color {
     BLUE, RED, GREEN, ORANGE, YELLOW, PURPLE;
