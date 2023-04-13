@@ -9,18 +9,16 @@ public enum Direction {
     LEFT(0, -1),
     RIGHT(0, 1);
 
-
-    private int deltaCol;
     private int deltaRow;
-
+    private int deltaCol;
 
     /**
-     * Initializes the values of the Direction enumeration with the values passed in parameters.
+     * Initializes attribute values with the enumeration values passed in parameters.
      *
-     * @param deltaRow tiles placement line index.
-     * @param deltaCol tiles placement column index.
+     * @param deltaRow row offset.
+     * @param deltaCol column offset.
      */
-    Direction(int deltaRow, int deltaCol) { 
+    Direction(int deltaRow, int deltaCol) {
         this.deltaRow = deltaRow;
         this.deltaCol = deltaCol;
     }
