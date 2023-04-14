@@ -1,15 +1,19 @@
 package g60085.qwirkle;
 
 import g60085.qwirkle.model.Game;
-import g60085.qwirkle.model.Player;
 import g60085.qwirkle.view.View;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
-
+/**
+ * App controls the application.
+ * It manages user inputs, will take care of relaying the actions to the model
+ * and will request the different displays at view.
+ */
 public class App {
-
+    /**
+     * Contains the flow of the game.
+     * 
+     * @param args
+     */
     public static void main(String[] args) {
         View.beginning();
 
