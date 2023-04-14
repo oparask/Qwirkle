@@ -25,7 +25,7 @@ public class Game {
         Player firstPlayer = this.players[this.currentPlayer];
         Tile[] tiles = new Tile[is.length];
         for (int i = 0; i < is.length; i++) {
-            tiles[i] = firstPlayer.getTiles().get(is[i]);
+            tiles[i] = firstPlayer.getHand().get(is[i]);
         }
         this.grid.firstAdd(d, tiles);
         //System.out.println(getCurrentPlayerHand());
@@ -37,7 +37,7 @@ public class Game {
 
     public void play(int row, int col, int index) {
         Player player = this.players[this.currentPlayer];
-        Tile tile = player.getTiles().get(index);
+        Tile tile = player.getHand().get(index);
         this.grid.add(row, col, tile);
         player.remove(tile);
         player.refill();
@@ -48,7 +48,7 @@ public class Game {
         Player player = this.players[this.currentPlayer];
         Tile[] tiles = new Tile[indexes.length];
         for (int i = 0; i < indexes.length; i++) {
-            tiles[i] = player.getTiles().get(indexes[i]);
+            tiles[i] = player.getHand().get(indexes[i]);
         }
         this.grid.add(row, col, d, tiles);
         player.remove(tiles);
@@ -64,7 +64,7 @@ public class Game {
         for (int i = 0; i < is.length; i = i + 3) {
             int row = is[i];
             int col = is[i + 1];
-            Tile tile = player.getTiles().get(is[i + 2]);
+            Tile tile = player.getHand().get(is[i + 2]);
             tiles[tilesIndex] = new TileAtPosition(row, col, tile);
             tilesToRemove[tilesIndex] = tile;
             tilesIndex++;
@@ -81,7 +81,7 @@ public class Game {
 
     public List<Tile> getCurrentPlayerHand() {
 
-        return this.players[this.currentPlayer].getTiles();
+        return this.players[this.currentPlayer].getHand();
     }
 
     public void pass() throws QwirkleException {
