@@ -1,24 +1,37 @@
 package g60085.qwirkle.view;
 
 import g60085.qwirkle.model.*;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * Contains only static methods to display different parts of the game in the console.
+ */
 public class View {
     public static final String ANSI_RESET = "\u001B[0m";
-    public static final String ANSI_BLACK = "\u001B[30m";
     public static final String ANSI_RED = "\u001B[31m";
     public static final String ANSI_GREEN = "\u001B[32m";
     public static final String ANSI_YELLOW = "\u001B[33m";
     public static final String ANSI_BLUE = "\u001B[34m";
     public static final String ANSI_PURPLE = "\u001B[35m";
     public static final String ANSI_CYAN = "\u001B[36m";
-    public static final String ANSI_WHITE = "\u001B[37m";
-    public static final String ANSI_ORANGE = "033 [48:5:208m%s033 [mn";
 
-    public static void colorShape(Tile tile) {
+    /**
+     * Displays game title at the beginning.
+     */
+    public static void beginning() {
+        System.out.println("Q W I R K L E");
+        System.out.println();
+    }
+
+    /**
+     * Gives values to the color and shape enumerations
+     * in order to be able to display the tiles.
+     *
+     * @param tile the tile to display.
+     */
+    public static void ViewColorShape(Tile tile) {
         String shape = "";
         switch (tile.shape()) {
             case SQUARE -> shape = "[] ";
@@ -38,6 +51,11 @@ public class View {
         }
     }
 
+    /**
+     * Shows only the central rectangular part of the grid game that contains tiles.
+     *
+     * @param grid the grid view to display.
+     */
     public static void display(GridView grid) {
         for (int i = 37; i < 51; i++) {
             System.out.print(i + " |");
@@ -45,7 +63,7 @@ public class View {
                 if (grid.get(i, j) == null) {
                     System.out.print("   ");
                 } else {
-                    colorShape(grid.get(i, j));
+                    ViewColorShape(grid.get(i, j));
                 }
             }
             System.out.println();
@@ -57,16 +75,24 @@ public class View {
         System.out.println();
     }
 
+    /**
+     * Displays the current player's name and hand.
+     *
+     * @param game the Qwirkle game.
+     */
     public static void displayPlayer(Game game) {
         System.out.println(game.getCurrentPlayerName() + "! It's your turn!");
         System.out.print("Your hand is : ");
         List<Tile> hand = game.getCurrentPlayerHand();
         for (Tile tile : hand) {
-            colorShape(tile);
+            ViewColorShape(tile);
         }
         System.out.println();
     }
 
+    /**
+     * Displays Qwirkle game commands.
+     */
     public static void displayHelp() {
         System.out.println("Q W I R K L E");
         System.out.println("Qwirkle command:");
@@ -80,15 +106,20 @@ public class View {
         System.out.println("    d : direction in l (left), r (right), u (up), d(down)");
     }
 
+    /**
+     * Displays an error message.
+     *
+     * @param message the error message.
+     */
     public static void displayError(String message) {
         System.out.println(message);
     }
 
-    public static void beginning() {
-        System.out.println("Q W I R K L E");
-        System.out.println();
-    }
-
+    /**
+     * Robust reading of an integer.
+     *
+     * @return an integer.
+     */
     public static int robustReadingInt() {
         Scanner keyboard = new Scanner(System.in);
         while (!keyboard.hasNextInt()) {
@@ -98,6 +129,12 @@ public class View {
         return keyboard.nextInt();
     }
 
+    /**
+     * Robust reading of the number of players.
+     * Checks that this number respects the rules of the game.
+     *
+     * @return a valid number of players.
+     */
     public static int robustReadingPlayers() {
         int number = robustReadingInt();
         while (number < 2 || number > 4) {
@@ -107,15 +144,25 @@ public class View {
         return number;
     }
 
+    /**
+     * Robust reading of a String.
+     *
+     * @return a String.
+     */
     public static String robustReadingString() {
         Scanner keyboard = new Scanner(System.in);
         while (!keyboard.hasNextLine()) {
-            System.out.println("Invalid name, try again! : ");
+            System.out.println("Invalid String, try again! : ");
             keyboard.next();
         }
         return keyboard.nextLine();
     }
 
+    /**
+     * Robust reading of a direction.
+     *
+     * @return a valid direction.
+     */
     public static String robustReadingDirection() {
         Scanner keyboard = new Scanner(System.in);
         String direction = robustReadingString();
@@ -130,7 +177,12 @@ public class View {
         return direction;
     }
 
-
+    /**
+     * Robust reading of an index.
+     * Checks that the index respects the rules of the game.
+     *
+     * @return a valid index.
+     */
     public static int robustReadingIndexes() {
         System.out.println("Enter the index of the tile that you want to play: ");
         int index = robustReadingInt();
@@ -141,12 +193,22 @@ public class View {
         return index;
     }
 
-
+    /**
+     * Asks for the number of players.
+     *
+     * @return the number of players.
+     */
     public static int nbPlayers() {
         System.out.print("Enter the number of players: ");
         return robustReadingPlayers();
     }
 
+    /**
+     * Asks for the names of the players.
+     *
+     * @param nbPlayers number of players.
+     * @return an array list containing the names of the players.
+     */
     public static List<Player> namePlayers(int nbPlayers) {
         List<Player> playersList = new ArrayList<>();
         for (int i = 0; i < nbPlayers; i++) {
@@ -157,24 +219,39 @@ public class View {
         }
         System.out.println();
         System.out.print("The players of this Qwirkle game are: ");
-        for (int i = 0; i < playersList.size(); i++) {
-            System.out.print(playersList.get(i).getName() + " ");
+        for (Player player : playersList) {
+            System.out.print(player.getName() + " ");
         }
         System.out.println();
         return playersList;
     }
 
+    /**
+     * Initializes the 6 tiles for each player at the start of the game.
+     *
+     * @param game the Qwirkle game.
+     */
     public static void initTiles(Game game) {
         for (int i = 0; i < game.getPlayers().length; i++) {
             game.getPlayers()[i].refill();
         }
     }
 
+    /**
+     * Asks which player starts the game.
+     *
+     * @param game the Qwirkle game.
+     */
     public static void startPlayer(Game game) {
         System.out.println("Who is starting ? ");
         game.setCurrentPlayer(robustReadingString());
     }
 
+    /**
+     * Requests the necessary information to add the first tiles of the game.
+     *
+     * @param game the Qwirkle game.
+     */
     public static void firstAdd(Game game) {
         System.out.println("Start!");
         displayPlayer(game);
@@ -182,6 +259,11 @@ public class View {
         display(game.getGrid());
     }
 
+    /**
+     * Gives one of the value of the direction enumeration to the requested direction.
+     *
+     * @return the direction.
+     */
     public static Direction direction() {
         System.out.print("Enter the direction of your tiles placement: ");
         String direction = robustReadingDirection();
@@ -194,6 +276,11 @@ public class View {
         };
     }
 
+    /**
+     * Requests the indexes of the tiles to add.
+     *
+     * @return an array of tiles indexes.
+     */
     public static int[] indexes() {
         Scanner keyboard = new Scanner(System.in);
         List<Integer> indexes = new ArrayList<>();
@@ -214,22 +301,28 @@ public class View {
         return indexesTab;
     }
 
-
+    /**
+     * Asks what type of addition of tiles we want to make.
+     *
+     * @param game the Qwirkle game.
+     */
     public static void add(Game game) {
         displayPlayer(game);
         System.out.print("Enter the type of play (o, l, m) : ");
         String play = robustReadingString();
-        switch (play){
-            case "o" : playOneTile(game);
-            break;
-            case "l" : playLine(game);
-            break;
-            case "m" : playMultiple(game);
-            break;
+        switch (play) {
+            case "o" -> playOneTile(game);
+            case "l" -> playLine(game);
+            case "m" -> playMultiple(game);
         }
         display(game.getGrid());
     }
 
+    /**
+     * Requests the necessary information to add one tile.
+     *
+     * @param game the Qwirkle game.
+     */
     public static void playOneTile(Game game){
         int index = robustReadingIndexes();
         System.out.print("Enter the row where you want to place the tile: ");
@@ -239,6 +332,11 @@ public class View {
         game.play(row, col, index);
     }
 
+    /**
+     * Requests the necessary information to add several aligned tiles.
+     *
+     * @param game the Qwirkle game.
+     */
     public static void playLine(Game game){
         System.out.print("Enter the row where you want to place the tile: ");
         int row = robustReadingInt();
@@ -247,6 +345,11 @@ public class View {
         game.play(row, col,direction(), indexes());
     }
 
+    /**
+     * Requests the necessary information to add the multiple tiles.
+     *
+     * @param game the Qwirkle game.
+     */
     public static void playMultiple(Game game){
         Scanner keyboard = new Scanner(System.in);
         System.out.print("How many tiles do you want to place ? ");
@@ -271,6 +374,9 @@ public class View {
         game.play(playMultipleTiles);
     }
 
+    /**
+     * Displays a game over message.
+     */
     public static void endGame(){
         System.out.println("Bye Bye! Hope you liked it!");
     }
