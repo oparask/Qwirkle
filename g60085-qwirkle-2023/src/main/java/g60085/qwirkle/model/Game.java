@@ -2,11 +2,20 @@ package g60085.qwirkle.model;
 
 import java.util.List;
 
+/**
+ * Game represents the facade of the model.
+ * It is with this class that the view interacts.
+ */
 public class Game {
-    private Grid grid;
-    private Player[] players;
+    private final Grid grid;
+    private final Player[] players;
     private int currentPlayer;
 
+    /**
+     * Initializes the array of players, the game grid and initialize the current player to 0.
+     *
+     * @param players a list of String representing the names of the players and players.
+     */
     public Game(List<Player> players) {
         this.grid = new Grid();
         this.players = new Player[players.size()];
@@ -17,10 +26,22 @@ public class Game {
     }
 
     //pas sure
+
+    /**
+     * Gives access to the attribute "Players".
+     *
+     * @return the attribute players.
+     */
     public Player[] getPlayers() {
         return this.players;
     }
 
+    /**
+     * Attempts to play the move for the first player.
+     *
+     * @param d  tile placement direction.
+     * @param is tiles to play.
+     */
     public void first(Direction d, int... is) {
         Player firstPlayer = this.players[this.currentPlayer];
         Tile[] tiles = new Tile[is.length];
@@ -35,6 +56,13 @@ public class Game {
         changeCurrentPlayer();
     }
 
+    /**
+     * Attempts to play one tile for the current player.
+     *
+     * @param row the row of the tile.
+     * @param col the column of the tile.
+     * @param index the index of the tile.
+     */
     public void play(int row, int col, int index) {
         Player player = this.players[this.currentPlayer];
         Tile tile = player.getHand().get(index);
@@ -44,6 +72,14 @@ public class Game {
         changeCurrentPlayer();
     }
 
+    /**
+     * Attempts to play several aligned tiles for the current player.
+     *
+     * @param row the row of the first tile.
+     * @param col the column of the first tile.
+     * @param d tile placement direction.
+     * @param indexes indexes of the tiles.
+     */
     public void play(int row, int col, Direction d, int... indexes) {
         Player player = this.players[this.currentPlayer];
         Tile[] tiles = new Tile[indexes.length];
@@ -56,6 +92,11 @@ public class Game {
         changeCurrentPlayer();
     }
 
+    /**
+     * Attempts to play any tiles for the current player.
+     *
+     * @param is tiles to play.
+     */
     public void play(int... is) {
         Player player = this.players[this.currentPlayer];
         TileAtPosition[] tiles = new TileAtPosition[is.length / 3];
@@ -75,29 +116,49 @@ public class Game {
         changeCurrentPlayer();
     }
 
+    /**
+     * @return the name or nickname of the current player.
+     */
     public String getCurrentPlayerName() {
         return this.players[this.currentPlayer].getName();
     }
 
+    /**
+     * @return the hand of the current player.
+     */
     public List<Tile> getCurrentPlayerHand() {
-
         return this.players[this.currentPlayer].getHand();
     }
 
+    /**
+     * Passes turn when unable to play.
+     *
+     * @throws QwirkleException if the move cannot be played.
+     */
     public void pass() throws QwirkleException {
         throw new QwirkleException("Coup impossible");
     }
 
+    /**
+     * Creates a grid view.
+     *
+     * @return the grid view.
+     */
     public GridView getGrid() {
-        GridView gridView = new GridView(this.grid);
-        return gridView;
+        return new GridView(this.grid);
     }
 
     //pas sure
+
+    /**
+     * Initializes the player who's starting the game.
+     *
+     * @param name the name of player.
+     */
     public void setCurrentPlayer(String name) {
         int i = 0;
         while (i < this.players.length && !this.players[i].getName().equals(name)) {
-            i= i+1;
+            i = i + 1;
         }
         if (i == this.players.length) {
             System.out.println("This name doesn't exist, try again! : ");
@@ -106,9 +167,12 @@ public class Game {
         }
     }
 
-    public void changeCurrentPlayer(){
+    /**
+     * Passes the turn to the next player.
+     */
+    public void changeCurrentPlayer() {
         this.currentPlayer++;
-        if(this.currentPlayer == this.players.length){
+        if (this.currentPlayer == this.players.length) {
             this.currentPlayer = 0;
         }
     }
