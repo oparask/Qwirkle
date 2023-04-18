@@ -51,7 +51,6 @@ public enum Direction {
             case DOWN -> UP;
             case LEFT -> RIGHT;
             case RIGHT -> LEFT;
-            default -> throw new IllegalArgumentException("Not a direction");
         };
     }
 }
