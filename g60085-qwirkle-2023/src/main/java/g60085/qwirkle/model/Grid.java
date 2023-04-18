@@ -69,6 +69,9 @@ public class Grid {
     public void add(int row, int col, Tile tile) throws QwirkleException {
         qwirkleExceptionRowCol(row, col);
         qwirkleExceptionLine(tile);
+        qwirkleExceptionReliedTile(row, col);
+
+
         this.tiles[row][col] = tile;
     }
 
@@ -83,6 +86,7 @@ public class Grid {
      */
     public void add(int row, int col, Direction d, Tile... line) throws QwirkleException {
         qwirkleExceptionRowCol(row, col);
+        qwirkleExceptionReliedTile(row, col);
         directionValidation(d);
         if (row + line.length > 91 || row - line.length < 0 || col + line.length > 91 || col - line.length < 0) {
             throw new QwirkleException("Above the limit");
@@ -122,17 +126,18 @@ public class Grid {
             verifyColorShape(lineTiles);
         }
 
-        for (int i = 0; i < line.length; i++) {
-            if (line[i].row() > 91 || line[i].row() < 0 || line[i].col() > 91 || line[i].col() < 0) {
+        for (TileAtPosition tileAtPosition : line) {
+            qwirkleExceptionReliedTile(tileAtPosition.row(), tileAtPosition.col());
+            if (tileAtPosition.row() > 91 || tileAtPosition.row() < 0 || tileAtPosition.col() > 91 || tileAtPosition.col() < 0) {
                 throw new QwirkleException("Outside the grid");
             }
-            if (line[i].row() == 45 && line[i].col() == 45) {
+            if (tileAtPosition.row() == 45 && tileAtPosition.col() == 45) {
                 throw new QwirkleException("at this position you must call the firtAdd method");
             }
-            if (this.tiles[line[i].row()][line[i].col()] != null) {
+            if (this.tiles[tileAtPosition.row()][tileAtPosition.col()] != null) {
                 throw new QwirkleException("there is already a tile at this position");
             }
-            this.tiles[line[i].row()][line[i].col()] = line[i].tile();
+            this.tiles[tileAtPosition.row()][tileAtPosition.col()] = tileAtPosition.tile();
         }
     }
 
@@ -249,10 +254,51 @@ public class Grid {
     }
 
     /**
+     * Checks if the tiles passed in parameters are joined to existing tiles.
+     *
+     * @param row the row of the tile.
+     * @param col the column of the tile.
+     */
+    private void qwirkleExceptionReliedTile(int row, int col){
+        if((this.tiles[row][col+Direction.RIGHT.getDeltaCol()]==null)){
+            if ((this.tiles[row][col+Direction.LEFT.getDeltaCol()]==null)){
+                if ((this.tiles[row+Direction.UP.getDeltaRow()][col]==null)){
+                    if ((this.tiles[row+Direction.DOWN.getDeltaRow()][col]==null)){
+                        throw new QwirkleException("The tile is not relied to another tile");
+                    }
+                }
+            }
+        }
+    }
+
+    private void qwirkleExceptionCommonCharacteristics(int row, int col){
+        Tile[] checkTile = new Tile[2];
+        checkTile[0] = this.tiles[row][col];
+        if((this.tiles[row][col+Direction.RIGHT.getDeltaCol()]==null)) {
+            if ((this.tiles[row][col+Direction.LEFT.getDeltaCol()]==null)){
+        }else{
+                checkTile[1] = this.tiles[row][col+Direction.RIGHT.getDeltaCol();
+                verifyColorShape(checkTile);
+        }
+            if ((this.tiles[row][col+Direction.LEFT.getDeltaCol()]==null)){
+                if ((this.tiles[row+Direction.UP.getDeltaRow()][col]==null)){
+                    if ((this.tiles[row+Direction.DOWN.getDeltaRow()][col]==null)){
+                        throw new QwirkleException("The tile is not relied to another tile");
+                    }
+                }
+            }
+        }
+
+    }
+
+
+    /**
      * Initialize the "isEmpty" attribute to false in order to show that the game grid is no longer empty.
      */
     public void isEmpty() {
         this.isEmpty = false;
     }
+
+
 
 }
