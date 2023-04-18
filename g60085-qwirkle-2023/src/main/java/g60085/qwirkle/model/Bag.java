@@ -46,7 +46,10 @@ public class Bag {
      * @return an array with the requested tiles, null if the bag is empty or
      * an array of remaining tiles if there are not enough left.
      */
-    public Tile[] getRandomTiles(int n) {
+    public Tile[] getRandomTiles(int n) throws QwirkleException {
+        if (n == 0 || n > 6) {
+            throw new QwirkleException("Invalid number");
+        }
         if (this.tiles == null) {
             return null;
         }
