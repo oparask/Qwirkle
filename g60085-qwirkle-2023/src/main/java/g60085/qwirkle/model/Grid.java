@@ -1,5 +1,9 @@
 package g60085.qwirkle.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
+
 /**
  * Grid represents the game grid.
  */
@@ -67,11 +71,91 @@ public class Grid {
      * @throws QwirkleException if it doesn't respect the rules of the Qwirkle game.
      */
     public void add(int row, int col, Tile tile) throws QwirkleException {
-        qwirkleExceptionRowCol(row, col);
-        qwirkleExceptionLine(tile);
-        qwirkleExceptionReliedTile(row, col);
+        //verifier que la grille ne soit pas vide car si elle est il faut utiliser la methode firstAdd
+        if (this.isEmpty) {
+            throw new QwirkleException("The grid game is empty! You must call the firstAdd method!");
+        }
+        //Verifier que la position est valide: row et col doivent se trouver dans la grille à savoir 91*91
+        if (row > 90 || row < 0 || col > 90 || col < 0) {
+            throw new QwirkleException("Position outside the grid!");
+        }
+        //verifier qu'à cette position de la grille n'existe pas deja une tuile
+        if (this.tiles[row][col] != null) {
+            throw new QwirkleException("There is already a tile at this position!");
+        }
+        //verifier que la tuile qu'on veut ajouter soit adjacente à une tuile existante sur la grille
+        if ((this.tiles[row][col + Direction.RIGHT.getDeltaCol()] == null)) {
+            if ((this.tiles[row][col + Direction.LEFT.getDeltaCol()] == null)) {
+                if ((this.tiles[row + Direction.UP.getDeltaRow()][col] == null)) {
+                    if ((this.tiles[row + Direction.DOWN.getDeltaRow()][col] == null)) {
+                        throw new QwirkleException("The tile is not connected to another tile");
+                    }
+                }
+            }
+        }
+        //verifier que la line de tuile horizontale et verticale soit composée de maximum 6 tuiles
+        List<Tile> horizontalTiles = new ArrayList<>();
 
+        horizontalTiles.add(tile);
 
+        int colLeft = col + Direction.LEFT.getDeltaCol();
+
+        while (this.tiles[row][colLeft] != null) {
+            horizontalTiles.add(this.tiles[row][colLeft]);
+            colLeft = colLeft + Direction.LEFT.getDeltaCol();
+        }
+
+        int colRight = col + Direction.RIGHT.getDeltaCol();
+        while (this.tiles[row][colRight] != null) {
+            horizontalTiles.add(this.tiles[row][colRight]);
+            colRight = colRight + Direction.RIGHT.getDeltaCol();
+        }
+
+        if (horizontalTiles.size() > 6) {
+            throw new QwirkleException("The tile line is already complete!");
+        }
+
+        List<Tile> verticalTiles = new ArrayList<>();
+
+        verticalTiles.add(tile);
+
+        int rowUp = row + Direction.UP.getDeltaRow();
+
+        while (this.tiles[rowUp][col] != null) {
+            verticalTiles.add(this.tiles[rowUp][col]);
+            rowUp = rowUp + Direction.UP.getDeltaRow();
+        }
+
+        int rowDown = row + Direction.DOWN.getDeltaRow();
+
+        while (this.tiles[rowDown][col] != null) {
+            verticalTiles.add(this.tiles[rowDown][col]);
+            rowDown = rowDown + Direction.DOWN.getDeltaRow();
+        }
+        if (verticalTiles.size() > 6) {
+            throw new QwirkleException("The tile line is already complete!");
+        }
+
+        //vérifier que les tuiles horizontales et verticales partagent la même caractéristique
+        //pour la line horizontale
+        if (horizontalTiles.size() > 1) {
+            Tile[] hTiles = new Tile[horizontalTiles.size()];
+            for (int i = 0; i < hTiles.length; i++) {
+                hTiles[i] = horizontalTiles.get(i);
+            }
+            verifyColorShape(hTiles);
+        }
+
+        //pour la ligne verticale
+        if (verticalTiles.size() > 1) {
+            Tile[] vTiles = new Tile[verticalTiles.size()];
+            for (int i = 0; i < vTiles.length; i++) {
+                vTiles[i] = verticalTiles.get(i);
+            }
+            verifyColorShape(vTiles);
+        }
+
+        //si les regles du jeu sont respectées
         this.tiles[row][col] = tile;
     }
 
@@ -114,7 +198,7 @@ public class Grid {
      * @throws QwirkleException if it doesn't respect the rules of the Qwirkle game.
      */
     public void add(TileAtPosition... line) throws QwirkleException {
-        if (line == null || line.length > 6 ) {
+        if (line == null || line.length > 6) {
             throw new QwirkleException("Invalid number of tiles");
         }
 
@@ -223,8 +307,8 @@ public class Grid {
      * @throws QwirkleException if it doesn't respect the rules of the Qwirkle game.
      */
     private void qwirkleExceptionRowCol(int row, int col) throws QwirkleException {
-        if (row > 91 || row < 0 || col > 91 || col < 0) {
-            throw new QwirkleException("Outside the grid");
+        if (row > 90 || row < 0 || col > 90 || col < 0) {
+            throw new QwirkleException("Position outside the grid!");
         }
         if (this.isEmpty) {
             throw new QwirkleException("The grid game is empty! You must call the firtAdd method");
@@ -259,11 +343,11 @@ public class Grid {
      * @param row the row of the tile.
      * @param col the column of the tile.
      */
-    private void qwirkleExceptionReliedTile(int row, int col){
-        if((this.tiles[row][col+Direction.RIGHT.getDeltaCol()]==null)){
-            if ((this.tiles[row][col+Direction.LEFT.getDeltaCol()]==null)){
-                if ((this.tiles[row+Direction.UP.getDeltaRow()][col]==null)){
-                    if ((this.tiles[row+Direction.DOWN.getDeltaRow()][col]==null)){
+    private void qwirkleExceptionReliedTile(int row, int col) {
+        if ((this.tiles[row][col + Direction.RIGHT.getDeltaCol()] == null)) {
+            if ((this.tiles[row][col + Direction.LEFT.getDeltaCol()] == null)) {
+                if ((this.tiles[row + Direction.UP.getDeltaRow()][col] == null)) {
+                    if ((this.tiles[row + Direction.DOWN.getDeltaRow()][col] == null)) {
                         throw new QwirkleException("The tile is not relied to another tile");
                     }
                 }
@@ -271,8 +355,43 @@ public class Grid {
         }
     }
 
-    private void qwirkleExceptionCommonCharacteristics(int row, int col){
-        Tile[] checkTile = new Tile[2];
+    private void qwirkleExceptionCommonCharacteristics(int row, int col, Tile tileToAdd) {
+        Tile[] tiles = new Tile[6];
+       /* for(int i = 0; i< tileToAdd.length; i++){
+            tiles[i] = tileToAdd[i];
+        }*/
+        tiles[0] = tileToAdd;
+        int tilesNumber = 1;
+
+        int rowLeft = row + Direction.LEFT.getDeltaRow();
+        int colLeft = col + Direction.LEFT.getDeltaCol();
+        while (tilesNumber < 6 && this.get(rowLeft, colLeft) != null) {
+            tiles[tilesNumber] = this.get(rowLeft, colLeft);
+            tilesNumber++;
+            rowLeft = rowLeft + Direction.LEFT.getDeltaRow();
+            colLeft = colLeft + Direction.LEFT.getDeltaCol();
+        }
+        int rowRight = row + Direction.RIGHT.getDeltaRow();
+        int colRight = col + Direction.RIGHT.getDeltaCol();
+        while (tilesNumber < (6 - tilesNumber) && this.get(rowRight, colRight) != null) {
+            tiles[tilesNumber] = this.get(rowRight, colRight);
+            tilesNumber++;
+            rowRight = rowRight + Direction.RIGHT.getDeltaRow();
+            colRight = colRight + Direction.RIGHT.getDeltaCol();
+        }
+        verifyColorShape(tiles);
+
+
+
+
+
+
+
+
+
+
+
+       /* Tile[] checkTile = new Tile[2];
         checkTile[0] = this.tiles[row][col];
         if((this.tiles[row][col+Direction.RIGHT.getDeltaCol()]==null)) {
             if ((this.tiles[row][col+Direction.LEFT.getDeltaCol()]==null)){
@@ -287,7 +406,7 @@ public class Grid {
                     }
                 }
             }
-        }
+        }*/
 
     }
 
@@ -298,7 +417,6 @@ public class Grid {
     public void isEmpty() {
         this.isEmpty = false;
     }
-
 
 
 }
