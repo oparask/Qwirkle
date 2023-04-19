@@ -94,13 +94,95 @@ class GridTest {
         assertThrows(QwirkleException.class, () -> grid.add(45, 45, redcross));
     }
 
+
+    //les tests de la premiere methode add
     @Test
     void add_one_tile() {
         grid.firstAdd(RIGHT, new Tile(BLUE, CROSS));
-        Tile bluecross = new Tile(BLUE, CROSS);
-        grid.add(3, 3, bluecross);
-        assertEquals(bluecross, grid.get(3, 3));
+        Tile bluesquare = new Tile(BLUE, SQUARE);
+        grid.add(45, 46, bluesquare);
+        assertEquals(bluesquare, grid.get(45, 46));
     }
+
+    @Test
+    void add_one_tile_grid_empty() {
+        Tile bluecross = new Tile(BLUE, CROSS);
+        assertThrows(QwirkleException.class, () -> grid.add(45, 45, bluecross));
+    }
+
+    @Test
+    void add_tiles_outside_virtual_grid() {
+        grid.firstAdd(RIGHT, new Tile(BLUE, CROSS));
+        var tile = new Tile(BLUE, SQUARE);
+        assertThrows(QwirkleException.class, () -> grid.add(-1, 30, tile));
+        assertThrows(QwirkleException.class, () -> grid.add(91, 30, tile));
+        assertThrows(QwirkleException.class, () -> grid.add(30, -1, tile));
+        assertThrows(QwirkleException.class, () -> grid.add(30,91, tile));
+    }
+    @Test
+    void add_a_tile_to_a_position_already_taken() {
+        grid.firstAdd(RIGHT, new Tile(BLUE, CROSS));
+        Tile bluecross = new Tile(BLUE, STAR);
+        Tile bluesquare = new Tile(BLUE, SQUARE);
+        grid.add(45, 46, bluecross);
+        assertThrows(QwirkleException.class, () -> grid.add(45, 46, bluesquare));
+    }
+    @Test
+    void add_a_tile_not_connected() {
+        grid.firstAdd(RIGHT, new Tile(BLUE, CROSS));
+        Tile bluecross = new Tile(BLUE, CROSS);
+        assertThrows(QwirkleException.class, () -> grid.add(3, 3, bluecross));
+    }
+
+    @Test
+    void add_a_tile_notSameColorOrShape() {
+        grid.firstAdd(RIGHT, new Tile(BLUE, CROSS));
+        Tile redstar = new Tile(RED, STAR);
+        assertThrows(QwirkleException.class, () -> grid.add(45, 44, redstar));
+    }
+    @Test
+    void add_a_tile_notSameColorOrShape_Horizontal() {
+        grid.firstAdd(RIGHT, new Tile(RED, CROSS));
+        grid.add(45, 44,new Tile(RED, ROUND) );
+        grid.add(45, 43,new Tile(RED, DIAMOND) );
+        grid.add(45, 42,new Tile(RED, PLUS) );
+        grid.add(45, 46,new Tile(RED, SQUARE) );
+        assertThrows(QwirkleException.class, () -> grid.add(45, 41, new Tile(YELLOW, STAR)));
+    }
+    @Test
+    void add_a_tile_notSameColorOrShape_Vertical() {
+        grid.firstAdd(RIGHT, new Tile(RED, CROSS));
+        grid.add(45, 44,new Tile(RED, ROUND) );
+        grid.add(45, 43,new Tile(RED, DIAMOND) );
+        grid.add(45, 42,new Tile(RED, PLUS) );
+        grid.add(45, 46,new Tile(RED, SQUARE) );
+        assertThrows(QwirkleException.class, () -> grid.add(45, 41, new Tile(YELLOW, STAR)));
+    }
+
+    @Test
+    void add_a_tile_full_line_vertical() {
+        grid.firstAdd(RIGHT, new Tile(RED, CROSS));
+        grid.add(44, 45,new Tile(RED, ROUND) );
+        grid.add(43, 45,new Tile(RED, DIAMOND) );
+        grid.add(42, 45,new Tile(RED, PLUS) );
+        grid.add(41, 45,new Tile(RED, SQUARE) );
+        grid.add(46, 45,new Tile(RED, STAR) );
+        assertThrows(QwirkleException.class, () -> grid.add(47, 45, new Tile(RED, STAR)));
+    }
+    @Test
+    void add_a_tile_full_line_horizontal() {
+        grid.firstAdd(RIGHT, new Tile(RED, CROSS));
+        grid.add(45, 44,new Tile(RED, ROUND) );
+        grid.add(45, 43,new Tile(RED, DIAMOND) );
+        grid.add(45, 42,new Tile(RED, PLUS) );
+        grid.add(45, 46,new Tile(RED, SQUARE) );
+        grid.add(45, 47,new Tile(RED, STAR) );
+        assertThrows(QwirkleException.class, () -> grid.add(45, 48, new Tile(RED, STAR)));
+    }
+
+    //2eme methode add
+
+
     @Test
     void add_several_tiles() {
         grid.firstAdd(RIGHT, new Tile(BLUE, CROSS));
@@ -113,21 +195,7 @@ class GridTest {
         assertEquals(t3, grid.get(1, 3));
     }
 
-    @Test
-    void add_a_tile_to_a_position_already_taken() {
-        grid.firstAdd(RIGHT, new Tile(BLUE, CROSS));
-        Tile bluecross = new Tile(BLUE, CROSS);
-        Tile redsquare = new Tile(RED, SQUARE);
-        grid.add(3, 3, bluecross);
-        assertThrows(QwirkleException.class, () -> grid.add(3, 3, redsquare));
-    }
-    @Test
-    void add_tiles_outside_virtual_grid() {
-        var tile = new Tile(BLUE, CROSS);
-        var tile2 = new Tile(BLUE, SQUARE);
-        assertThrows(QwirkleException.class, () -> grid.add(250, 250, tile));
-        assertThrows(QwirkleException.class, () -> grid.add(250, 250,RIGHT, tile, tile2));
-    }
+
 
 
     //add several tiles
@@ -262,6 +330,13 @@ class GridTest {
         });
     }
 
-    
+
+    //les tests de la premiere methode add
+
+
+
+
+
+
 
 }
