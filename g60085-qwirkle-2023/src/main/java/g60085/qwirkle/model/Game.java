@@ -43,53 +43,63 @@ public class Game {
      * @param is tiles to play.
      */
     public void first(Direction d, int... is) {
-        Player firstPlayer = this.players[this.currentPlayer];
-        Tile[] tiles = new Tile[is.length];
-        for (int i = 0; i < is.length; i++) {
-            tiles[i] = firstPlayer.getHand().get(is[i]);
+        try {
+            Player firstPlayer = this.players[this.currentPlayer];
+            Tile[] tiles = new Tile[is.length];
+            for (int i = 0; i < is.length; i++) {
+                tiles[i] = firstPlayer.getHand().get(is[i]);
+            }
+            this.grid.firstAdd(d, tiles);
+            firstPlayer.remove(tiles);
+            firstPlayer.refill();
+            changeCurrentPlayer();
+        } catch (QwirkleException e) {
+            throw new QwirkleException(e.getMessage());
         }
-        this.grid.firstAdd(d, tiles);
-        //System.out.println(getCurrentPlayerHand());
-        firstPlayer.remove(tiles);
-        firstPlayer.refill();
-        //System.out.println(getCurrentPlayerHand());
-        changeCurrentPlayer();
     }
 
     /**
      * Attempts to play one tile for the current player.
      *
-     * @param row the row of the tile.
-     * @param col the column of the tile.
+     * @param row   the row of the tile.
+     * @param col   the column of the tile.
      * @param index the index of the tile.
      */
     public void play(int row, int col, int index) {
-        Player player = this.players[this.currentPlayer];
-        Tile tile = player.getHand().get(index);
-        this.grid.add(row, col, tile);
-        player.remove(tile);
-        player.refill();
-        changeCurrentPlayer();
+        try {
+            Player player = this.players[this.currentPlayer];
+            Tile tile = player.getHand().get(index);
+            this.grid.add(row, col, tile);
+            player.remove(tile);
+            player.refill();
+            changeCurrentPlayer();
+        } catch (QwirkleException e) {
+            throw new QwirkleException(e.getMessage());
+        }
     }
 
     /**
      * Attempts to play several aligned tiles for the current player.
      *
-     * @param row the row of the first tile.
-     * @param col the column of the first tile.
-     * @param d tile placement direction.
+     * @param row     the row of the first tile.
+     * @param col     the column of the first tile.
+     * @param d       tile placement direction.
      * @param indexes indexes of the tiles.
      */
     public void play(int row, int col, Direction d, int... indexes) {
-        Player player = this.players[this.currentPlayer];
-        Tile[] tiles = new Tile[indexes.length];
-        for (int i = 0; i < indexes.length; i++) {
-            tiles[i] = player.getHand().get(indexes[i]);
+        try {
+            Player player = this.players[this.currentPlayer];
+            Tile[] tiles = new Tile[indexes.length];
+            for (int i = 0; i < indexes.length; i++) {
+                tiles[i] = player.getHand().get(indexes[i]);
+            }
+            this.grid.add(row, col, d, tiles);
+            player.remove(tiles);
+            player.refill();
+            changeCurrentPlayer();
+        } catch (QwirkleException e) {
+            throw new QwirkleException(e.getMessage());
         }
-        this.grid.add(row, col, d, tiles);
-        player.remove(tiles);
-        player.refill();
-        changeCurrentPlayer();
     }
 
     /**
@@ -98,22 +108,26 @@ public class Game {
      * @param is tiles to play.
      */
     public void play(int... is) {
-        Player player = this.players[this.currentPlayer];
-        TileAtPosition[] tiles = new TileAtPosition[is.length / 3];
-        Tile[] tilesToRemove = new Tile[is.length / 3];
-        int tilesIndex = 0;
-        for (int i = 0; i < is.length; i = i + 3) {
-            int row = is[i];
-            int col = is[i + 1];
-            Tile tile = player.getHand().get(is[i + 2]);
-            tiles[tilesIndex] = new TileAtPosition(row, col, tile);
-            tilesToRemove[tilesIndex] = tile;
-            tilesIndex++;
+        try {
+            Player player = this.players[this.currentPlayer];
+            TileAtPosition[] tiles = new TileAtPosition[is.length / 3];
+            Tile[] tilesToRemove = new Tile[is.length / 3];
+            int tilesIndex = 0;
+            for (int i = 0; i < is.length; i = i + 3) {
+                int row = is[i];
+                int col = is[i + 1];
+                Tile tile = player.getHand().get(is[i + 2]);
+                tiles[tilesIndex] = new TileAtPosition(row, col, tile);
+                tilesToRemove[tilesIndex] = tile;
+                tilesIndex++;
+            }
+            this.grid.add(tiles);
+            player.remove(tilesToRemove);
+            player.refill();
+            changeCurrentPlayer();
+        } catch (QwirkleException e) {
+            throw new QwirkleException(e.getMessage());
         }
-        this.grid.add(tiles);
-        player.remove(tilesToRemove);
-        player.refill();
-        changeCurrentPlayer();
     }
 
     /**
@@ -132,11 +146,9 @@ public class Game {
 
     /**
      * Passes turn when unable to play.
-     *
-     * @throws QwirkleException if the move cannot be played.
      */
-    public void pass() throws QwirkleException {
-        throw new QwirkleException("Coup impossible");
+    public void pass() {
+        changeCurrentPlayer();
     }
 
     /**
@@ -161,7 +173,7 @@ public class Game {
             i = i + 1;
         }
         if (i == this.players.length) {
-            System.out.println("This name doesn't exist, try again! : ");
+            System.out.println("This name doesn't exist! : ");
         } else {
             this.currentPlayer = i;
         }
@@ -170,7 +182,7 @@ public class Game {
     /**
      * Passes the turn to the next player.
      */
-    public void changeCurrentPlayer() {
+    private void changeCurrentPlayer() {
         this.currentPlayer++;
         if (this.currentPlayer == this.players.length) {
             this.currentPlayer = 0;
