@@ -69,7 +69,6 @@ public class Bag {
     }
 
     //For tests
-
     /**
      * Gives access to the size of the tiles attribute.
      *
@@ -77,17 +76,5 @@ public class Bag {
      */
     public int size() {
         return this.tiles.size();
-    }
-
-    //not requested in the project
-
-    /**
-     * Allows to see the tiles of the bag as text.
-     *
-     * @return a string representation of the object Bag.
-     */
-    @Override
-    public String toString() {
-        return "tiles = " + this.tiles;
     }
 }
