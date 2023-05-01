@@ -482,4 +482,137 @@ class GridTest {
         var t2 = new TileAtPosition(45, 43, new Tile(RED, ROUND));
         grid.add(t1, t2);
     }
+
+    //Score tests
+    @Test
+    void test_score_FirstAdd() {
+        var t1 = new Tile(RED, ROUND);
+        var t2 = new Tile(RED, DIAMOND);
+        var t3 = new Tile(RED, PLUS);
+        var t4 = new Tile(RED, STAR);
+        var t5 = new Tile(RED, SQUARE);
+        var t6 = new Tile(RED, CROSS);
+        assertEquals(12,  grid.firstAdd( DOWN, t1, t2, t3, t4, t5, t6));
+    }
+    @Test
+    void score_sonia_A() {
+        var t1 = new Tile(RED, ROUND);
+        var t2 = new Tile(RED, DIAMOND);
+        var t3 = new Tile(RED, PLUS);
+        assertEquals(3, grid.firstAdd(UP, t1, t2, t3));
+    }
+
+    @Test
+    void score_Cédric_B() {
+        score_sonia_A();
+        var t1 = new Tile(RED, SQUARE);
+        var t2 = new Tile(BLUE, SQUARE);
+        var t3 = new Tile(PURPLE, SQUARE);
+        assertEquals(7,  grid.add(46, 45, RIGHT, t1, t2, t3));
+        var t4 = new TileAtPosition(46, 45, t1);
+        var t5 = new TileAtPosition(46, 46, t2);
+        var t6 = new TileAtPosition(46, 47, t3);
+        //assertEquals(7, grid.add(t4, t5, t6));
+    }
+
+    @Test
+    void score_Elvire_C() {
+        score_Cédric_B();
+        var t1 = new Tile(BLUE, ROUND);
+        assertEquals(4,  grid.add(45, 46, t1));
+        var t2 = new TileAtPosition(45, 46, t1);
+        //assertEquals(4,  grid.add(t2));
+    }
+
+    @Test
+    void score_Vincent_D() {
+        score_Elvire_C();
+        var t1 = new Tile(GREEN, PLUS);
+        var t2 = new Tile(GREEN, DIAMOND);
+        assertEquals(6, grid.add(43, 44, DOWN, t1, t2));
+        var t3 = new TileAtPosition(43, 44, t1);
+        var t4 = new TileAtPosition(44, 44, t2);
+        //assertEquals(6, grid.add(t3, t4));
+    }
+
+    @Test
+    void score_sonia_E() {
+        score_Vincent_D();
+        var t1 = new TileAtPosition(42, 44,new Tile(GREEN, STAR));
+        var t2 = new TileAtPosition(45, 44, new Tile(GREEN, ROUND));
+        assertEquals(7, grid.add(t2, t1));
+    }
+    @Test
+    void score_Cédric_F() {
+        score_sonia_E();
+        var t1 = new Tile(RED, SQUARE);
+        var t2 = new Tile(ORANGE, SQUARE);
+        assertEquals(6,  grid.add(47, 48, UP, t1, t2));
+        var t3 = new TileAtPosition(47, 48, t1);
+        var t4 = new TileAtPosition(46, 48, t2);
+        //assertEquals(6, grid.add(t3, t4));
+    }
+    @Test
+    void score_Elvire_G() {
+        score_Cédric_F();
+        var t1 = new Tile(YELLOW, STAR);
+        var t2 = new Tile(ORANGE, STAR);
+        assertEquals(3,  grid.add(42, 43, LEFT, t1, t2));
+        var t3 = new TileAtPosition(42, 43, t1);
+        var t4 = new TileAtPosition(42, 42, t2);
+        //assertEquals(3, grid.add(t3, t4));
+    }
+
+    @Test
+    void score_Vincent_H() {
+        score_Elvire_G();
+        var t1 = new Tile(ORANGE, CROSS);
+        var t2 = new Tile(ORANGE, DIAMOND);
+        assertEquals(3,  grid.add(43, 42, DOWN, t1, t2));
+        var t3 = new TileAtPosition(43, 42, t1);
+        var t4 = new TileAtPosition(44, 42, t2);
+        //assertEquals(3, grid.add(t3, t4));
+    }
+
+    @Test
+    void score_Sonia_I() {
+        score_Vincent_H();
+        var t1 = new Tile(YELLOW, DIAMOND);
+        var t2 = new Tile(YELLOW, ROUND);
+        assertEquals(10,  grid.add(44, 43, DOWN, t1, t2));
+        var t3 = new TileAtPosition(44, 43, t1);
+        var t4 = new TileAtPosition(45, 43, t2);
+        //assertEquals(10, grid.add(t3, t4));
+    }
+    @Test
+    void score_Cédric_J() {
+        score_Sonia_I();
+        var t1 = new Tile(RED, STAR);
+        assertEquals(9,  grid.add(42, 45, t1));
+        var t3 = new TileAtPosition(42, 45, t1);
+        //assertEquals(9, grid.add(t3));
+    }
+
+    @Test
+    void score_Elvire_K() {
+        score_Cédric_J();
+        var t1 = new Tile(ORANGE, CROSS);
+        var t2 = new Tile(RED, CROSS);
+        var t3 = new Tile(BLUE, CROSS);
+        assertEquals(18,  grid.add(47, 44, RIGHT,t1, t2, t3));
+        var t4 = new TileAtPosition(47, 44, t1);
+        var t5 = new TileAtPosition(47, 45, t2);
+        var t6 = new TileAtPosition(47, 46, t3);
+        //assertEquals(18, grid.add(t4, t5, t6));
+    }
+    @Test
+    void score_Vincent_L() {
+        score_Elvire_K();
+        var t1 = new Tile(YELLOW, SQUARE);
+        var t2 = new Tile(BLUE, SQUARE);
+        assertEquals(9,  grid.add(46, 49, DOWN,t1, t2));
+        var t3 = new TileAtPosition(46, 49, t1);
+        var t4 = new TileAtPosition(47, 49, t2);
+        //assertEquals(9, grid.add(t3, t4));
+    }
 }

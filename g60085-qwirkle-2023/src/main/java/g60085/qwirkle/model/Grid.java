@@ -65,7 +65,7 @@ public class Grid {
             this.tiles[row][col] = line[i];
         }
         isEmpty(); // Set the "empty" attribute to false;
-        return line.length;
+        return (line.length) == 6 ? line.length + 6 : line.length;
     }
 
     /**
@@ -315,33 +315,31 @@ public class Grid {
             //remove from the score the number of tiles that are repeated on the same line
             Direction d;
             if (sameLine.equals("horizontalLine")) {
-                Collections.sort(tilesCol);
-                for (int i = 0; i < tilesCol.size() - 1; i++) {//for each tile's col
-                    int j;
-                    for (j = tilesCol.get(i) + 1; j < tilesCol.get(i + 1); j++) {
-                        if (this.tiles[line[0].row()][j] == null) {
-                            break;
-                        }
-                    }
-                    if (j == tilesCol.get(i + 1)) {
-                        score = score - (tilesCol.get(i + 1) - tilesCol.get(i) + 1);
-                    }
-                }
+                d = Direction.RIGHT;
             } else {
-                Collections.sort(tilesRow);
-                for (int i = 0; i < tilesRow.size() - 1; i++) {//for each tile's row
-                    int j;
-                    for (j = tilesRow.get(i) + 1; j < tilesRow.get(i + 1); j++) {
-                        if (this.tiles[j][line[0].col()] == null) {
-                            break;
-                        }
-                    }
-                    if (j == tilesRow.get(i + 1)) {
-                        score = score - (tilesRow.get(i + 1) - tilesRow.get(i) + 1);
-
+                d = Direction.UP;
+            }
+            List<TileAtPosition> lineList = new ArrayList<>();
+            Collections.addAll(lineList, line);
+            for (int i = 0; i < lineList.size(); i++) {//for each tileAtPosition
+                int row = lineList.get(i).row();
+                int col = lineList.get(i).col();
+                Tile tile = lineList.get(i).tile();
+                List<Tile> directionTiles = directionTiles(row, col, d, tile);
+                int nbTiles = 0;
+                //verify if there is several tiles that we want to add in the list
+                for (int j = 0; j < lineList.size(); j++) {
+                    if (directionTiles.contains(lineList.get(j).tile())) {
+                        nbTiles++;
+                        lineList.remove(j);
+                        j--;
                     }
                 }
+                //We had to remove at least one tile from the list;
+                i--;
+                score = score - (nbTiles - 1) * directionTiles.size();
             }
+
             return score;
         }
     }
@@ -377,10 +375,7 @@ public class Grid {
     }
 
     /**
-     * Tests for add method when the direction is Left or Right:
-     * Checks that the tiles to add are adjacent to an existing tile on the grid;
-     * Checks that the horizontal and vertical tile line is composed of a maximum of 6 tiles;
-     * Checks that the horizontal and vertical tiles share the same characteristic.
+     * Returns a list of all the tiles found on the line of the tile passed as parameter;
      *
      * @param row  the row of the first tile to add.
      * @param col  the column of the first tile to add.
@@ -388,11 +383,7 @@ public class Grid {
      * @param line the tiles to add.
      * @throws QwirkleException if it doesn't respect the rules of the Qwirkle game.
      */
-    private int checkRulesAdd(int row, int col, Direction d, Tile... line) throws QwirkleException { 
-        //Checks that the tiles to add are adjacent to an existing tile on the grid;
-        adjacentTiles(row, col, d, line);
-        int score = 0;
-        //Checks that the horizontal and vertical tile line is composed of a maximum of 6 tiles;
+    private List<Tile> directionTiles(int row, int col, Direction d, Tile... line) {
         List<Tile> directionTiles = new ArrayList<>();
         Collections.addAll(directionTiles, line); //add line(tiles to add) on the list
         int colDirection = col + line.length * d.getDeltaCol();
@@ -409,21 +400,58 @@ public class Grid {
             oppCol = oppCol + d.opposite().getDeltaCol();
             oppRow = oppRow + d.opposite().getDeltaRow();
         }
-        if (directionTiles.size() > 6) {
+        return directionTiles;
+    }
+
+    /**
+     * Checks that the horizontal and vertical tile line is composed of a maximum of 6 tiles;
+     * Checks that the horizontal and vertical tiles share the same characteristic;
+     *
+     * @param tilesList list of tiles to verify.
+     */
+    private void checkLineColorShape(List<Tile> tilesList) {
+        //Checks that the horizontal and vertical tile line is composed of a maximum of 6 tiles;
+        if (tilesList.size() > 6) {
             throw new QwirkleException("The tile line is already complete!");
         } else {
+            Tile[] tilesTab = new Tile[tilesList.size()];
+            for (int j = 0; j < tilesTab.length; j++) {
+                tilesTab[j] = tilesList.get(j);
+            }
             //Checks that the horizontal and vertical tiles share the same characteristic.
-            //for the horizontal line
-            Tile[] dTiles = new Tile[directionTiles.size()];
-            for (int i = 0; i < dTiles.length; i++) {
-                dTiles[i] = directionTiles.get(i);
-            }
-            verifyColorShape(dTiles);
-            if (directionTiles.size() > 1) {
-                score = score + directionTiles.size(); //If rules are respected;
-                directionTiles.clear();
-            }
+            verifyColorShape(tilesTab);
         }
+    }
+
+
+    /**
+     * Tests for add method when the direction is Left or Right:
+     * Checks that the tiles to add are adjacent to an existing tile on the grid;
+     * Checks that the horizontal and vertical tile line is composed of a maximum of 6 tiles;
+     * Checks that the horizontal and vertical tiles share the same characteristic.
+     *
+     * @param row  the row of the first tile to add.
+     * @param col  the column of the first tile to add.
+     * @param d    the direction of tiles placement.
+     * @param line the tiles to add.
+     * @throws QwirkleException if it doesn't respect the rules of the Qwirkle game.
+     */
+    private int checkRulesAdd(int row, int col, Direction d, Tile... line) throws QwirkleException {
+        //Checks that the tiles to add are adjacent to an existing tile on the grid;
+        adjacentTiles(row, col, d, line);
+        int score = 0;
+        //List of all the tiles found on the line of the tile passed as parameter
+        List<Tile> directionTiles = directionTiles(row, col, d, line);
+        //Checks that the horizontal and vertical tile line is composed of a maximum of 6 tiles;
+        checkLineColorShape(directionTiles);
+        if (directionTiles.size() > 1) {
+            score = score + directionTiles.size(); //If rules are respected;
+        }
+        if (directionTiles.size() == 6) {
+            score = score + 6; //Qwirkle
+        }
+        directionTiles.clear();
+        //List of all the tiles found on the opposite line of the tile passed as parameter
         List<Tile> oppDirectionTiles = new ArrayList<>();
         Direction diagonalDirection = d.diagonal(); //Diagonal direction
         for (int i = 0; i < line.length; i++) {
@@ -441,20 +469,13 @@ public class Grid {
                 oppDirectionTiles.add(this.tiles[oppDiagonalRow + (i * d.getDeltaRow())][oppDiagonalCol + i * d.getDeltaCol()]);
                 oppDiagonalRow = oppDiagonalRow + diagonalDirection.opposite().getDeltaRow();
                 oppDiagonalCol = oppDiagonalCol + diagonalDirection.opposite().getDeltaCol();
-
             }
-            if (oppDirectionTiles.size() > 6) {
-                throw new QwirkleException("The tile line is already complete!");
-            } else {
-                //for the vertical line
-                Tile[] oppTiles = new Tile[oppDirectionTiles.size()];
-                for (int j = 0; j < oppTiles.length; j++) {
-                    oppTiles[j] = oppDirectionTiles.get(j);
-                }
-                verifyColorShape(oppTiles);
-            }
+            checkLineColorShape(oppDirectionTiles);
             if (oppDirectionTiles.size() > 1) {
                 score = score + oppDirectionTiles.size();
+            }
+            if (oppDirectionTiles.size() == 6) {
+                score = score + 6; //Qwirkle
             }
             oppDirectionTiles.clear();
         }
