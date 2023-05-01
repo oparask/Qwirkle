@@ -10,6 +10,7 @@ import java.util.List;
 public class Player {
     private String name;
     private List<Tile> tiles;
+    private int score;
 
     /**
      * Initializes the name of the player.
@@ -19,6 +20,7 @@ public class Player {
     public Player(String name) {
         this.name = name;
         this.tiles = new ArrayList<>();
+        this.score = 0;
     }
 
     /**
@@ -27,6 +29,14 @@ public class Player {
     public String getName() {
         return this.name;
     }
+
+    /**
+     * @return the score of the player;
+     */
+    public int getScore() {
+        return this.score;
+    }
+
 
     /**
      * Gives access to the player's tiles without modifying them.
@@ -57,5 +67,14 @@ public class Player {
         for (Tile t : ts) {
             this.tiles.remove(this.tiles.indexOf(t));
         }
+    }
+
+    /**
+     * Adds the number of points to the score;
+     *
+     * @param value the number of points to add to the score;
+     */
+    public void addScore(int value){
+        this.score = this.score+value;
     }
 }

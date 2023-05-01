@@ -49,7 +49,7 @@ public class Game {
             for (int i = 0; i < is.length; i++) {
                 tiles[i] = firstPlayer.getHand().get(is[i]);
             }
-            this.grid.firstAdd(d, tiles);
+            firstPlayer.addScore(this.grid.firstAdd(d, tiles));
             firstPlayer.remove(tiles);
             firstPlayer.refill();
             changeCurrentPlayer();
@@ -69,7 +69,7 @@ public class Game {
         try {
             Player player = this.players[this.currentPlayer];
             Tile tile = player.getHand().get(index);
-            this.grid.add(row, col, tile);
+            player.addScore(this.grid.add(row, col, tile));
             player.remove(tile);
             player.refill();
             changeCurrentPlayer();
@@ -93,7 +93,7 @@ public class Game {
             for (int i = 0; i < indexes.length; i++) {
                 tiles[i] = player.getHand().get(indexes[i]);
             }
-            this.grid.add(row, col, d, tiles);
+            player.addScore(this.grid.add(row, col, d, tiles));
             player.remove(tiles);
             player.refill();
             changeCurrentPlayer();
@@ -121,7 +121,7 @@ public class Game {
                 tilesToRemove[tilesIndex] = tile;
                 tilesIndex++;
             }
-            this.grid.add(tiles);
+            player.addScore(this.grid.add(tiles));
             player.remove(tilesToRemove);
             player.refill();
             changeCurrentPlayer();
