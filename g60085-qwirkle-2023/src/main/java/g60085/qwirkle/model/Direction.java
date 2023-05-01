@@ -52,4 +52,14 @@ public enum Direction {
             case RIGHT -> LEFT;
         };
     }
+    /**
+     * @return the diagonal direction of the current one.
+     */
+    public Direction diagonal() {
+        return switch (this) {
+            case UP,DOWN -> RIGHT;
+            case LEFT, RIGHT -> DOWN;
+        };
+    }
+
 }
