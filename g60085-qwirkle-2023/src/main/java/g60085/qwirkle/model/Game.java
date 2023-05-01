@@ -145,6 +145,12 @@ public class Game {
     }
 
     /**
+     * @return the score of the current player.
+     */
+    public int getCurrentPlayerScore(){
+        return this.players[this.currentPlayer].getScore();
+    }
+    /**
      * Passes turn when unable to play.
      */
     public void pass() {
