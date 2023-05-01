@@ -118,7 +118,8 @@ public class View {
      */
     public static void displayPlayer(Game game) {
         System.out.println(ANSI_CYAN + game.getCurrentPlayerName() + ", It's your turn!");
-        System.out.print("Your hand is : " + ANSI_RESET);
+        System.out.println("Your score is: " + game.getCurrentPlayerScore());
+        System.out.print("Your hand is: " + ANSI_RESET);
         List<Tile> hand = game.getCurrentPlayerHand();
         for (Tile tile : hand) {
             ViewColorShape(tile);

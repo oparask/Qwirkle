@@ -49,7 +49,9 @@ public class App {
      * @param game the Qwirkle game.
      */
     public static void add(Game game) {
+        System.out.println();
         View.displayPlayer(game); //Shows the player's hand;
+        View.display(game.getGrid());
         System.out.print("Enter the type of play (f, o, l, m, p) : ");
         String play = robustReadingAddType();
         switch (play.toLowerCase()) {
@@ -70,7 +72,7 @@ public class App {
         try {
             System.out.println(ANSI_GREEN + "Start!" + ANSI_RESET);
             game.first(direction(), indexes());
-            View.display(game.getGrid());
+            //View.display(game.getGrid());
         } catch (QwirkleException e) {
             View.displayError(e.getMessage()); //Shows the message of the exception;
         }
@@ -89,7 +91,6 @@ public class App {
             System.out.print("Enter the column where you want to place the tile: ");
             int col = robustReadingInt();
             game.play(row, col, index);
-            View.display(game.getGrid());
         } catch (QwirkleException e) {
             View.displayError(e.getMessage()); //Shows the message of the exception;
         }
@@ -107,7 +108,6 @@ public class App {
             System.out.println("Enter the column where you want to place the first tile: ");
             int col = robustReadingInt();
             game.play(row, col, direction(), indexes());
-            View.display(game.getGrid());
         } catch (QwirkleException e) {
             View.displayError(e.getMessage()); //Shows the message of the exception;
         }
@@ -140,7 +140,6 @@ public class App {
                 indexTab = indexTab + 3;
             }
             game.play(playMultipleTiles);
-            View.display(game.getGrid());
         } catch (QwirkleException e) {
             View.displayError(e.getMessage()); //Shows the message of the exception;
         }
@@ -253,7 +252,7 @@ public class App {
         Scanner keyboard = new Scanner(System.in);
         String addType = robustReadingString();
         while ((!addType.equalsIgnoreCase("f")) && (!addType.equalsIgnoreCase("o"))
-                && (!addType.equalsIgnoreCase("l") && (!addType.equals("m"))
+                && (!addType.equalsIgnoreCase("l") && (!addType.equalsIgnoreCase("m"))
                 && (!addType.equalsIgnoreCase("p")))) {
             System.out.print(ANSI_ORANGE + "The type of play letter is invalid, do you need help (y or n) ? : " + ANSI_RESET);
             String help = keyboard.nextLine();
