@@ -43,7 +43,7 @@ public class Grid {
      * @param line tiles to add.
      * @throws QwirkleException if it doesn't respect the rules of the Qwirkle game.
      */
-    public void firstAdd(Direction d, Tile... line) throws QwirkleException {
+    public int firstAdd(Direction d, Tile... line) throws QwirkleException {
         // Checks that the grid is empty;
         if (!this.isEmpty) {
             throw new QwirkleException("The grid is not empty!");
@@ -65,6 +65,7 @@ public class Grid {
             this.tiles[row][col] = line[i];
         }
         isEmpty(); // Set the "empty" attribute to false;
+        return line.length;
     }
 
     /**
@@ -75,11 +76,12 @@ public class Grid {
      * @param tile the tile that we want to add.
      * @throws QwirkleException if it doesn't respect the rules of the Qwirkle game.
      */
-    public void add(int row, int col, Tile tile) throws QwirkleException {
+    public int add(int row, int col, Tile tile) throws QwirkleException {
         // Call the method that checks the game rules;
-        checkRulesAdd1(row, col, tile);
+        int score = checkRulesAdd1(row, col, tile);
         // We can add the tiles;
         this.tiles[row][col] = tile;
+        return score;
     }
 
     /**
@@ -91,15 +93,16 @@ public class Grid {
      * @param line tiles to add.
      * @throws QwirkleException if it doesn't respect the rules of the Qwirkle game.
      */
-    public void add(int row, int col, Direction d, Tile... line) throws QwirkleException {
+    public int add(int row, int col, Direction d, Tile... line) throws QwirkleException {
         // Call the method that checks the game rules;
-        checkRulesAdd2(row, col, d, line);
+        int score = checkRulesAdd2(row, col, d, line);
         // We can add the tiles;
         for (int i = 0; i < line.length; i++) {
             int newRow = row + i * d.getDeltaRow();
             int newCol = col + i * d.getDeltaCol();
             this.tiles[newRow][newCol] = line[i];
         }
+        return score;
     }
 
     /**
@@ -108,10 +111,11 @@ public class Grid {
      * @param line the tiles to add at any position.
      * @throws QwirkleException if it doesn't respect the rules of the Qwirkle game.
      */
-    public void add(TileAtPosition... line) throws QwirkleException {
+    public int add(TileAtPosition... line) throws QwirkleException {
+        int score = 0;
         try {
             // Call the method that checks the game rules;
-            checkRulesAdd3(line);
+            score = checkRulesAdd3(line);
         } catch (QwirkleException e) {
             // If the rules are not respected, the tiles are removed from the grid;
             for (TileAtPosition tileAtPosition : line) {
@@ -119,6 +123,7 @@ public class Grid {
                 throw new QwirkleException(e.getMessage());
             }
         }
+        return score;
     }
 
     /**
@@ -141,7 +146,7 @@ public class Grid {
      * @param tile the tile that we want to add.
      * @throws QwirkleException if it doesn't respect the rules of the Qwirkle game.
      */
-    private void checkRulesAdd1(int row, int col, Tile tile) throws QwirkleException {
+    private int checkRulesAdd1(int row, int col, Tile tile) throws QwirkleException {
         //Checks that the grid is not empty because if it is, the firstAdd method must be used;
         if (this.isEmpty) {
             throw new QwirkleException("The grid game is empty! You must call the firstAdd method!");
@@ -161,7 +166,7 @@ public class Grid {
         //Checks that the tile to add is adjacent to an existing tile on the grid;
         //Checks that the horizontal and vertical tile line is composed of a maximum of 6 tiles;
         //Checks that the horizontal and vertical tiles share the same characteristic;
-        checkRulesAdd2LeftRight(row, col, Direction.RIGHT, tile);// it doesn't matter the direction here
+        return checkRulesAdd(row, col, Direction.RIGHT, tile);// it doesn't matter the direction here
         // because there is only one tile;
     }
 
@@ -181,10 +186,10 @@ public class Grid {
      * @param line the tiles to add.
      * @throws QwirkleException if it doesn't respect the rules of the Qwirkle game.
      */
-    private void checkRulesAdd2(int row, int col, Direction d, Tile... line) throws QwirkleException {
+    private int checkRulesAdd2(int row, int col, Direction d, Tile... line) throws QwirkleException {
         //If there is only one tile to add then call the first add method;
         if (line.length == 1) {
-            add(row, col, line[0]);
+            return add(row, col, line[0]);
         } else {
             //Checks that the grid is not empty because if it is, the firstAdd method must be used;
             if (this.isEmpty) {
@@ -226,19 +231,7 @@ public class Grid {
                 }
             }
             //Checks that the tiles you want to add respect the rules of the Qwrikle game;
-            if (d == Direction.RIGHT || d == Direction.LEFT) {
-                checkRulesAdd2LeftRight(row, col, d, line);
-            } else {
-                checkRulesAdd2UpDown(row, col, d, line);
-            }
-     /*       switch (d) {
-                case RIGHT, LEFT -> {
-                    exceptionSecAddLeftRight(row, col, d, line);
-                }
-                case UP, DOWN -> {
-                    exceptionSecAddUpDown(row, col, d, line);
-                }
-            }*/
+            return checkRulesAdd(row, col, d, line);
         }
     }
 
@@ -258,10 +251,10 @@ public class Grid {
      * @param line the tiles to add at any position.
      * @throws QwirkleException if it doesn't respect the rules of the Qwirkle game.
      */
-    private void checkRulesAdd3(TileAtPosition... line) throws QwirkleException {
+    private int checkRulesAdd3(TileAtPosition... line) throws QwirkleException {
         // If there is only one tile to add then call the first add method;
         if (line.length == 1) {
-            add(line[0].row(), line[0].col(), line[0].tile());
+            return add(line[0].row(), line[0].col(), line[0].tile());
         } else {
             // Checks that the grid is not empty because if it is, the firstAdd method must be used;
             if (this.isEmpty) {
@@ -280,6 +273,7 @@ public class Grid {
             List<Integer> tilesRow = new ArrayList<>();
             List<Integer> tilesCol = new ArrayList<>();
             List<Integer> sumRowCol = new ArrayList<>();
+            String sameLine = "";
             for (TileAtPosition tileAtPosition : line) {
                 int row = tileAtPosition.row();
                 tilesRow.add(row);
@@ -299,7 +293,7 @@ public class Grid {
                     throw new QwirkleException("There is already a tile at this position!");
                 }
                 //Checks that the tiles are on the same line;
-                tilesSameLine(tilesRow, tilesCol);
+                sameLine = tilesSameLine(tilesRow, tilesCol);
                 //Checks that there are not two identical positions;
                 sumRowCol.add(row + col);
                 tilesSamePosition(sumRowCol);
@@ -308,6 +302,7 @@ public class Grid {
             for (TileAtPosition tileAtPosition : line) {
                 this.tiles[tileAtPosition.row()][tileAtPosition.col()] = tileAtPosition.tile();
             }
+            int score = 0;
             for (TileAtPosition tileAtPosition : line) {
                 //Checks that the tile to add is adjacent to an existing tile on the grid;
                 //Checks that the horizontal and vertical tile line is composed of a maximum of 6 tiles;
@@ -315,7 +310,68 @@ public class Grid {
                 int newRow = tileAtPosition.row();
                 int newCol = tileAtPosition.col();
                 Tile tile = tileAtPosition.tile();
-                checkRulesAdd2LeftRight(newRow, newCol, Direction.RIGHT, tile);// It doesn't matter the direction here;
+                score = score + checkRulesAdd(newRow, newCol, Direction.RIGHT, tile);// It doesn't matter the direction here;
+            }
+            //remove from the score the number of tiles that are repeated on the same line
+            Direction d;
+            if (sameLine.equals("horizontalLine")) {
+                Collections.sort(tilesCol);
+                for (int i = 0; i < tilesCol.size() - 1; i++) {//for each tile's col
+                    int j;
+                    for (j = tilesCol.get(i) + 1; j < tilesCol.get(i + 1); j++) {
+                        if (this.tiles[line[0].row()][j] == null) {
+                            break;
+                        }
+                    }
+                    if (j == tilesCol.get(i + 1)) {
+                        score = score - (tilesCol.get(i + 1) - tilesCol.get(i) + 1);
+                    }
+                }
+            } else {
+                Collections.sort(tilesRow);
+                for (int i = 0; i < tilesRow.size() - 1; i++) {//for each tile's row
+                    int j;
+                    for (j = tilesRow.get(i) + 1; j < tilesRow.get(i + 1); j++) {
+                        if (this.tiles[j][line[0].col()] == null) {
+                            break;
+                        }
+                    }
+                    if (j == tilesRow.get(i + 1)) {
+                        score = score - (tilesRow.get(i + 1) - tilesRow.get(i) + 1);
+
+                    }
+                }
+            }
+            return score;
+        }
+    }
+
+    /**
+     * Checks if the tiles to add are adjacent to an existing tile on the grid;
+     *
+     * @param row  the row of the first tile to add.
+     * @param col  the column of the first tile to add.
+     * @param d    the direction of tiles placement.
+     * @param line the tiles to add.
+     * @throws QwirkleException if it doesn't respect the rules of the Qwirkle game.
+     */
+    private void adjacentTiles(int row, int col, Direction d, Tile... line) {
+        //Checks that the tiles to add are adjacent to an existing tile on the grid;
+        if ((this.tiles[row + (line.length * d.getDeltaRow())][col + (line.length * d.getDeltaCol())] == null)) {
+            if ((this.tiles[row + (d.opposite().getDeltaRow())][col + (d.opposite().getDeltaCol())] == null)) {
+                int i;
+                for (i = 0; i < line.length; i++) {
+                    Direction diagonal = d.diagonal(); // The diagonal direction
+                    if ((this.tiles[row + (i * d.getDeltaRow()) + diagonal.getDeltaRow()] //diagonal
+                            [col + (i * d.getDeltaCol()) + diagonal.getDeltaCol()] != null) ||
+                            (this.tiles[row + (i * d.getDeltaRow()) + diagonal.opposite().getDeltaRow()] //opposite diagonal
+                                    [col + (i * d.getDeltaCol()) + diagonal.opposite().getDeltaCol()] != null)) {
+                        break;
+                    }
+                }
+                if (i == line.length) {
+                    throw new QwirkleException("The tiles are not connected to another tile!");
+                }
             }
         }
     }
@@ -332,152 +388,77 @@ public class Grid {
      * @param line the tiles to add.
      * @throws QwirkleException if it doesn't respect the rules of the Qwirkle game.
      */
-    private void checkRulesAdd2LeftRight(int row, int col, Direction d, Tile... line) throws QwirkleException {
+    private int checkRulesAdd(int row, int col, Direction d, Tile... line) throws QwirkleException { 
         //Checks that the tiles to add are adjacent to an existing tile on the grid;
-        if ((this.tiles[row][col + line.length * d.getDeltaCol()] == null)) {
-            if ((this.tiles[row][col + d.opposite().getDeltaCol()] == null)) {
-                int i;
-                for (i = 0; i < line.length; i++) {
-                    if ((this.tiles[row + Direction.UP.getDeltaRow()][col + i * d.getDeltaCol()] != null) ||
-                            (this.tiles[row + Direction.DOWN.getDeltaRow()][col + i * d.getDeltaCol()] != null)) {
-                        break;
-                    }
-                }
-                if (i == line.length) {
-                    throw new QwirkleException("The tiles are not connected to another tile!");
-                }
-            }
-        }
+        adjacentTiles(row, col, d, line);
+        int score = 0;
         //Checks that the horizontal and vertical tile line is composed of a maximum of 6 tiles;
-        List<Tile> horizontalTiles = new ArrayList<>();
-        Collections.addAll(horizontalTiles, line); //add line(tiles to add) on the list
+        List<Tile> directionTiles = new ArrayList<>();
+        Collections.addAll(directionTiles, line); //add line(tiles to add) on the list
         int colDirection = col + line.length * d.getDeltaCol();
-        while (this.tiles[row][colDirection] != null) {
-            horizontalTiles.add(this.tiles[row][colDirection]);
+        int rowDirection = row + line.length * d.getDeltaRow();
+        while (this.tiles[rowDirection][colDirection] != null) {
+            directionTiles.add(this.tiles[rowDirection][colDirection]);
             colDirection = colDirection + d.getDeltaCol();
+            rowDirection = rowDirection + d.getDeltaRow();
         }
-        int oppositeCol = col + d.opposite().getDeltaCol();
-        while (this.tiles[row][oppositeCol] != null) {
-            horizontalTiles.add(this.tiles[row][oppositeCol]);
-            oppositeCol = oppositeCol + d.opposite().getDeltaCol();
+        int oppCol = col + d.opposite().getDeltaCol();
+        int oppRow = row + d.opposite().getDeltaRow();
+        while (this.tiles[oppRow][oppCol] != null) {
+            directionTiles.add(this.tiles[oppRow][oppCol]);
+            oppCol = oppCol + d.opposite().getDeltaCol();
+            oppRow = oppRow + d.opposite().getDeltaRow();
         }
-        if (horizontalTiles.size() > 6) {
+        if (directionTiles.size() > 6) {
             throw new QwirkleException("The tile line is already complete!");
         } else {
             //Checks that the horizontal and vertical tiles share the same characteristic.
             //for the horizontal line
-            Tile[] hTiles = new Tile[horizontalTiles.size()];
-            for (int i = 0; i < hTiles.length; i++) {
-                hTiles[i] = horizontalTiles.get(i);
+            Tile[] dTiles = new Tile[directionTiles.size()];
+            for (int i = 0; i < dTiles.length; i++) {
+                dTiles[i] = directionTiles.get(i);
             }
-            verifyColorShape(hTiles);
-            horizontalTiles.clear();
+            verifyColorShape(dTiles);
+            if (directionTiles.size() > 1) {
+                score = score + directionTiles.size(); //If rules are respected;
+                directionTiles.clear();
+            }
         }
-        List<Tile> verticalTiles = new ArrayList<>();
+        List<Tile> oppDirectionTiles = new ArrayList<>();
+        Direction diagonalDirection = d.diagonal(); //Diagonal direction
         for (int i = 0; i < line.length; i++) {
-            verticalTiles.add(line[i]);
-            int rowUp = row + Direction.UP.getDeltaRow();
-            while (this.tiles[rowUp][col + i * d.getDeltaCol()] != null) {
-                verticalTiles.add(this.tiles[rowUp][col + i * d.getDeltaCol()]);
-                rowUp = rowUp + Direction.UP.getDeltaRow();
+            oppDirectionTiles.add(line[i]);
+            int diagonalRow = row + diagonalDirection.getDeltaRow();
+            int diagonalCol = col + diagonalDirection.getDeltaCol();
+            while (this.tiles[diagonalRow + (i * d.getDeltaRow())][diagonalCol + (i * d.getDeltaCol())] != null) {
+                oppDirectionTiles.add(this.tiles[diagonalRow + (i * d.getDeltaRow())][diagonalCol + i * d.getDeltaCol()]);
+                diagonalRow = diagonalRow + diagonalDirection.getDeltaRow();
+                diagonalCol = diagonalCol + diagonalDirection.getDeltaCol();
             }
-            int rowDown = row + Direction.DOWN.getDeltaRow();
-            while (this.tiles[rowDown][col + i * d.getDeltaCol()] != null) {
-                verticalTiles.add(this.tiles[rowDown][col + i * d.getDeltaCol()]);
-                rowDown = rowDown + Direction.DOWN.getDeltaRow();
+            int oppDiagonalRow = row + diagonalDirection.opposite().getDeltaRow();
+            int oppDiagonalCol = col + diagonalDirection.opposite().getDeltaCol();
+            while (this.tiles[oppDiagonalRow + (i * d.getDeltaRow())][oppDiagonalCol + (i * d.getDeltaCol())] != null) {
+                oppDirectionTiles.add(this.tiles[oppDiagonalRow + (i * d.getDeltaRow())][oppDiagonalCol + i * d.getDeltaCol()]);
+                oppDiagonalRow = oppDiagonalRow + diagonalDirection.opposite().getDeltaRow();
+                oppDiagonalCol = oppDiagonalCol + diagonalDirection.opposite().getDeltaCol();
+
             }
-            if (verticalTiles.size() > 6) {
+            if (oppDirectionTiles.size() > 6) {
                 throw new QwirkleException("The tile line is already complete!");
             } else {
                 //for the vertical line
-                Tile[] vTiles = new Tile[verticalTiles.size()];
-                for (int j = 0; j < vTiles.length; j++) {
-                    vTiles[j] = verticalTiles.get(j);
+                Tile[] oppTiles = new Tile[oppDirectionTiles.size()];
+                for (int j = 0; j < oppTiles.length; j++) {
+                    oppTiles[j] = oppDirectionTiles.get(j);
                 }
-                verifyColorShape(vTiles);
+                verifyColorShape(oppTiles);
             }
-            verticalTiles.clear();
-        }
-    }
-
-    /**
-     * Tests for add method when the direction is Up or Down:
-     * Checks that the tiles we want to add are adjacent to an existing tile on the grid;
-     * Checks that the horizontal and vertical tile line is composed of a maximum of 6 tiles;
-     * Checks that the horizontal and vertical tiles share the same characteristic.
-     *
-     * @param row  the row of the first tile we want to add.
-     * @param col  the column of the first tile we want to add.
-     * @param d    the direction of tiles placement.
-     * @param line the tiles we want to add.
-     * @throws QwirkleException if it doesn't respect the rules of the Qwirkle game.
-     */
-    private void checkRulesAdd2UpDown(int row, int col, Direction d, Tile... line) throws QwirkleException {
-        //Checks that the tiles to add are adjacent to an existing tile on the grid;
-        if ((this.tiles[row + line.length * d.getDeltaRow()][col] == null)) {
-            if ((this.tiles[row + d.opposite().getDeltaRow()][col] == null)) {
-                int i;
-                for (i = 0; i < line.length; i++) {
-                    if ((this.tiles[row + i * d.getDeltaRow()][col + Direction.LEFT.getDeltaCol()] != null) ||
-                            (this.tiles[row + i * d.getDeltaRow()][col + Direction.RIGHT.getDeltaCol()] != null)) {
-                        break;
-                    }
-                }
-                if (i == line.length) {
-                    throw new QwirkleException("The tiles are not connected to another tile!");
-                }
+            if (oppDirectionTiles.size() > 1) {
+                score = score + oppDirectionTiles.size();
             }
+            oppDirectionTiles.clear();
         }
-        //Checks that the horizontal and vertical tile line is composed of a maximum of 6 tiles;
-        List<Tile> verticalTiles = new ArrayList<>();
-        Collections.addAll(verticalTiles, line); //add line(tiles to add) on the list
-        int rowDirection = row + line.length * d.getDeltaRow();
-        while (this.tiles[rowDirection][col] != null) {
-            verticalTiles.add(this.tiles[rowDirection][col]);
-            rowDirection = rowDirection + d.getDeltaRow();
-        }
-        int oppositeRow = row + d.opposite().getDeltaRow();
-        while (this.tiles[oppositeRow][col] != null) {
-            verticalTiles.add(this.tiles[oppositeRow][col]);
-            oppositeRow = oppositeRow + d.opposite().getDeltaRow();
-        }
-        if (verticalTiles.size() > 6) {
-            throw new QwirkleException("The tile line is already complete!");
-        } else {
-            //Checks that the horizontal and vertical tiles share the same characteristic.
-            //For vertical line
-            Tile[] vTiles = new Tile[verticalTiles.size()];
-            for (int j = 0; j < vTiles.length; j++) {
-                vTiles[j] = verticalTiles.get(j);
-            }
-            verifyColorShape(vTiles);
-        }
-        verticalTiles.clear();
-        List<Tile> horizontalTiles = new ArrayList<>();
-        for (int i = 0; i < line.length; i++) {
-            horizontalTiles.add(line[i]);
-            int colRight = col + Direction.RIGHT.getDeltaCol();
-            while (this.tiles[row + i * d.getDeltaRow()][colRight] != null) {
-                horizontalTiles.add(this.tiles[row + i * d.getDeltaRow()][colRight]);
-                colRight = colRight + Direction.RIGHT.getDeltaCol();
-            }
-            int colLeft = col + Direction.LEFT.getDeltaCol();
-            while (this.tiles[row + i * d.getDeltaRow()][colLeft] != null) {
-                horizontalTiles.add(this.tiles[row + i * d.getDeltaRow()][colLeft]);
-                colLeft = colLeft + Direction.LEFT.getDeltaCol();
-            }
-            if (horizontalTiles.size() > 6) {
-                throw new QwirkleException("The tile line is already complete!");
-            } else {
-                //For horizontal line
-                Tile[] hTiles = new Tile[horizontalTiles.size()];
-                for (int j = 0; j < hTiles.length; j++) {
-                    hTiles[j] = horizontalTiles.get(j);
-                }
-                verifyColorShape(hTiles);
-            }
-            horizontalTiles.clear();
-        }
+        return score;
     }
 
     /**
@@ -581,12 +562,14 @@ public class Grid {
      * @param col list of integers containing the columns of each tile that we want to add;
      * @throws QwirkleException if it doesn't respect the rules of the Qwirkle game.
      */
-    private void tilesSameLine(List<Integer> row, List<Integer> col) throws QwirkleException {
+    private String tilesSameLine(List<Integer> row, List<Integer> col) throws QwirkleException {
         if (!sameRow(row)) {
             if (!sameCol(col)) {
                 throw new QwirkleException("Tiles are not on the same line!");
             }
+            return "verticalLine";
         }
+        return "horizontalLine";
     }
 
     /**
