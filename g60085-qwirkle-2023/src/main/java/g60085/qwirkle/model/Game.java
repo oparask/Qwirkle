@@ -214,6 +214,7 @@ public class Game {
                     return true;//Game is over
                 }
             }
+            // System.out.println(namePlayers.size());
             //Game over if none of the players can add tiles to the existing lines;
             return namePlayers.size() == this.players.length;
         }

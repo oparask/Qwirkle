@@ -3,7 +3,9 @@ package g60085.qwirkle;
 import g60085.qwirkle.model.*;
 import g60085.qwirkle.view.View;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
 import static g60085.qwirkle.view.View.*;
 
@@ -29,88 +31,59 @@ public class App {
         firstAdd(game); // First attempt;
 
         Bag bag = Bag.getInstance();
-        
+        List<String> playerPass = new ArrayList<>();
         boolean continueGame = true;
         while (continueGame) {
+
             if (bag.size() == 0) {
-                List<String> playerPass = new ArrayList<>();
-                System.out.println();
                 System.out.println("The bag is empty! You are almost at the end of the game!");
-                View.display(game.getGrid());
-                View.displayPlayer(game); //Shows the player's hand;
-                System.out.print("Enter the type of play (f, o, l, m, p) : ");
-                String play = robustReadingAddType();
-                switch (play.toLowerCase()) {
-                    case "f" -> {
-                        playerPass.clear();
-                        firstAdd(game);
-                    }
-                    case "o" -> {
-                        playerPass.clear();
-                        playOneTile(game);
-                    }
-                    case "l" -> {
-                        playerPass.clear();
-                        playLine(game);
-                    }
-                    case "m" -> {
-                        playerPass.clear();
-                        playMultiple(game);
-                    }
-                    case "p" -> {
-                        playerPass.add(game.getCurrentPlayerName());
-                        game.pass();
-                    }
-                }
-                //listeSansDoublons(playerPass);
-                if (game.isOver(playerPass)) {
-                    continueGame = false;
-                    View.endGame(winner(game));
-                }
-            } else {
-                add(game);//"Asks the type of play (f, o, l, m, p)";
-                System.out.println(ANSI_GREEN + "Enter 'q' if you want to quit" + ANSI_RESET);
-                String quitOrNo = robustReadingString();
-                if (quitOrNo.equalsIgnoreCase("q")) {
-                    continueGame = false;
-                    View.endGame(winner(game));
-                }
+            }
+            add(game, playerPass);//play one, several or multiple tiles;
+            System.out.println(ANSI_GREEN + "Enter 'q' if you want to quit" + ANSI_RESET);
+            String quitOrNo = robustReadingString();
+            if (quitOrNo.equalsIgnoreCase("q")) {
+                continueGame = false;
+                View.endGame(winner(game));
+            }
+            if (game.isOver(playerPass)) {
+                continueGame = false;
+                View.endGame(winner(game));
             }
         }
     }
-
-   /* *//**
-     * Enleve les doublons d'une liste;
-     * Un HashSet est créé à partir de cette liste, ce qui supprime les éléments en double.
-     * Enfin, la liste sans doublons est créée en recréant une ArrayList à partir du HashSet.
-     *
-     * @param listeAvecDoublons liste avec doublons;
-     * @return
-     *//*
-    public static List<String> listeSansDoublons(List<String> listeAvecDoublons) {
-        // Utilisation d'un HashSet pour supprimer les doublons
-        Set<String> setSansDoublons = new HashSet<>(listeAvecDoublons);
-        List<String> listeSansDoublons = new ArrayList<>(setSansDoublons);
-        return listeSansDoublons;
-    }*/
 
     /**
      * Asks what type of addition of tiles we want to make.
      *
      * @param game the Qwirkle game.
      */
-    public static void add(Game game) {
+    public static void add(Game game, List<String> playerPass) {
         System.out.println();
-        View.displayPlayer(game); //Shows the player's hand;
         View.display(game.getGrid());
+        View.displayPlayer(game); //Shows the player's hand;
         System.out.print("Enter the type of play (f, o, l, m, p) : ");
         String play = robustReadingAddType();
         switch (play.toLowerCase()) {
-            case "f" -> firstAdd(game);
-            case "o" -> playOneTile(game);
-            case "l" -> playLine(game);
-            case "m" -> playMultiple(game);
-            case "p" -> game.pass();
+            case "f" -> {
+                playerPass.clear();
+                firstAdd(game);
+            }
+            case "o" -> {
+                playerPass.clear();
+                playOneTile(game);
+            }
+            case "l" -> {
+                playerPass.clear();
+                playLine(game);
+            }
+            case "m" -> {
+                playerPass.clear();
+                playMultiple(game);
+            }
+            case "p" -> {
+                playerPass.add(game.getCurrentPlayerName());
+                game.pass();
+            }
         }
     }
 
