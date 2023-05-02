@@ -1,14 +1,9 @@
 package g60085.qwirkle;
 
-import g60085.qwirkle.model.Direction;
-import g60085.qwirkle.model.Game;
-import g60085.qwirkle.model.Player;
-import g60085.qwirkle.model.QwirkleException;
+import g60085.qwirkle.model.*;
 import g60085.qwirkle.view.View;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 import static g60085.qwirkle.view.View.*;
 
@@ -25,23 +20,79 @@ public class App {
      */
     public static void main(String[] args) {
         View.beginning();
+
         int numberPlayers = nbPlayers(); // Asks for the number of players;
         Game game = new Game(namePlayers(numberPlayers)); // Shows the players;
         initTiles(game); // Initializes each player's hand;
         startPlayer(game); // Asks who is starting the game;
-        boolean continueGame = true;
         View.displayPlayer(game);
         firstAdd(game); // First attempt;
+
+        Bag bag = Bag.getInstance();
+        
+        boolean continueGame = true;
         while (continueGame) {
-            add(game);//"Asks the type of play (f, o, l, m)";
-            System.out.println(ANSI_GREEN + "Enter 'q' if you want to quit" + ANSI_RESET);
-            String quitOrNo = robustReadingString();
-            if (quitOrNo.equalsIgnoreCase("q")) {
-                continueGame = false;
-                View.endGame();
+            if (bag.size() == 0) {
+                List<String> playerPass = new ArrayList<>();
+                System.out.println();
+                System.out.println("The bag is empty! You are almost at the end of the game!");
+                View.display(game.getGrid());
+                View.displayPlayer(game); //Shows the player's hand;
+                System.out.print("Enter the type of play (f, o, l, m, p) : ");
+                String play = robustReadingAddType();
+                switch (play.toLowerCase()) {
+                    case "f" -> {
+                        playerPass.clear();
+                        firstAdd(game);
+                    }
+                    case "o" -> {
+                        playerPass.clear();
+                        playOneTile(game);
+                    }
+                    case "l" -> {
+                        playerPass.clear();
+                        playLine(game);
+                    }
+                    case "m" -> {
+                        playerPass.clear();
+                        playMultiple(game);
+                    }
+                    case "p" -> {
+                        playerPass.add(game.getCurrentPlayerName());
+                        game.pass();
+                    }
+                }
+                //listeSansDoublons(playerPass);
+                if (game.isOver(playerPass)) {
+                    continueGame = false;
+                    View.endGame(winner(game));
+                }
+            } else {
+                add(game);//"Asks the type of play (f, o, l, m, p)";
+                System.out.println(ANSI_GREEN + "Enter 'q' if you want to quit" + ANSI_RESET);
+                String quitOrNo = robustReadingString();
+                if (quitOrNo.equalsIgnoreCase("q")) {
+                    continueGame = false;
+                    View.endGame(winner(game));
+                }
             }
         }
     }
+
+   /* *//**
+     * Enleve les doublons d'une liste;
+     * Un HashSet est créé à partir de cette liste, ce qui supprime les éléments en double.
+     * Enfin, la liste sans doublons est créée en recréant une ArrayList à partir du HashSet.
+     *
+     * @param listeAvecDoublons liste avec doublons;
+     * @return
+     *//*
+    public static List<String> listeSansDoublons(List<String> listeAvecDoublons) {
+        // Utilisation d'un HashSet pour supprimer les doublons
+        Set<String> setSansDoublons = new HashSet<>(listeAvecDoublons);
+        List<String> listeSansDoublons = new ArrayList<>(setSansDoublons);
+        return listeSansDoublons;
+    }*/
 
     /**
      * Asks what type of addition of tiles we want to make.
@@ -343,5 +394,23 @@ public class App {
             indexesTab[i] = indexes.get(i);
         }
         return indexesTab;
+    }
+
+    /**
+     * checks who got the highest score
+     *
+     * @param game the current game;
+     * @return the name of the winner;
+     */
+    public static String winner(Game game) {
+        int maxScore = 0;
+        String nameWinner = "";
+        for (Player player : game.getPlayers()) {
+            if (player.getScore() > maxScore) {
+                maxScore = player.getScore();
+                nameWinner = player.getName();
+            }
+        }
+        return nameWinner;
     }
 }

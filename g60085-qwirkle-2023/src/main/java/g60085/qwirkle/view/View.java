@@ -157,8 +157,11 @@ public class View {
     /**
      * Displays a game over message.
      */
-    public static void endGame() {
+    public static void endGame(String name) {
         System.out.println();
-        System.out.println(ANSI_CYAN + "Bye Bye! Hope you liked it!" + ANSI_RESET);
+        System.out.println(ANSI_CYAN + "THE WINNER IS " + name + "!!!");
+        System.out.println("Well played!");
+        System.out.println();
+        System.out.println("Bye Bye, hope you liked it ;)" + ANSI_RESET);
     }
 }

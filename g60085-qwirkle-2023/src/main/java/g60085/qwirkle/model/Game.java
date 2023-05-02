@@ -1,13 +1,14 @@
 package g60085.qwirkle.model;
 
 import java.util.List;
+import java.util.Scanner;
 
 /**
  * Game represents the facade of the model.
  * It is with this class that the view interacts.
  */
 public class Game {
-    private final Grid grid;
+    private Grid grid;
     private final Player[] players;
     private int currentPlayer;
 
@@ -147,9 +148,10 @@ public class Game {
     /**
      * @return the score of the current player.
      */
-    public int getCurrentPlayerScore(){
+    public int getCurrentPlayerScore() {
         return this.players[this.currentPlayer].getScore();
     }
+
     /**
      * Passes turn when unable to play.
      */
@@ -195,4 +197,26 @@ public class Game {
         }
     }
 
+    /**
+     * Checks if game is over;
+     *
+     * @param namePlayers list of players who can't play any tiles;
+     * @return true if game is over : one of the players has played all his tiles;
+     * or if none of the players can add tiles to the existing lines;
+     */
+    public boolean isOver(List<String> namePlayers) {
+        Bag bag = Bag.getInstance();
+        if (bag.size() == 0) {
+            //Game over if one of the players has played all his tiles;
+            for (Player player : this.players) {
+                if (player.getHand().size() == 0) {
+                    player.addScore(6);
+                    return true;//Game is over
+                }
+            }
+            //Game over if none of the players can add tiles to the existing lines;
+            return namePlayers.size() == this.players.length;
+        }
+        return false; //game is not over
+    }
 }
