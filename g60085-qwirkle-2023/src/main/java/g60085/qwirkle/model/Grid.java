@@ -112,18 +112,8 @@ public class Grid {
      * @throws QwirkleException if it doesn't respect the rules of the Qwirkle game.
      */
     public int add(TileAtPosition... line) throws QwirkleException {
-        int score = 0;
-        try {
-            // Call the method that checks the game rules;
-            score = checkRulesAdd3(line);
-        } catch (QwirkleException e) {
-            // If the rules are not respected, the tiles are removed from the grid;
-            for (TileAtPosition tileAtPosition : line) {
-                this.tiles[tileAtPosition.row()][tileAtPosition.col()] = null;
-                throw new QwirkleException(e.getMessage());
-            }
-        }
-        return score;
+        // Call the method that checks the game rules;
+        return checkRulesAdd3(line);
     }
 
     /**
@@ -298,20 +288,29 @@ public class Grid {
                 sumRowCol.add(row + col);
                 tilesSamePosition(sumRowCol);
             }
-            // We place the tiles to be able to check the rules;
-            for (TileAtPosition tileAtPosition : line) {
-                this.tiles[tileAtPosition.row()][tileAtPosition.col()] = tileAtPosition.tile();
-            }
             int score = 0;
-            for (TileAtPosition tileAtPosition : line) {
-                //Checks that the tile to add is adjacent to an existing tile on the grid;
-                //Checks that the horizontal and vertical tile line is composed of a maximum of 6 tiles;
-                //Checks that the horizontal and vertical tiles share the same characteristic;
-                int newRow = tileAtPosition.row();
-                int newCol = tileAtPosition.col();
-                Tile tile = tileAtPosition.tile();
-                score = score + checkRulesAdd(newRow, newCol, Direction.RIGHT, tile);// It doesn't matter the direction here;
+            try {
+                // We place the tiles to be able to check the rules;
+                for (TileAtPosition tileAtPosition : line) {
+                    this.tiles[tileAtPosition.row()][tileAtPosition.col()] = tileAtPosition.tile();
+                }
+                for (TileAtPosition tileAtPosition : line) {
+                    //Checks that the tile to add is adjacent to an existing tile on the grid;
+                    //Checks that the horizontal and vertical tile line is composed of a maximum of 6 tiles;
+                    //Checks that the horizontal and vertical tiles share the same characteristic;
+                    int newRow = tileAtPosition.row();
+                    int newCol = tileAtPosition.col();
+                    Tile tile = tileAtPosition.tile();
+                    score = score + checkRulesAdd(newRow, newCol, Direction.RIGHT, tile);// It doesn't matter the direction here;
+                }
+            } catch (QwirkleException e) {
+                // If the rules are not respected, the tiles are removed from the grid;
+                for (TileAtPosition tileAtPosition : line) {
+                    this.tiles[tileAtPosition.row()][tileAtPosition.col()] = null;
+                    throw new QwirkleException(e.getMessage());
+                }
             }
+
             //remove from the score the number of tiles that are repeated on the same line
             Direction d;
             if (sameLine.equals("horizontalLine")) {
