@@ -28,7 +28,7 @@ public class App {
         // Shows the players;
         initTiles(game); // Initializes each player's hand;
         startPlayer(game); // Asks who is starting the game;
-        View.displayPlayer(game.getCurrentPlayer());
+        View.displayPlayer(game.getCurrentPlayerName(), game.getCurrentPlayerHand(), game.getCurrentPlayerScore());
         firstAdd(game); // First attempt;
 
         Bag bag = Bag.getInstance();
@@ -61,7 +61,7 @@ public class App {
     public static void add(Game game, List<String> playerPass) {
         System.out.println();
         View.display(game.getGrid());
-        View.displayPlayer(game.getCurrentPlayer()); //Shows the player's hand;
+        View.displayPlayer(game.getCurrentPlayerName(), game.getCurrentPlayerHand(), game.getCurrentPlayerScore());
         System.out.print("Enter the type of play (f, o, l, m, p) : ");
         String play = robustReadingAddType();
         switch (play.toLowerCase()) {

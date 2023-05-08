@@ -117,15 +117,7 @@ public class Game {
         player.refill();
         changeCurrentPlayer();
     }
-
-    /**
-     * @return the current player.
-     */
-    public Player getCurrentPlayer() {
-        return this.players[this.currentPlayer];
-    }
-
-
+    
     /**
      * @return the name or nickname of the current player.
      */

@@ -112,15 +112,16 @@ public class View {
     }
 
     /**
-     * Displays the current player's name and hand.
+     * Displays the name, hand and score of the player;
      *
-     * @param player the current player.
+     * @param name name of the player;
+     * @param hand hand of the player;
+     * @param score score of the player;
      */
-    public static void displayPlayer(Player player) {
-        System.out.println(ANSI_CYAN + player.getName() + ", It's your turn!");
-        System.out.println("Your score is: " + player.getScore());
+    public static void displayPlayer(String name, List<Tile> hand, int score) {
+        System.out.println(ANSI_CYAN + name + ", It's your turn!");
+        System.out.println("Your score is: " + score);
         System.out.print("Your hand is: " + ANSI_RESET);
-        List<Tile> hand = player.getHand();
         for (Tile tile : hand) {
             ViewColorShape(tile);
         }
