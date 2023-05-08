@@ -1,7 +1,6 @@
 package g60085.qwirkle.model;
 
 import java.util.List;
-import java.util.Scanner;
 
 /**
  * Game represents the facade of the model.
@@ -42,21 +41,18 @@ public class Game {
      *
      * @param d  tile placement direction.
      * @param is tiles to play.
+     * @throws QwirkleException if it doesn't respect the rules of the Qwirkle game.
      */
-    public void first(Direction d, int... is) {
-        try {
-            Player firstPlayer = this.players[this.currentPlayer];
-            Tile[] tiles = new Tile[is.length];
-            for (int i = 0; i < is.length; i++) {
-                tiles[i] = firstPlayer.getHand().get(is[i]);
-            }
-            firstPlayer.addScore(this.grid.firstAdd(d, tiles));
-            firstPlayer.remove(tiles);
-            firstPlayer.refill();
-            changeCurrentPlayer();
-        } catch (QwirkleException e) {
-            throw new QwirkleException(e.getMessage());
+    public void first(Direction d, int... is) throws QwirkleException {
+        Player firstPlayer = this.players[this.currentPlayer];
+        Tile[] tiles = new Tile[is.length];
+        for (int i = 0; i < is.length; i++) {
+            tiles[i] = firstPlayer.getHand().get(is[i]);
         }
+        firstPlayer.addScore(this.grid.firstAdd(d, tiles));
+        firstPlayer.remove(tiles);
+        firstPlayer.refill();
+        changeCurrentPlayer();
     }
 
     /**
@@ -65,18 +61,15 @@ public class Game {
      * @param row   the row of the tile.
      * @param col   the column of the tile.
      * @param index the index of the tile.
+     * @throws QwirkleException if it doesn't respect the rules of the Qwirkle game.
      */
-    public void play(int row, int col, int index) {
-        try {
-            Player player = this.players[this.currentPlayer];
-            Tile tile = player.getHand().get(index);
-            player.addScore(this.grid.add(row, col, tile));
-            player.remove(tile);
-            player.refill();
-            changeCurrentPlayer();
-        } catch (QwirkleException e) {
-            throw new QwirkleException(e.getMessage());
-        }
+    public void play(int row, int col, int index) throws QwirkleException {
+        Player player = this.players[this.currentPlayer];
+        Tile tile = player.getHand().get(index);
+        player.addScore(this.grid.add(row, col, tile));
+        player.remove(tile);
+        player.refill();
+        changeCurrentPlayer();
     }
 
     /**
@@ -86,49 +79,43 @@ public class Game {
      * @param col     the column of the first tile.
      * @param d       tile placement direction.
      * @param indexes indexes of the tiles.
+     * @throws QwirkleException if it doesn't respect the rules of the Qwirkle game.
      */
-    public void play(int row, int col, Direction d, int... indexes) {
-        try {
-            Player player = this.players[this.currentPlayer];
-            Tile[] tiles = new Tile[indexes.length];
-            for (int i = 0; i < indexes.length; i++) {
-                tiles[i] = player.getHand().get(indexes[i]);
-            }
-            player.addScore(this.grid.add(row, col, d, tiles));
-            player.remove(tiles);
-            player.refill();
-            changeCurrentPlayer();
-        } catch (QwirkleException e) {
-            throw new QwirkleException(e.getMessage());
+    public void play(int row, int col, Direction d, int... indexes) throws QwirkleException {
+        Player player = this.players[this.currentPlayer];
+        Tile[] tiles = new Tile[indexes.length];
+        for (int i = 0; i < indexes.length; i++) {
+            tiles[i] = player.getHand().get(indexes[i]);
         }
+        player.addScore(this.grid.add(row, col, d, tiles));
+        player.remove(tiles);
+        player.refill();
+        changeCurrentPlayer();
     }
 
     /**
      * Attempts to play any tiles for the current player.
      *
      * @param is tiles to play.
+     * @throws QwirkleException if it doesn't respect the rules of the Qwirkle game.
      */
-    public void play(int... is) {
-        try {
-            Player player = this.players[this.currentPlayer];
-            TileAtPosition[] tiles = new TileAtPosition[is.length / 3];
-            Tile[] tilesToRemove = new Tile[is.length / 3];
-            int tilesIndex = 0;
-            for (int i = 0; i < is.length; i = i + 3) {
-                int row = is[i];
-                int col = is[i + 1];
-                Tile tile = player.getHand().get(is[i + 2]);
-                tiles[tilesIndex] = new TileAtPosition(row, col, tile);
-                tilesToRemove[tilesIndex] = tile;
-                tilesIndex++;
-            }
-            player.addScore(this.grid.add(tiles));
-            player.remove(tilesToRemove);
-            player.refill();
-            changeCurrentPlayer();
-        } catch (QwirkleException e) {
-            throw new QwirkleException(e.getMessage());
+    public void play(int... is) throws QwirkleException {
+        Player player = this.players[this.currentPlayer];
+        TileAtPosition[] tiles = new TileAtPosition[is.length / 3];
+        Tile[] tilesToRemove = new Tile[is.length / 3];
+        int tilesIndex = 0;
+        for (int i = 0; i < is.length; i = i + 3) {
+            int row = is[i];
+            int col = is[i + 1];
+            Tile tile = player.getHand().get(is[i + 2]);
+            tiles[tilesIndex] = new TileAtPosition(row, col, tile);
+            tilesToRemove[tilesIndex] = tile;
+            tilesIndex++;
         }
+        player.addScore(this.grid.add(tiles));
+        player.remove(tilesToRemove);
+        player.refill();
+        changeCurrentPlayer();
     }
 
     /**
