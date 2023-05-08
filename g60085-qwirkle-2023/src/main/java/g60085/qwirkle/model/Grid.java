@@ -307,8 +307,8 @@ public class Grid {
                 // If the rules are not respected, the tiles are removed from the grid;
                 for (TileAtPosition tileAtPosition : line) {
                     this.tiles[tileAtPosition.row()][tileAtPosition.col()] = null;
-                    throw new QwirkleException(e.getMessage());
                 }
+                throw new QwirkleException(e.getMessage());
             }
 
             //remove from the score the number of tiles that are repeated on the same line
