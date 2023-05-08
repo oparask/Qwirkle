@@ -37,7 +37,6 @@ public class Player {
         return this.score;
     }
 
-
     /**
      * Gives access to the player's tiles without modifying them.
      *
@@ -74,7 +73,7 @@ public class Player {
      *
      * @param value the number of points to add to the score;
      */
-    public void addScore(int value){
-        this.score = this.score+value;
+    public void addScore(int value) {
+        this.score = this.score + value;
     }
 }

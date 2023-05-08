@@ -119,6 +119,14 @@ public class Game {
     }
 
     /**
+     * @return the current player.
+     */
+    public Player getCurrentPlayer() {
+        return this.players[this.currentPlayer];
+    }
+
+
+    /**
      * @return the name or nickname of the current player.
      */
     public String getCurrentPlayerName() {

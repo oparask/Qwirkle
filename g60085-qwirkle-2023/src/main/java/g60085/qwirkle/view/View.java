@@ -1,7 +1,7 @@
 package g60085.qwirkle.view;
 
-import g60085.qwirkle.model.Game;
 import g60085.qwirkle.model.GridView;
+import g60085.qwirkle.model.Player;
 import g60085.qwirkle.model.Tile;
 
 import java.util.List;
@@ -114,13 +114,13 @@ public class View {
     /**
      * Displays the current player's name and hand.
      *
-     * @param game the Qwirkle game.
+     * @param player the current player.
      */
-    public static void displayPlayer(Game game) {
-        System.out.println(ANSI_CYAN + game.getCurrentPlayerName() + ", It's your turn!");
-        System.out.println("Your score is: " + game.getCurrentPlayerScore());
+    public static void displayPlayer(Player player) {
+        System.out.println(ANSI_CYAN + player.getName() + ", It's your turn!");
+        System.out.println("Your score is: " + player.getScore());
         System.out.print("Your hand is: " + ANSI_RESET);
-        List<Tile> hand = game.getCurrentPlayerHand();
+        List<Tile> hand = player.getHand();
         for (Tile tile : hand) {
             ViewColorShape(tile);
         }
