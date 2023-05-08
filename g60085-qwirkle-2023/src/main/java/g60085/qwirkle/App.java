@@ -24,7 +24,8 @@ public class App {
         View.beginning();
 
         int numberPlayers = nbPlayers(); // Asks for the number of players;
-        Game game = new Game(namePlayers(numberPlayers)); // Shows the players;
+        Game game = new Game(namePlayers(numberPlayers));
+        // Shows the players;
         initTiles(game); // Initializes each player's hand;
         startPlayer(game); // Asks who is starting the game;
         View.displayPlayer(game);
@@ -185,18 +186,17 @@ public class App {
      * @param nbPlayers number of players.
      * @return an array list containing the names of the players.
      */
-    public static List<Player> namePlayers(int nbPlayers) {
-        List<Player> playersList = new ArrayList<>();
+    public static List<String> namePlayers(int nbPlayers) {
+        List<String> playersList = new ArrayList<>();
         for (int i = 0; i < nbPlayers; i++) {
             System.out.print("Enter the name of the player " + (i + 1) + ": ");
             String name = robustReadingString();
-            Player player = new Player(name);
-            playersList.add(player);
+            playersList.add(name);
         }
         System.out.println();
         System.out.print("The players of this Qwirkle game are: ");
-        for (Player player : playersList) {
-            System.out.print(player.getName() + " ");
+        for (String playerName : playersList) {
+            System.out.print(playerName+ " ");
         }
         System.out.println();
         return playersList;

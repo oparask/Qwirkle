@@ -16,11 +16,11 @@ public class Game {
      *
      * @param players a list of String representing the names of the players and players.
      */
-    public Game(List<Player> players) {
+    public Game(List<String> players) {
         this.grid = new Grid();
         this.players = new Player[players.size()];
         for (int i = 0; i < players.size(); i++) {
-            this.players[i] = players.get(i);
+            this.players[i] = new Player(players.get(i));
         }
         this.currentPlayer = 0;
     }
