@@ -139,6 +139,7 @@ public class Game {
         return this.players[this.currentPlayer].getScore();
     }
 
+
     /**
      * Passes turn when unable to play.
      */
@@ -160,18 +161,10 @@ public class Game {
     /**
      * Initializes the player who's starting the game.
      *
-     * @param name the name of player.
+     * @param player the index of the player.
      */
-    public void setCurrentPlayer(String name) {
-        int i = 0;
-        while (i < this.players.length && !this.players[i].getName().equals(name)) {
-            i = i + 1;
-        }
-        if (i == this.players.length) {
-            System.out.println("This name doesn't exist! : ");
-        } else {
-            this.currentPlayer = i;
-        }
+    public void setCurrentPlayer(int player) {
+        this.currentPlayer = player;
     }
 
     /**

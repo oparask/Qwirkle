@@ -196,7 +196,7 @@ public class App {
         System.out.println();
         System.out.print("The players of this Qwirkle game are: ");
         for (String playerName : playersList) {
-            System.out.print(playerName+ " ");
+            System.out.print(playerName + " ");
         }
         System.out.println();
         return playersList;
@@ -220,7 +220,22 @@ public class App {
      */
     public static void startPlayer(Game game) {
         System.out.println("Who is starting ? ");
-        game.setCurrentPlayer(robustReadingString());
+        String name = robustReadingString();
+        boolean validName = false;
+        while (!validName) {
+            int i = 0;
+            while (i < game.getPlayers().length && !game.getPlayers()[i].getName().equals(name)) {
+                i++;
+            }
+            if (i == game.getPlayers().length) {
+                System.out.println("This name doesn't exist! : ");
+                System.out.println("Who is starting ? ");
+                name = robustReadingString();
+            } else {
+                validName = true;
+                game.setCurrentPlayer(i);
+            }
+        }
     }
 
     /**
