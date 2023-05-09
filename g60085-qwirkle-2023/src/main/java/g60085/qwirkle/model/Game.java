@@ -1,5 +1,7 @@
 package g60085.qwirkle.model;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -117,7 +119,7 @@ public class Game {
         player.refill();
         changeCurrentPlayer();
     }
-    
+
     /**
      * @return the name or nickname of the current player.
      */
@@ -180,11 +182,10 @@ public class Game {
     /**
      * Checks if game is over;
      *
-     * @param namePlayers list of players who can't play any tiles;
      * @return true if game is over : one of the players has played all his tiles;
      * or if none of the players can add tiles to the existing lines;
      */
-    public boolean isOver(List<String> namePlayers) {
+    public boolean isOver() {
         Bag bag = Bag.getInstance();
         if (bag.size() == 0) {
             //Game over if one of the players has played all his tiles;
@@ -194,10 +195,34 @@ public class Game {
                     return true;//Game is over
                 }
             }
-            // System.out.println(namePlayers.size());
             //Game over if none of the players can add tiles to the existing lines;
-            return namePlayers.size() == this.players.length;
+            for (int i = 0; i < 89; i++) {//pour chaque ligne
+                int j = 0;
+                while (j < 89) { //colonne
+                    if (this.grid.get(i, j) == null) {
+                        j++;
+                    } else {
+                        //si tuile
+                        List<Tile> tiles = new ArrayList<>();
+                        tiles.add(this.grid.get(i, j));
+                        j++;
+                        while (this.grid.get(i,j) != null) {
+                            tiles.add(this.grid.get(i,j));
+                            j++;
+                        }
+                        if(tiles.size()<6) {
+                            if(tiles.size()==1){
+
+                        }
+                        tiles.clear();
+                        j++;
+
+                        }
+                    }
+
+                    }
+                }
+            }
+            return false; //game is not over
         }
-        return false; //game is not over
     }
-}
