@@ -22,33 +22,30 @@ public class App {
      */
     public static void main(String[] args) {
         View.beginning();
-
         int numberPlayers = nbPlayers(); // Asks for the number of players;
         Game game = new Game(namePlayers(numberPlayers));
+        Bag bag = Bag.getInstance();
         // Shows the players;
         initTiles(game); // Initializes each player's hand;
-        startPlayer(game); // Asks who is starting the game;
+        startPlayer(game); // It asks who's starting the game;
         View.displayPlayer(game.getCurrentPlayerName(), game.getCurrentPlayerHand(), game.getCurrentPlayerScore());
         firstAdd(game); // First attempt;
-
-        Bag bag = Bag.getInstance();
-        List<String> playerPass = new ArrayList<>();
         boolean continueGame = true;
         while (continueGame) {
-
-            if (bag.size() == 0) {
-                System.out.println("The bag is empty! You are almost at the end of the game!");
-            }
-            add(game, playerPass);//play one, several or multiple tiles;
-            System.out.println(ANSI_GREEN + "Enter 'q' if you want to quit" + ANSI_RESET);
-            String quitOrNo = robustReadingString();
-            if (quitOrNo.equalsIgnoreCase("q")) {
+            if (game.isOver()) {
                 continueGame = false;
                 View.endGame(winner(game));
-            }
-            if (game.isOver(playerPass)) {
-                continueGame = false;
-                View.endGame(winner(game));
+            } else {
+                if (bag.size() == 0) {
+                    System.out.println("The bag is empty! You are almost at the end of the game!");
+                }
+                add(game);//play one, several or multiple tiles;
+                System.out.println(ANSI_GREEN + "Enter 'q' if you want to quit" + ANSI_RESET);
+                String quitOrNo = robustReadingString();
+                if (quitOrNo.equalsIgnoreCase("q")) {
+                    continueGame = false;
+                    View.endGame(winner(game));
+                }
             }
         }
     }
@@ -58,33 +55,18 @@ public class App {
      *
      * @param game the Qwirkle game.
      */
-    public static void add(Game game, List<String> playerPass) {
+    public static void add(Game game) {
         System.out.println();
         View.display(game.getGrid());
         View.displayPlayer(game.getCurrentPlayerName(), game.getCurrentPlayerHand(), game.getCurrentPlayerScore());
         System.out.print("Enter the type of play (f, o, l, m, p) : ");
-        String play = robustReadingAddType();
-        switch (play.toLowerCase()) {
-            case "f" -> {
-                playerPass.clear();
-                firstAdd(game);
-            }
-            case "o" -> {
-                playerPass.clear();
-                playOneTile(game);
-            }
-            case "l" -> {
-                playerPass.clear();
-                playLine(game);
-            }
-            case "m" -> {
-                playerPass.clear();
-                playMultiple(game);
-            }
-            case "p" -> {
-                playerPass.add(game.getCurrentPlayerName());
-                game.pass();
-            }
+        String typePlay = robustReadingAddType();
+        switch (typePlay.toLowerCase()) {
+            case "f" -> firstAdd(game);
+            case "o" -> playOneTile(game);
+            case "l" -> playLine(game);
+            case "m" -> playMultiple(game);
+            case "p" -> game.pass();
         }
     }
 
