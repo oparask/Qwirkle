@@ -1,7 +1,5 @@
 package g60085.qwirkle.model;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -186,43 +184,67 @@ public class Game {
      * or if none of the players can add tiles to the existing lines;
      */
     public boolean isOver() {
+        boolean isOver = false;
         Bag bag = Bag.getInstance();
-        if (bag.size() == 0) {
+        if (bag.size() == 0) { //no more tiles
             //Game over if one of the players has played all his tiles;
             for (Player player : this.players) {
                 if (player.getHand().size() == 0) {
-                    player.addScore(6);
-                    return true;//Game is over
+                    player.addScore(6);//add 6 points to the player that has played all his tiles
+                    isOver = true;//Game is over
                 }
             }
             //Game over if none of the players can add tiles to the existing lines;
-            for (int i = 0; i < 89; i++) {//pour chaque ligne
-                int j = 0;
-                while (j < 89) { //colonne
-                    if (this.grid.get(i, j) == null) {
-                        j++;
-                    } else {
-                        //si tuile
-                        List<Tile> tiles = new ArrayList<>();
-                        tiles.add(this.grid.get(i, j));
-                        j++;
-                        while (this.grid.get(i,j) != null) {
-                            tiles.add(this.grid.get(i,j));
-                            j++;
-                        }
-                        if(tiles.size()<6) {
-                            if(tiles.size()==1){
+            if (!isOver && nobodyCanPlay()) {
+                isOver = true;//game is not over
+            }
+        }
+        return isOver;
+    }
 
-                        }
-                        tiles.clear();
-                        j++;
+    private boolean nobodyCanPlay() {
+        boolean nobodyCanPlay = true;
+        int indexPlayer = 0;
+        while (indexPlayer < this.players.length && nobodyCanPlay) {
+            if (canAddTilesFromHand(indexPlayer)) {
+                nobodyCanPlay = false;
+            }
+            indexPlayer++;
+        }
+        return nobodyCanPlay;
+    }
 
+    private boolean canAddTilesFromHand(int indexPlayer) {
+        boolean canAddTile = false;
+
+        int indexRow = 0; //pour chaque ligne
+        while (indexRow < 89 && !canAddTile) {
+            int indexCol = 0;
+            while (indexCol < 89 && !canAddTile) { //pour chaque colonne
+                if (this.grid.get(indexRow, indexCol) != null) { //si il y a une tuile sur la grille
+                    //je verifie que avant cette tuile je peux placer une de mes tuiles
+                    int indexTileHand = 0;
+                    Player player = this.players[indexPlayer];
+                    while (indexTileHand < player.getHand().size() && !canAddTile) {
+                        canAddTile = grid.validRulesAdd(indexRow, indexCol - 1, Direction.RIGHT,
+                                getCurrentPlayerHand().get(indexTileHand));
+                        indexTileHand++;
+                    }
+                    if (!canAddTile) { //si je ne peut pas ajouter une des mes tuiles
+                        //parcourir toutes les tuiles qui se trouvent apres la tuile de la grille
+                        while (this.grid.get(indexRow, indexCol) != null) {//tant qu'il y a une tuile, avancer
+                            indexCol++;
                         }
                     }
-
-                    }
+                } else {
+                    indexCol++; //j'avance si y a pas de tuile
                 }
             }
-            return false; //game is not over
+            indexRow++;
         }
+        return canAddTile;
     }
+
+
+}
+
