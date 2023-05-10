@@ -192,6 +192,7 @@ public class Grid {
             if (sameTile(lineTiles)) {
                 throw new QwirkleException("You cannot add the same tile");
             }
+
             List<Integer> tilesRow = new ArrayList<>();
             List<Integer> tilesCol = new ArrayList<>();
             List<Integer> sumRowCol = new ArrayList<>();
@@ -218,27 +219,27 @@ public class Grid {
                     throw new QwirkleException("You cannot put two tiles at the same position!");
                 }
             }
-            for (TileAtPosition tileAtPosition : line) {
-                //Checks that the tile to add is adjacent to an existing tile on the grid;
-                //Checks that the horizontal and vertical tile line is composed of a maximum of 6 tiles;
-                //Checks that the horizontal and vertical tiles share the same characteristic;
-                int newRow = tileAtPosition.row();
-                int newCol = tileAtPosition.col();
-                Tile tile = tileAtPosition.tile();
-                if (!adjacentTiles(newRow, newCol, Direction.RIGHT, tile)) {
-                    throw new QwirkleException("The tiles are not connected to another tile!");
-                }
-                if (!validRulesAdd(newRow, newCol, Direction.RIGHT, tile)) {
-                    throw new QwirkleException("Does not respect the rules of qwirkle game!");
-                }
-            }
+
             // We place the tiles
             for (TileAtPosition tileAtPosition : line) {
                 this.tiles[tileAtPosition.row()][tileAtPosition.col()] = tileAtPosition.tile();
             }
-            return scoreRulesAdd3(line);
-        }
 
+            if (!adjacentTileAtPosition(tilesRow, tilesCol, line[0])) {
+                // si c'est pas bon
+                for (TileAtPosition tileAtPosition : line) {
+                    this.tiles[tileAtPosition.row()][tileAtPosition.col()] = null;
+                }
+                throw new QwirkleException("The tiles are not connected to another tile!");
+            }
+
+            for (TileAtPosition tileAtPosition : line) {
+                if (!validRulesAdd(tileAtPosition.row(), tileAtPosition.col(), Direction.RIGHT, tileAtPosition.tile())) {
+                    throw new QwirkleException("Does not respect the rules of qwirkle game!");
+                }
+            }
+        }
+        return scoreRulesAdd3(line);
     }
 
     /**
@@ -520,28 +521,52 @@ public class Grid {
         } else {
             d = Direction.UP;
         }
-        List<TileAtPosition> lineList = new ArrayList<>();
-        Collections.addAll(lineList, line);
-        for (int i = 0; i < lineList.size(); i++) {//for each tileAtPosition
-            int row = lineList.get(i).row();
-            int col = lineList.get(i).col();
-            Tile tile = lineList.get(i).tile();
-            List<Tile> directionTiles = tilesFromTheLine(row, col, d, tile);
-            int nbTiles = 0;
-            //verify if there is several tiles that we want to add in the list
-            for (int j = 0; j < lineList.size(); j++) {
-                if (directionTiles.contains(lineList.get(j).tile())) {
-                    nbTiles++;
-                    lineList.remove(j);
-                    j--;
-                }
-            }
-            //We had to remove at least one tile from the list;
-            i--;
-            score = score - (nbTiles - 1) * directionTiles.size();
-        }
+        TileAtPosition tile = line[0];
+        List<Tile> tilesToRemove = tilesFromTheLine(tile.row(), tile.col(), d, tile.tile());
+        score = score - (line.length - 1) * tilesToRemove.size();
         return score;
     }
+
+    private boolean adjacentTileAtPosition(List<Integer> tilesRow, List<Integer> tilesCol, TileAtPosition tileAtPosition) {
+        boolean valid = true;
+        Direction d;
+        if (sameRow(tilesRow)) { //si line horizontale
+            d = Direction.RIGHT;
+        } else {
+            d = Direction.UP;
+        }
+        // We place the tiles
+        int min;
+        int max;
+        //on definnit les extremités
+        if (d == Direction.RIGHT) {
+            //il faut que je parcoure leur colonnes
+            Collections.sort(tilesCol);
+            min = tilesCol.get(0);
+            max = tilesCol.get(tilesCol.size() - 1);
+            int j = min;
+            while (j < max && get(tileAtPosition.row(), j) != null) {
+                j++;
+            }
+            if (j != max) {
+                valid = false;
+            }
+        } else {
+            //parcours des lignes
+            Collections.sort(tilesRow);
+            min = tilesRow.get(0);
+            max = tilesRow.get(tilesRow.size() - 1);
+            int i = min;
+            while (i < max && get(i, tileAtPosition.col()) != null) {
+                i++;
+            }
+            if (i != max) {
+                valid = false;
+            }
+        }
+        return valid;
+    }
+
 
 }
 
