@@ -28,24 +28,26 @@ public class App {
         // Shows the players;
         initTiles(game); // Initializes each player's hand;
         startPlayer(game); // It asks who's starting the game;
-        View.displayPlayer(game.getCurrentPlayerName(), game.getCurrentPlayerHand(), game.getCurrentPlayerScore());
-        firstAdd(game); // First attempt;
+        View.displayHelp();
         boolean continueGame = true;
         while (continueGame) {
-            if (game.isOver()) {
-                continueGame = false;
-                View.endGame(winner(game));
-            } else {
-                if (bag.size() == 0) {
-                    System.out.println("The bag is empty! You are almost at the end of the game!");
-                }
-                add(game);//play one, several or multiple tiles;
-                System.out.println(ANSI_GREEN + "Enter 'q' if you want to quit" + ANSI_RESET);
-                String quitOrNo = robustReadingString();
-                if (quitOrNo.equalsIgnoreCase("q")) {
+            try {
+                if (game.isOver()) {
                     continueGame = false;
                     View.endGame(winner(game));
+                } else {
+                    if (bag.size() == 0) {
+                        View.displayGameAlmostOver();
+                    }
+                    add(game);//play one, several or multiple tiles;
+                    String quitOrNo = robustReadingString(ANSI_GREEN + "Enter 'q' if you want to quit" + ANSI_RESET);
+                    if (quitOrNo.equalsIgnoreCase("q")) {
+                        continueGame = false;
+                        View.endGame(winner(game));
+                    }
                 }
+            } catch (QwirkleException e) {
+                View.displayError(e.getMessage()); //Shows the message of the exception;
             }
         }
     }
@@ -55,12 +57,11 @@ public class App {
      *
      * @param game the Qwirkle game.
      */
-    public static void add(Game game) {
+    private static void add(Game game) {
         System.out.println();
         View.display(game.getGrid());
         View.displayPlayer(game.getCurrentPlayerName(), game.getCurrentPlayerHand(), game.getCurrentPlayerScore());
-        System.out.print("Enter the type of play (f, o, l, m, p) : ");
-        String typePlay = robustReadingAddType();
+        String typePlay = robustReadingAddType("Enter the type of play (f, o, l, m, p): ");
         switch (typePlay.toLowerCase()) {
             case "f" -> firstAdd(game);
             case "o" -> playOneTile(game);
@@ -75,14 +76,9 @@ public class App {
      *
      * @param game the Qwirkle game.
      */
-    public static void firstAdd(Game game) {
-        try {
-            System.out.println(ANSI_GREEN + "Start!" + ANSI_RESET);
-            game.first(direction(), indexes());
-            //View.display(game.getGrid());
-        } catch (QwirkleException e) {
-            View.displayError(e.getMessage()); //Shows the message of the exception;
-        }
+    private static void firstAdd(Game game) {
+        View.displayStart();
+        game.first(direction(), indexes());
     }
 
     /**
@@ -90,17 +86,11 @@ public class App {
      *
      * @param game the Qwirkle game.
      */
-    public static void playOneTile(Game game) {
-        try {
-            int index = robustReadingIndexes();
-            System.out.print("Enter the row where you want to place the tile: ");
-            int row = robustReadingInt();
-            System.out.print("Enter the column where you want to place the tile: ");
-            int col = robustReadingInt();
-            game.play(row, col, index);
-        } catch (QwirkleException e) {
-            View.displayError(e.getMessage()); //Shows the message of the exception;
-        }
+    private static void playOneTile(Game game) {
+        int index = robustReadingIndexes();
+        int row = robustReadingInt("Enter the row where you want to place the tile: ");
+        int col = robustReadingInt("Enter the column where you want to place the tile: ");
+        game.play(row, col, index);
     }
 
     /**
@@ -108,16 +98,10 @@ public class App {
      *
      * @param game the Qwirkle game.
      */
-    public static void playLine(Game game) {
-        try {
-            System.out.print("Enter the row where you want to place the first tile: ");
-            int row = robustReadingInt();
-            System.out.println("Enter the column where you want to place the first tile: ");
-            int col = robustReadingInt();
-            game.play(row, col, direction(), indexes());
-        } catch (QwirkleException e) {
-            View.displayError(e.getMessage()); //Shows the message of the exception;
-        }
+    private static void playLine(Game game) {
+        int row = robustReadingInt("Enter the row where you want to place the first tile: ");
+        int col = robustReadingInt("Enter the column where you want to place the first tile: ");
+        game.play(row, col, direction(), indexes());
     }
 
     /**
@@ -125,31 +109,23 @@ public class App {
      *
      * @param game the Qwirkle game.
      */
-    public static void playMultiple(Game game) {
-        try {
-            System.out.print("How many tiles do you want to place ? ");
-            int nbTiles = robustReadingInt();
-            while (nbTiles < 1 || nbTiles > 6) {
-                System.out.println(ANSI_ORANGE + "Number of tiles must be between 1 and 6, try again!" + ANSI_RESET);
-                nbTiles = robustReadingInt();
-            }
-            int[] playMultipleTiles = new int[nbTiles * 3];
-            int indexTab = 0;
-            for (int i = 0; i < nbTiles; i++) {
-                System.out.print("Enter the row where you want to place the tile " + (i + 1) + ": ");
-                int row = robustReadingInt();
-                System.out.println("Enter the column where you want to place the tile: " + (i + 1) + ": ");
-                int col = robustReadingInt();
-                int tileIndex = robustReadingIndexes();
-                playMultipleTiles[indexTab] = row;
-                playMultipleTiles[indexTab + 1] = col;
-                playMultipleTiles[indexTab + 2] = tileIndex;
-                indexTab = indexTab + 3;
-            }
-            game.play(playMultipleTiles);
-        } catch (QwirkleException e) {
-            View.displayError(e.getMessage()); //Shows the message of the exception;
+    private static void playMultiple(Game game) {
+        int nbTiles = robustReadingInt("How many tiles do you want to place ? ");
+        while (nbTiles < 1 || nbTiles > 6) {
+            nbTiles = robustReadingInt(ANSI_ORANGE + "Number of tiles must be between 1 and 6, try again!" + ANSI_RESET);
         }
+        int[] playMultipleTiles = new int[nbTiles * 3];
+        int indexTab = 0;
+        for (int i = 0; i < nbTiles; i++) {
+            int row = robustReadingInt("Enter the row where you want to place the tile " + (i + 1) + ": ");
+            int col = robustReadingInt("Enter the column where you want to place the tile: " + (i + 1) + ": ");
+            int tileIndex = robustReadingIndexes();
+            playMultipleTiles[indexTab] = row;
+            playMultipleTiles[indexTab + 1] = col;
+            playMultipleTiles[indexTab + 2] = tileIndex;
+            indexTab = indexTab + 3;
+        }
+        game.play(playMultipleTiles);
     }
 
     /**
@@ -157,8 +133,7 @@ public class App {
      *
      * @return the number of players.
      */
-    public static int nbPlayers() {
-        System.out.print("Enter the number of players: ");
+    private static int nbPlayers() {
         return robustReadingPlayers();
     }
 
@@ -166,21 +141,17 @@ public class App {
      * Asks for the names of the players.
      *
      * @param nbPlayers number of players.
-     * @return an array list containing the names of the players.
+     * @return a list with all the player's name;
      */
-    public static List<String> namePlayers(int nbPlayers) {
+    private static List<String> namePlayers(int nbPlayers) {
+        Scanner keyboard = new Scanner(System.in);
         List<String> playersList = new ArrayList<>();
         for (int i = 0; i < nbPlayers; i++) {
-            System.out.print("Enter the name of the player " + (i + 1) + ": ");
-            String name = robustReadingString();
+            System.out.println("Enter the name of the player " + (i + 1) + ": ");
+            String name = keyboard.nextLine();
             playersList.add(name);
         }
-        System.out.println();
-        System.out.print("The players of this Qwirkle game are: ");
-        for (String playerName : playersList) {
-            System.out.print(playerName + " ");
-        }
-        System.out.println();
+        View.displayAllPlayers(playersList);
         return playersList;
     }
 
@@ -189,7 +160,7 @@ public class App {
      *
      * @param game the Qwirkle game.
      */
-    public static void initTiles(Game game) {
+    private static void initTiles(Game game) {
         for (int i = 0; i < game.getPlayers().length; i++) {
             game.getPlayers()[i].refill();
         }
@@ -200,9 +171,8 @@ public class App {
      *
      * @param game the Qwirkle game.
      */
-    public static void startPlayer(Game game) {
-        System.out.println("Who is starting ? ");
-        String name = robustReadingString();
+    private static void startPlayer(Game game) {
+        String name = robustReadingString("Who is starting ? ");
         boolean validName = false;
         while (!validName) {
             int i = 0;
@@ -210,9 +180,7 @@ public class App {
                 i++;
             }
             if (i == game.getPlayers().length) {
-                System.out.println("This name doesn't exist! : ");
-                System.out.println("Who is starting ? ");
-                name = robustReadingString();
+                name = robustReadingString("This name doesn't exist! : \n" + "Who is starting ? ");
             } else {
                 validName = true;
                 game.setCurrentPlayer(i);
@@ -225,8 +193,9 @@ public class App {
      *
      * @return an integer.
      */
-    public static int robustReadingInt() {
+    private static int robustReadingInt(String message) {
         Scanner keyboard = new Scanner(System.in);
+        System.out.println(message);
         while (!keyboard.hasNextInt()) {
             System.out.println(ANSI_ORANGE + "Invalid number, try again!: " + ANSI_RESET);
             keyboard.next();
@@ -240,13 +209,20 @@ public class App {
      *
      * @return a valid number of players.
      */
-    public static int robustReadingPlayers() {
-        int number = robustReadingInt();
-        while (number < 2 || number > 4) {
-            System.out.println(ANSI_ORANGE + "The number of players must be between 2 and 4, try again! : "
-                    + ANSI_RESET);
-            number = robustReadingInt();
+    private static int robustReadingPlayers() {
+        Scanner scanner = new Scanner(System.in);
+        int number;
+        String regex = "[2-4]"; // This regex pattern will match any single digit that is either 2, 3, or 4.
+
+        System.out.print("Enter the number of players (2-4): ");
+        String input = scanner.nextLine();
+
+        while (!input.matches(regex)) {
+            System.out.println(ANSI_ORANGE + "Invalid input! Please enter a number between 2 and 4." + ANSI_RESET);
+            input = scanner.nextLine();
         }
+
+        number = Integer.parseInt(input);
         return number;
     }
 
@@ -255,8 +231,9 @@ public class App {
      *
      * @return a String.
      */
-    public static String robustReadingString() {
+    private static String robustReadingString(String message) {
         Scanner keyboard = new Scanner(System.in);
+        System.out.println(message);
         while (!keyboard.hasNextLine()) {
             System.out.println(ANSI_ORANGE + "Invalid String, try again! : " + ANSI_RESET);
             keyboard.next();
@@ -269,44 +246,37 @@ public class App {
      *
      * @return a String representing the type of add.
      */
-    public static String robustReadingAddType() {
+    private static String robustReadingAddType(String message) {
         Scanner keyboard = new Scanner(System.in);
-        String addType = robustReadingString();
-        while ((!addType.equalsIgnoreCase("f")) && (!addType.equalsIgnoreCase("o"))
-                && (!addType.equalsIgnoreCase("l") && (!addType.equalsIgnoreCase("m"))
-                && (!addType.equalsIgnoreCase("p")))) {
-            System.out.print(ANSI_ORANGE + "The type of play letter is invalid, do you need help (y or n) ? : " + ANSI_RESET);
-            String help = keyboard.nextLine();
-            if (help.equalsIgnoreCase("y")) {
+
+        System.out.print(message);
+        String addType = keyboard.nextLine();
+        String regex = "[folmp]"; // Regular expression for matching the letters f, o, l, m, or p
+
+        while (!addType.toLowerCase().matches(regex)) {
+            if (yesOrNoRobustLecture(ANSI_ORANGE + "Do you need help (y or n)? : " + ANSI_RESET).equalsIgnoreCase("y")) {
                 View.displayHelp();
             }
-            System.out.print("Enter the type of play (f, o, l, m, p) : ");
-            addType = robustReadingString();
+            System.out.print(message);
+            addType = keyboard.nextLine();
         }
         return addType;
     }
 
-    /**
-     * Robust reading of a direction.
-     *
-     * @return a valid direction.
-     */
-    public static String robustReadingDirection() {
+    private static String yesOrNoRobustLecture(String message) {
         Scanner keyboard = new Scanner(System.in);
-        String direction = robustReadingString();
-        while ((!direction.equalsIgnoreCase("l")) && (!direction.equalsIgnoreCase("u"))
-                && (!direction.equalsIgnoreCase("r")) && (!direction.equalsIgnoreCase("d"))) {
-            System.out.print(ANSI_ORANGE + "The direction letter is invalid, do you need help (y or n) ? : "
-                    + ANSI_RESET);
-            String help = keyboard.nextLine();
-            if (help.equalsIgnoreCase("y")) {
-                View.displayHelp();
-            }
-            System.out.print("Enter the direction of your tiles placement (d, u, l, r): ");
-            direction = robustReadingString();
+        String regex = "[yn]"; // Regular expression for matching the letters y or n
+
+        System.out.println(message);
+        String yesOrNo = keyboard.nextLine();
+
+        while (!yesOrNo.toLowerCase().matches(regex)) {
+            System.out.println(message);
+            yesOrNo = keyboard.nextLine();
         }
-        return direction;
+      return yesOrNo;
     }
+
 
     /**
      * Robust reading of an index.
@@ -314,14 +284,35 @@ public class App {
      *
      * @return a valid index.
      */
-    public static int robustReadingIndexes() {
-        System.out.println("Enter the index of the tile that you want to play: ");
-        int index = robustReadingInt();
+    private static int robustReadingIndexes() {
+        int index = robustReadingInt("Enter the index of the tile that you want to play: ");
         while (index < 0 || index > 5) {
             System.out.println(ANSI_ORANGE + "The index must be between 0 and 5 , try again! : " + ANSI_RESET);
-            index = robustReadingInt();
+            index = robustReadingInt("Enter the index of the tile that you want to play: ");
         }
         return index;
+    }
+
+    /**
+     * Robust reading of a direction.
+     *
+     * @return a valid direction.
+     */
+    private static String robustReadingDirection() {
+        Scanner keyboard = new Scanner(System.in);
+        String message = "Enter the direction of your tiles placement (d, u, l, r): ";
+        String regex = "[dulr]"; // Regular expression for matching the letters d, u, l or r
+
+        System.out.println(message);
+        String direction = keyboard.nextLine();
+        while (!direction.toLowerCase().matches(regex)) {
+            if (yesOrNoRobustLecture(ANSI_ORANGE + "Do you need help (y or n)? : " + ANSI_RESET).equalsIgnoreCase("y")) {
+                View.displayHelp();
+            }
+            System.out.println(message);
+            direction = keyboard.nextLine();
+        }
+        return direction;
     }
 
     /**
@@ -329,8 +320,7 @@ public class App {
      *
      * @return the direction.
      */
-    public static Direction direction() {
-        System.out.print("Enter the direction of your tiles placement (d, u, l, r): ");
+    private static Direction direction() {
         String direction = robustReadingDirection();
         return switch (direction.toLowerCase()) {
             case "d" -> Direction.DOWN;
@@ -346,16 +336,14 @@ public class App {
      *
      * @return an array of tiles indexes.
      */
-    public static int[] indexes() {
+    private static int[] indexes() {
         Scanner keyboard = new Scanner(System.in);
         List<Integer> indexes = new ArrayList<>();
         boolean more = true;
         while (indexes.size() < 6 && more) {
             int index = robustReadingIndexes();
             indexes.add(index);
-            System.out.println("Do you want to add more tiles ? (y or n)");
-            String yesOrNo = keyboard.nextLine();
-            if (yesOrNo.equalsIgnoreCase("n")) {
+            if (yesOrNoRobustLecture("Do you want to add more tiles ? (y or n)").equalsIgnoreCase("n")) {
                 more = false;
             }
         }
@@ -367,12 +355,12 @@ public class App {
     }
 
     /**
-     * checks who got the highest score
+     * Checks who got the highest score
      *
      * @param game the current game;
      * @return the name of the winner;
      */
-    public static String winner(Game game) {
+    private static String winner(Game game) {
         int maxScore = 0;
         String nameWinner = "";
         for (Player player : game.getPlayers()) {

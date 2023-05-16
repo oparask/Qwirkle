@@ -133,10 +133,10 @@ public class View {
      */
     public static void displayHelp() {
         System.out.println(ANSI_PURPLE + "Qwirkle command:\n"
+                + "- play first : f <i1> [<i2>]\n"
                 + "- play 1 tile : o <row> <col> <i>\n"
                 + "- play line: l <row> <col> <direction> <i1> [<i2>]\n"
                 + "- play plic-ploc : m <row1> <col1> <i1> [<row2> <col2> <i2>]\n"
-                + "- play first : f <i1> [<i2>]\n"
                 + "- pass : p\n"
                 + "- quit : q\n"
                 + "    i : index in list of tiles\n"
@@ -154,6 +154,34 @@ public class View {
         System.out.println(ANSI_GREEN + "Try again!" + ANSI_RESET);
         System.out.println();
     }
+
+    /**
+     * Displays the word "Start";
+     */
+    public static void displayStart() {
+        System.out.println(ANSI_GREEN + "Start!" + ANSI_RESET);
+    }
+
+    /**
+     * Displays a message to inform that the game is almost over;
+     */
+    public static void displayGameAlmostOver() {
+        System.out.println("The bag is empty! You are almost at the end of the game!");
+    }
+
+    /**
+     * Displays the players of the Qwirkle game;
+     */
+    public static void displayAllPlayers(List<String> playersList) {
+        System.out.println();
+        System.out.print("The players of this Qwirkle game are: ");
+        for (String playerName : playersList) {
+            System.out.print(playerName + " ");
+        }
+        System.out.println();
+    }
+
+
 
     /**
      * Displays a game over message.
