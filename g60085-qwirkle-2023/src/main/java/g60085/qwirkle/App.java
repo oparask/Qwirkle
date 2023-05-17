@@ -21,13 +21,32 @@ public class App {
      * @param args An array of strings;
      */
     public static void main(String[] args) {
-        View.beginning();
-        int numberPlayers = nbPlayers(); // Asks for the number of players;
-        Game game = new Game(namePlayers(numberPlayers));
+        Scanner keyboard = new Scanner(System.in);
+        Game game;
+
+        if (resumeGame()) { //SI ON REPREND UNE PARTIE
+            System.out.println("entrez le nom du fichier");
+            String filename = keyboard.nextLine(); //demander quel fichier reprendre
+            game = Game.getFromFile(filename);
+            while (game == null) {
+                System.out.println("Ce fichier est vide ou il existe pas");
+                if (resumeGame()) { //SI ON veut toujours REPRENDre UNE PARTIE
+                    System.out.println("entrez le nom du fichier");
+                    filename = keyboard.nextLine();
+                    game = Game.getFromFile(filename);
+                } else {
+                    //SI ON veut plus REPRENDre UNE PARTIE
+                    game = beginningGame();   // Continuez le jeu à partir de la
+                    break;
+                }
+            }
+        } else {
+            game = beginningGame();
+        }
+
+
         Bag bag = Bag.getInstance();
-        // Shows the players;
-        initTiles(game); // Initializes each player's hand;
-        startPlayer(game); // It asks who's starting the game;
+
         View.displayHelp();
         boolean continueGame = true;
         while (continueGame) {
@@ -43,6 +62,11 @@ public class App {
                     String quitOrNo = robustReadingString(ANSI_GREEN + "Enter 'q' if you want to quit" + ANSI_RESET);
                     if (quitOrNo.equalsIgnoreCase("q")) {
                         continueGame = false;
+                        //faut demander si on veut sérializer
+                        System.out.println("entrez le nom du fichier");
+                        String filename = keyboard.nextLine();
+                        Game.write(game, filename);
+                        //////////////
                         View.endGame(winner(game));
                     }
                 }
@@ -50,6 +74,16 @@ public class App {
                 View.displayError(e.getMessage()); //Shows the message of the exception;
             }
         }
+    }
+
+    private static Game beginningGame() {
+        View.beginning();
+        int numberPlayers = nbPlayers(); // Asks for the number of players;
+        // Shows the players;
+        Game game = new Game(namePlayers(numberPlayers));
+        initTiles(game); // Initializes each player's hand;
+        startPlayer(game); // It asks who's starting the game;
+        return game;
     }
 
     /**
@@ -274,7 +308,7 @@ public class App {
             System.out.println(message);
             yesOrNo = keyboard.nextLine();
         }
-      return yesOrNo;
+        return yesOrNo;
     }
 
 
@@ -285,11 +319,20 @@ public class App {
      * @return a valid index.
      */
     private static int robustReadingIndexes() {
-        int index = robustReadingInt("Enter the index of the tile that you want to play: ");
-        while (index < 0 || index > 5) {
+        Scanner keyboard = new Scanner(System.in);
+        String message = "Enter the index of the tile that you want to play: ";
+        int index;
+        String regex = "[0-5]"; // This regex pattern will match any single digit that is either 0, 1, 2, 3, 4, 5.
+
+        System.out.println(message);
+        String input = keyboard.nextLine();
+        while (!input.matches(regex)) {
             System.out.println(ANSI_ORANGE + "The index must be between 0 and 5 , try again! : " + ANSI_RESET);
-            index = robustReadingInt("Enter the index of the tile that you want to play: ");
+            System.out.println(message);
+            input = keyboard.nextLine();
         }
+
+        index = Integer.parseInt(input);
         return index;
     }
 
@@ -371,4 +414,13 @@ public class App {
         }
         return nameWinner;
     }
+
+    private static boolean resumeGame() {
+        boolean resumeGame;
+        String message = "Do you want to resume a game ?";
+        resumeGame = yesOrNoRobustLecture(message).equalsIgnoreCase("y");
+        return resumeGame;
+    }
+
+
 }

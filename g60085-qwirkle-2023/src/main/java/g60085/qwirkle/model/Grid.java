@@ -1,5 +1,6 @@
 package g60085.qwirkle.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -8,7 +9,7 @@ import java.util.List;
 /**
  * Grid represents the game grid.
  */
-public class Grid {
+public class Grid implements Serializable {
     private Tile[][] line;
     private boolean isEmpty;
 

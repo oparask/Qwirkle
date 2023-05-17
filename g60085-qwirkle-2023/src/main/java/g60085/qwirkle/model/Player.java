@@ -1,5 +1,6 @@
 package g60085.qwirkle.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -7,7 +8,7 @@ import java.util.List;
 /**
  * Player represents a player in the game.
  */
-public class Player {
+public class Player implements Serializable {
     private String name;
     private List<Tile> tiles;
     private int score;

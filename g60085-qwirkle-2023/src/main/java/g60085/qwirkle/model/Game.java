@@ -1,15 +1,25 @@
 package g60085.qwirkle.model;
 
+import java.io.*;
 import java.util.List;
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
+import java.io.IOException;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
+import java.io.IOException;
+
 
 /**
  * Game represents the facade of the model.
  * It is with this class that the view interacts.
  */
-public class Game {
+public class Game implements Serializable {
     private Grid grid;
     private final Player[] players;
     private int currentPlayer;
+
+    private Bag bag; //for serializable
 
     /**
      * Initializes the array of players, the game grid and initialize the current player to 0.
@@ -244,6 +254,32 @@ public class Game {
         }
         return canAddTile;
     }
+
+
+    //serialiser
+    public static void write(Game game, String filename) {
+        try (FileOutputStream fileOut = new FileOutputStream("game.ser/" +filename);
+             ObjectOutputStream objOut = new ObjectOutputStream(fileOut)) {
+            objOut.writeObject(game);
+            System.out.println("Le jeu a été sérialisé avec succès !");
+        } catch (IOException e) {
+            System.err.println("Erreur lors de la sérialisation du jeu : " + e.getMessage());
+        }
+    }
+
+    public static Game getFromFile(String filename) {
+        try (FileInputStream fileIn = new FileInputStream("game.ser/" + filename);
+             ObjectInputStream objIn = new ObjectInputStream(fileIn)) {
+            Game game = (Game) objIn.readObject();
+            System.out.println("Le jeu a été désérialisé avec succès !");
+            return game;
+        } catch (IOException | ClassNotFoundException e) {
+            System.out.println("Erreur lors de la désérialisation du jeu : " + e.getMessage());
+            return null;
+        }
+    }
+
+
 
 
 }

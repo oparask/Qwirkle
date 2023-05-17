@@ -133,14 +133,14 @@ public class View {
      */
     public static void displayHelp() {
         System.out.println(ANSI_PURPLE + "Qwirkle command:\n"
-                + "- play first : f <i1> [<i2>]\n"
+                + "- play first : f [<direction>] <f1> [<f2> …]\n"
                 + "- play 1 tile : o <row> <col> <i>\n"
                 + "- play line: l <row> <col> <direction> <i1> [<i2>]\n"
                 + "- play plic-ploc : m <row1> <col1> <i1> [<row2> <col2> <i2>]\n"
                 + "- pass : p\n"
                 + "- quit : q\n"
                 + "    i : index in list of tiles\n"
-                + "    d : direction in l (left), r (right), u (up), d(down)\n" + ANSI_RESET);
+                + "    d : direction in l (left), r (right), u (up), d (down)\n" + ANSI_RESET);
     }
 
     /**
