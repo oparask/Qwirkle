@@ -3,10 +3,10 @@ package g60085.qwirkle;
 import g60085.qwirkle.model.*;
 import g60085.qwirkle.view.View;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-
 import static g60085.qwirkle.view.View.*;
 
 /**
@@ -22,69 +22,75 @@ public class App {
      */
     public static void main(String[] args) {
         Scanner keyboard = new Scanner(System.in);
-        Game game;
+        Game game = null;
+        displayTitle();
 
-        if (resumeGame()) { //SI ON REPREND UNE PARTIE
-            System.out.println("entrez le nom du fichier");
-            String filename = keyboard.nextLine(); //demander quel fichier reprendre
-            game = Game.getFromFile(filename);
-            while (game == null) {
-                System.out.println("Ce fichier est vide ou il existe pas");
-                if (resumeGame()) { //SI ON veut toujours REPRENDre UNE PARTIE
-                    System.out.println("entrez le nom du fichier");
-                    filename = keyboard.nextLine();
-                    game = Game.getFromFile(filename);
-                } else {
-                    //SI ON veut plus REPRENDre UNE PARTIE
-                    game = beginningGame();   // Continuez le jeu à partir de la
-                    break;
+        // Resume a previously saved game;
+        if (resumeGame()) {
+            do {
+                try {
+                    if(noSerializedFiles()){ // If empty directory;
+                        break;
+                    } else {
+                        // The method displays the files;
+                        asksFileName();
+                        String filename = keyboard.nextLine();
+                        game = Game.getFromFile(filename);
+                        successMsg("deserialized");
+                    }
+                } catch (IOException | ClassNotFoundException e) {
+                    errorMsg(e.getMessage(), "deserialized");
                 }
-            }
-        } else {
-            game = beginningGame();
+            } while (game == null && resumeGame());
         }
 
+        // Starts a new game;
+        if (game == null) {
+            int numberPlayers = nbPlayers(); // Asks for the number of players && Shows the players;
+            game = new Game(namePlayers(numberPlayers));
+            game.initPlayerHand(); // Initializes each player's hand;
+            startPlayer(game); // It asks who's starting the game;
+            displayHelp();
+        }
 
-        Bag bag = Bag.getInstance();
-
-        View.displayHelp();
+        //The flow of the game;
         boolean continueGame = true;
         while (continueGame) {
             try {
                 if (game.isOver()) {
                     continueGame = false;
-                    View.endGame(winner(game));
+                    endGame(winner(game));
                 } else {
-                    if (bag.size() == 0) {
-                        View.displayGameAlmostOver();
+                    if (Bag.getInstance().size() == 0) {
+                        displayGameAlmostOver();
                     }
-                    add(game);//play one, several or multiple tiles;
-                    String quitOrNo = robustReadingString(ANSI_GREEN + "Enter 'q' if you want to quit" + ANSI_RESET);
-                    if (quitOrNo.equalsIgnoreCase("q")) {
+                    add(game); // Play one, several or multiple tiles;
+                    String quitGame = robustReadingString(ANSI_GREEN + "Enter 'q' if you want to quit" + ANSI_RESET);
+                    if (quitGame.equalsIgnoreCase("q")) {
                         continueGame = false;
-                        //faut demander si on veut sérializer
-                        System.out.println("entrez le nom du fichier");
-                        String filename = keyboard.nextLine();
-                        Game.write(game, filename);
-                        //////////////
-                        View.endGame(winner(game));
+                        if (saveGame()) {
+                            boolean gameIsSaved = false;
+                            do{
+                                try {
+                                    asksFileName();
+                                    String filename = keyboard.nextLine();
+                                    Game.write(game, filename);
+                                    gameIsSaved = true;
+                                    successMsg("serialized");
+                                } catch (IOException e) {
+                                    errorMsg(e.getMessage(), "serialized");
+                                }
+                            }while (!gameIsSaved && saveGame());
+                        }
+                        endGame(winner(game));
                     }
                 }
             } catch (QwirkleException e) {
-                View.displayError(e.getMessage()); //Shows the message of the exception;
+                displayError(e.getMessage()); //Shows the message of the exception;
             }
         }
     }
 
-    private static Game beginningGame() {
-        View.beginning();
-        int numberPlayers = nbPlayers(); // Asks for the number of players;
-        // Shows the players;
-        Game game = new Game(namePlayers(numberPlayers));
-        initTiles(game); // Initializes each player's hand;
-        startPlayer(game); // It asks who's starting the game;
-        return game;
-    }
 
     /**
      * Asks what type of addition of tiles we want to make.
@@ -93,8 +99,8 @@ public class App {
      */
     private static void add(Game game) {
         System.out.println();
-        View.display(game.getGrid());
-        View.displayPlayer(game.getCurrentPlayerName(), game.getCurrentPlayerHand(), game.getCurrentPlayerScore());
+        display(game.getGrid());
+        displayPlayer(game.getCurrentPlayerName(), game.getCurrentPlayerHand(), game.getCurrentPlayerScore());
         String typePlay = robustReadingAddType("Enter the type of play (f, o, l, m, p): ");
         switch (typePlay.toLowerCase()) {
             case "f" -> firstAdd(game);
@@ -111,8 +117,9 @@ public class App {
      * @param game the Qwirkle game.
      */
     private static void firstAdd(Game game) {
-        View.displayStart();
+        displayStart();
         game.first(direction(), indexes());
+        display(game.getGrid());
     }
 
     /**
@@ -125,6 +132,7 @@ public class App {
         int row = robustReadingInt("Enter the row where you want to place the tile: ");
         int col = robustReadingInt("Enter the column where you want to place the tile: ");
         game.play(row, col, index);
+        display(game.getGrid());
     }
 
     /**
@@ -136,6 +144,7 @@ public class App {
         int row = robustReadingInt("Enter the row where you want to place the first tile: ");
         int col = robustReadingInt("Enter the column where you want to place the first tile: ");
         game.play(row, col, direction(), indexes());
+        display(game.getGrid());
     }
 
     /**
@@ -160,6 +169,7 @@ public class App {
             indexTab = indexTab + 3;
         }
         game.play(playMultipleTiles);
+        display(game.getGrid());
     }
 
     /**
@@ -185,19 +195,8 @@ public class App {
             String name = keyboard.nextLine();
             playersList.add(name);
         }
-        View.displayAllPlayers(playersList);
+        displayAllPlayers(playersList);
         return playersList;
-    }
-
-    /**
-     * Initializes the 6 tiles for each player at the start of the game.
-     *
-     * @param game the Qwirkle game.
-     */
-    private static void initTiles(Game game) {
-        for (int i = 0; i < game.getPlayers().length; i++) {
-            game.getPlayers()[i].refill();
-        }
     }
 
     /**
@@ -210,10 +209,10 @@ public class App {
         boolean validName = false;
         while (!validName) {
             int i = 0;
-            while (i < game.getPlayers().length && !game.getPlayers()[i].getName().equals(name)) {
+            while (i < game.getPlayersName().length && !game.getPlayersName()[i].equals(name)) {
                 i++;
             }
-            if (i == game.getPlayers().length) {
+            if (i == game.getPlayersName().length) {
                 name = robustReadingString("This name doesn't exist! : \n" + "Who is starting ? ");
             } else {
                 validName = true;
@@ -289,7 +288,7 @@ public class App {
 
         while (!addType.toLowerCase().matches(regex)) {
             if (yesOrNoRobustLecture(ANSI_ORANGE + "Do you need help (y or n)? : " + ANSI_RESET).equalsIgnoreCase("y")) {
-                View.displayHelp();
+                displayHelp();
             }
             System.out.print(message);
             addType = keyboard.nextLine();
@@ -350,7 +349,7 @@ public class App {
         String direction = keyboard.nextLine();
         while (!direction.toLowerCase().matches(regex)) {
             if (yesOrNoRobustLecture(ANSI_ORANGE + "Do you need help (y or n)? : " + ANSI_RESET).equalsIgnoreCase("y")) {
-                View.displayHelp();
+                displayHelp();
             }
             System.out.println(message);
             direction = keyboard.nextLine();
@@ -401,25 +400,28 @@ public class App {
      * Checks who got the highest score
      *
      * @param game the current game;
-     * @return the name of the winner;
+     * @return the name/s of the winner/s;
      */
-    private static String winner(Game game) {
+    private static List<String> winner(Game game) {
         int maxScore = 0;
-        String nameWinner = "";
-        for (Player player : game.getPlayers()) {
-            if (player.getScore() > maxScore) {
-                maxScore = player.getScore();
-                nameWinner = player.getName();
+        List<String> nameWinner = new ArrayList<>();
+        for (int i = 0; i < game.getPlayersScore().length; i++) {
+            if (game.getPlayersScore()[i] >= maxScore) {
+                maxScore = game.getPlayersScore()[i];
+                nameWinner.add(game.getPlayersName()[i]);
             }
         }
         return nameWinner;
     }
 
     private static boolean resumeGame() {
-        boolean resumeGame;
-        String message = "Do you want to resume a game ?";
-        resumeGame = yesOrNoRobustLecture(message).equalsIgnoreCase("y");
-        return resumeGame;
+        String message = ANSI_CYAN + "Do you want to resume a game (y or n)?" + ANSI_RESET;
+        return yesOrNoRobustLecture(message).equalsIgnoreCase("y");
+    }
+
+    private static boolean saveGame() {
+        String message = ANSI_CYAN + "Do you want to save the game (y or n)?" + ANSI_RESET;
+        return yesOrNoRobustLecture(message).equalsIgnoreCase("y");
     }
 
 

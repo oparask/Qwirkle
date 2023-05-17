@@ -1,9 +1,9 @@
 package g60085.qwirkle.view;
 
 import g60085.qwirkle.model.GridView;
-import g60085.qwirkle.model.Player;
 import g60085.qwirkle.model.Tile;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -20,12 +20,20 @@ public class View {
     public static final String ANSI_ORANGE = "\u001B[38;5;208m";
 
     /**
-     * Displays game title at the beginning.
+     * Displays the game title;
      */
-    public static void beginning() {
-        System.out.println(ANSI_CYAN + "  _ _ _ _ _ _ _");
-        System.out.println("| Q W I R K L E |");
-        System.out.println("  ------------- " + ANSI_RESET);
+    public static void displayTitle() {
+        String[] qwirkle = {
+                "\u001B[35m   QQ  W           W  III  RRRR    K   K   L     EEEEE  \u001B[0m",
+                "\u001B[36m Q    Q w         w    I   R   R   K  K    L     E      \u001B[0m",
+                "\u001B[34m Q    Q  w   W   w     I   R RR    KKK     L     EEEEE  \u001B[0m",
+                "\u001B[32m Q    Q   w  w  w      I   R   R   K   K   L     E      \u001B[0m",
+                "\u001B[33m   QQ Q    W   W      III  R     R K    K  LLLLL EEEEE  \u001B[0m"
+        };
+
+        for (String line : qwirkle) {
+            System.out.println(line);
+        }
         System.out.println();
     }
 
@@ -61,6 +69,7 @@ public class View {
      * @param grid the grid view to display.
      */
     public static void display(GridView grid) {
+        System.out.println();
         int colLeft = 45;
         int colRight = 45;
         for (int i = 3; i < 87; i++) { //row
@@ -94,7 +103,7 @@ public class View {
             }
         }
         for (int i = rowUp - 3; i < rowDown + 4; i++) { //row
-            System.out.print(i + " |");
+            System.out.print(ANSI_CYAN + i + " |");
             for (int j = colLeft - 3; j < colRight + 4; j++) {
                 if (grid.get(i, j) == null) {
                     System.out.print("   ");
@@ -108,23 +117,25 @@ public class View {
         for (int j = colLeft - 3; j < colRight + 4; j++) {
             System.out.print(j + " ");
         }
+        System.out.println(ANSI_RESET);
         System.out.println();
     }
 
     /**
      * Displays the name, hand and score of the player;
      *
-     * @param name name of the player;
-     * @param hand hand of the player;
+     * @param name  name of the player;
+     * @param hand  hand of the player;
      * @param score score of the player;
      */
     public static void displayPlayer(String name, List<Tile> hand, int score) {
-        System.out.println(ANSI_CYAN + name + ", It's your turn!");
-        System.out.println("Your score is: " + score);
-        System.out.print("Your hand is: " + ANSI_RESET);
+        System.out.println(ANSI_YELLOW + name + ANSI_RESET + ANSI_CYAN + ", It's your turn!");
+        System.out.println("Your score is: " + ANSI_RESET + ANSI_YELLOW + score + ANSI_RESET);
+        System.out.print(ANSI_CYAN + "Your hand is: " + ANSI_RESET);
         for (Tile tile : hand) {
             ViewColorShape(tile);
         }
+        System.out.println();
         System.out.println();
     }
 
@@ -166,7 +177,7 @@ public class View {
      * Displays a message to inform that the game is almost over;
      */
     public static void displayGameAlmostOver() {
-        System.out.println("The bag is empty! You are almost at the end of the game!");
+        System.out.println(ANSI_YELLOW + "The bag is empty! You are almost at the end of the game!" + ANSI_RESET);
     }
 
     /**
@@ -174,23 +185,81 @@ public class View {
      */
     public static void displayAllPlayers(List<String> playersList) {
         System.out.println();
-        System.out.print("The players of this Qwirkle game are: ");
+        System.out.print(ANSI_CYAN + "The players of this Qwirkle game are: ");
         for (String playerName : playersList) {
             System.out.print(playerName + " ");
         }
-        System.out.println();
+        System.out.println(ANSI_RESET);
     }
-
-
 
     /**
      * Displays a game over message.
      */
-    public static void endGame(String name) {
-        System.out.println();
-        System.out.println(ANSI_CYAN + "THE WINNER IS " + name + "!!!");
+    public static void endGame(List<String> names) {
+        if (names.size() == 1) {
+            System.out.println(ANSI_CYAN + "THE WINNER IS " + ANSI_RESET +
+                    ANSI_YELLOW + names.get(0) + ANSI_RESET + ANSI_CYAN + "!!!");
+        } else {
+            System.out.print(ANSI_CYAN + "THE WINNERS ARE " + ANSI_RESET);
+            for (int i = 0; i < names.size() - 2; i++) {
+                System.out.print(ANSI_YELLOW + names.get(i) + ", ");
+            }
+            System.out.print(ANSI_YELLOW + names.get(names.size() - 2) + ANSI_RESET + ANSI_CYAN + " AND " + ANSI_RESET);
+            System.out.println(ANSI_YELLOW + names.get(names.size() - 1) + ANSI_RESET + ANSI_CYAN + "!!!");
+        }
         System.out.println("Well played!");
-        System.out.println();
         System.out.println("Bye Bye, hope you liked it ;)" + ANSI_RESET);
+        System.out.println();
     }
+
+    /**
+     * Displays the serialized files if the directory contains any;
+     *
+     * @return true if the directory is empty;
+     */
+    public static boolean noSerializedFiles() {
+        boolean emptyDirectory = false;
+        String directoryPath = "game.ser/";
+        File directory = new File(directoryPath);
+        File[] files = directory.listFiles();
+
+        if (files != null && files.length > 0) {
+            System.out.println(ANSI_GREEN + "Serialized files in the directory \"" + directoryPath + "\": ");
+            for (File file : files) {
+                if (file.isFile()) {
+                    System.out.println("-" + file.getName());
+                }
+            }
+            System.out.println(ANSI_RESET);
+        } else {
+            emptyDirectory = true;
+            System.out.println(ANSI_ORANGE + "Invalid or empty directory : " + directoryPath + ANSI_RESET);
+            System.out.println();
+        }
+        return emptyDirectory;
+    }
+
+    /**
+     * Asks the name of the file;
+     */
+    public static void asksFileName() {
+        System.out.println(ANSI_CYAN + "Enter the name of the file: " + ANSI_RESET);
+    }
+
+    /**
+     * Displays a message to inform that the game was successfully (de)serialized;
+     */
+    public static void successMsg(String process) {
+        System.out.println(ANSI_GREEN + "The game was successfully " + process + "!" + ANSI_RESET);
+    }
+
+    /**
+     * Displays a message to inform that an error has occurred while (de)serializing the game;
+     */
+    public static void errorMsg(String error, String process) {
+        System.out.println(ANSI_ORANGE + "Error while " + process + " the game : " + error + ANSI_RESET);
+        System.out.println();
+    }
+
+
 }

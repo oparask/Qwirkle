@@ -2,12 +2,6 @@ package g60085.qwirkle.model;
 
 import java.io.*;
 import java.util.List;
-import java.io.FileInputStream;
-import java.io.ObjectInputStream;
-import java.io.IOException;
-import java.io.FileOutputStream;
-import java.io.ObjectOutputStream;
-import java.io.IOException;
 
 
 /**
@@ -24,13 +18,13 @@ public class Game implements Serializable {
     /**
      * Initializes the array of players, the game grid and initialize the current player to 0.
      *
-     * @param players a list of String representing the names of the players and players.
+     * @param names a list of String representing the names of the players and players.
      */
-    public Game(List<String> players) {
+    public Game(List<String> names) {
         this.grid = new Grid();
-        this.players = new Player[players.size()];
-        for (int i = 0; i < players.size(); i++) {
-            this.players[i] = new Player(players.get(i));
+        this.players = new Player[names.size()];
+        for (int i = 0; i < names.size(); i++) {
+            this.players[i] = new Player(names.get(i));
         }
         this.currentPlayer = 0;
     }
@@ -136,6 +130,31 @@ public class Game implements Serializable {
     }
 
     /**
+     * @return the name or nickname of the players.
+     */
+    public String[] getPlayersName() {
+        String[] names = new String[this.players.length];
+        for (int i = 0; i < this.players.length; i++) {
+            names[i] = this.players[i].getName();
+        }
+        return names;
+    }
+
+
+    /**
+     * @return the scores of the players.
+     */
+    public int[] getPlayersScore() {
+        int[] scores = new int[this.players.length];
+        for (int i = 0; i < this.players.length; i++) {
+            scores[i] = this.players[i].getScore();
+        }
+        return scores;
+    }
+
+
+
+    /**
      * @return the hand of the current player.
      */
     public List<Tile> getCurrentPlayerHand() {
@@ -184,6 +203,15 @@ public class Game implements Serializable {
         this.currentPlayer++;
         if (this.currentPlayer == this.players.length) {
             this.currentPlayer = 0;
+        }
+    }
+
+    /**
+     * Initializes the 6 tiles for each player at the beginning of the game;
+     */
+    public void initPlayerHand() {
+        for (Player player : this.players) {
+            player.refill();
         }
     }
 
@@ -255,32 +283,34 @@ public class Game implements Serializable {
         return canAddTile;
     }
 
+    //Serialise the game;
 
-    //serialiser
-    public static void write(Game game, String filename) {
-        try (FileOutputStream fileOut = new FileOutputStream("game.ser/" +filename);
-             ObjectOutputStream objOut = new ObjectOutputStream(fileOut)) {
-            objOut.writeObject(game);
-            System.out.println("Le jeu a été sérialisé avec succès !");
-        } catch (IOException e) {
-            System.err.println("Erreur lors de la sérialisation du jeu : " + e.getMessage());
-        }
+    /**
+     * Writes the specified Game object to a file using serialization.
+     *
+     * @param game     The Game object to be serialized and written to a file.
+     * @param filename The name of the file to write the serialized Game object to.
+     * @throws IOException If an I/O error occurs while writing to the file.
+     */
+    public static void write(Game game, String filename) throws IOException {
+        FileOutputStream fileOut = new FileOutputStream("game.ser/" + filename);
+        ObjectOutputStream objOut = new ObjectOutputStream(fileOut);
+        objOut.writeObject(game);
     }
 
-    public static Game getFromFile(String filename) {
-        try (FileInputStream fileIn = new FileInputStream("game.ser/" + filename);
-             ObjectInputStream objIn = new ObjectInputStream(fileIn)) {
-            Game game = (Game) objIn.readObject();
-            System.out.println("Le jeu a été désérialisé avec succès !");
-            return game;
-        } catch (IOException | ClassNotFoundException e) {
-            System.out.println("Erreur lors de la désérialisation du jeu : " + e.getMessage());
-            return null;
-        }
+    /**
+     * Reads a serialized Game object from a file and returns it.
+     *
+     * @param filename The name of the file containing the serialized Game object.
+     * @return The deserialized Game object.
+     * @throws IOException            If an I/O error occurs while reading the file.
+     * @throws ClassNotFoundException If the class of the serialized object cannot be found.
+     */
+    public static Game getFromFile(String filename) throws IOException, ClassNotFoundException {
+        FileInputStream fileIn = new FileInputStream("game.ser/" + filename);
+        ObjectInputStream objIn = new ObjectInputStream(fileIn);
+        return (Game) objIn.readObject();
+
     }
-
-
-
-
 }
 
