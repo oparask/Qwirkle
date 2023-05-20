@@ -1,12 +1,16 @@
 package g60085.qwirkle;
 
-import g60085.qwirkle.model.*;
-import g60085.qwirkle.view.View;
+import g60085.qwirkle.model.Bag;
+import g60085.qwirkle.model.Direction;
+import g60085.qwirkle.model.Game;
+import g60085.qwirkle.model.QwirkleException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
+
 import static g60085.qwirkle.view.View.*;
 
 /**
@@ -15,184 +19,126 @@ import static g60085.qwirkle.view.View.*;
  * and will request the different displays at view.
  */
 public class App {
+
     /**
-     * Contains the flow of the game.
+     * The main entry point of the Qwirkle game.
      *
-     * @param args An array of strings;
+     * @param args The command-line arguments (not used).
      */
     public static void main(String[] args) {
-        Scanner keyboard = new Scanner(System.in);
         Game game = null;
         displayTitle();
 
         // Resume a previously saved game;
-        if (resumeGame()) {
+        if (resumeGame() && isSerializedFile()) {
             do {
                 try {
-                    if(noSerializedFiles()){ // If empty directory;
-                        break;
-                    } else {
-                        // The method displays the files;
-                        asksFileName();
-                        String filename = keyboard.nextLine();
-                        game = Game.getFromFile(filename);
-                        successMsg("deserialized");
-                    }
+                    String filename = robustReadingString("Enter the name of the file: ");
+                    game = Game.getFromFile(filename);
+                    displayMessage(ANSI_GREEN + "The game was successfully deserialized!" + ANSI_RESET);
                 } catch (IOException | ClassNotFoundException e) {
-                    errorMsg(e.getMessage(), "deserialized");
+                    displayMessage(ANSI_ORANGE + "Error while deserializing the game: " + e + ANSI_RESET);
                 }
             } while (game == null && resumeGame());
         }
 
         // Starts a new game;
         if (game == null) {
-            int numberPlayers = nbPlayers(); // Asks for the number of players && Shows the players;
+            int numberPlayers = nbPlayers();
             game = new Game(namePlayers(numberPlayers));
-            game.initPlayerHand(); // Initializes each player's hand;
-            startPlayer(game); // It asks who's starting the game;
+            game.initPlayerHand();
+            startPlayer(game);
             displayHelp();
         }
 
-        //The flow of the game;
+        // The flow of the game;
         boolean continueGame = true;
         while (continueGame) {
             try {
                 if (game.isOver()) {
                     continueGame = false;
-                    endGame(winner(game));
+                    endGame(determineWinners(game));
                 } else {
                     if (Bag.getInstance().size() == 0) {
                         displayGameAlmostOver();
                     }
-                    add(game); // Play one, several or multiple tiles;
+                    tryToPlay("Try to play! ", game);
                     String quitGame = robustReadingString(ANSI_GREEN + "Enter 'q' if you want to quit" + ANSI_RESET);
                     if (quitGame.equalsIgnoreCase("q")) {
                         continueGame = false;
                         if (saveGame()) {
                             boolean gameIsSaved = false;
-                            do{
+                            do {
                                 try {
-                                    asksFileName();
-                                    String filename = keyboard.nextLine();
+                                    String filename = robustReadingString("Enter the name of the file: ");
                                     Game.write(game, filename);
                                     gameIsSaved = true;
-                                    successMsg("serialized");
+                                    displayMessage(ANSI_GREEN + "The game was successfully serialized!" + ANSI_RESET);
                                 } catch (IOException e) {
-                                    errorMsg(e.getMessage(), "serialized");
+                                    displayMessage(ANSI_ORANGE + "Error while serializing the game: " + e + ANSI_RESET);
                                 }
-                            }while (!gameIsSaved && saveGame());
+                            } while (!gameIsSaved && saveGame());
                         }
-                        endGame(winner(game));
+                        endGame(determineWinners(game));
                     }
                 }
             } catch (QwirkleException e) {
-                displayError(e.getMessage()); //Shows the message of the exception;
+                displayError(e.getMessage());
             }
         }
     }
 
-
     /**
-     * Asks what type of addition of tiles we want to make.
+     * Checks if the user wants to resume a game.
      *
-     * @param game the Qwirkle game.
+     * @return {@code true} if the user wants to resume a game, {@code false} otherwise.
      */
-    private static void add(Game game) {
-        System.out.println();
-        display(game.getGrid());
-        displayPlayer(game.getCurrentPlayerName(), game.getCurrentPlayerHand(), game.getCurrentPlayerScore());
-        String typePlay = robustReadingAddType("Enter the type of play (f, o, l, m, p): ");
-        switch (typePlay.toLowerCase()) {
-            case "f" -> firstAdd(game);
-            case "o" -> playOneTile(game);
-            case "l" -> playLine(game);
-            case "m" -> playMultiple(game);
-            case "p" -> game.pass();
-        }
+    private static boolean resumeGame() {
+        String message = ANSI_CYAN + "Do you want to resume a game? (y or n)" + ANSI_RESET;
+        return yesOrNoRobustReading(message).equalsIgnoreCase("y");
     }
 
     /**
-     * Requests the necessary information to add the first tiles of the game.
+     * Asks the user to enter the number of players.
      *
-     * @param game the Qwirkle game.
-     */
-    private static void firstAdd(Game game) {
-        displayStart();
-        game.first(direction(), indexes());
-        display(game.getGrid());
-    }
-
-    /**
-     * Requests the necessary information to add one tile.
-     *
-     * @param game the Qwirkle game.
-     */
-    private static void playOneTile(Game game) {
-        int index = robustReadingIndexes();
-        int row = robustReadingInt("Enter the row where you want to place the tile: ");
-        int col = robustReadingInt("Enter the column where you want to place the tile: ");
-        game.play(row, col, index);
-        display(game.getGrid());
-    }
-
-    /**
-     * Requests the necessary information to add several aligned tiles.
-     *
-     * @param game the Qwirkle game.
-     */
-    private static void playLine(Game game) {
-        int row = robustReadingInt("Enter the row where you want to place the first tile: ");
-        int col = robustReadingInt("Enter the column where you want to place the first tile: ");
-        game.play(row, col, direction(), indexes());
-        display(game.getGrid());
-    }
-
-    /**
-     * Requests the necessary information to add the multiple tiles.
-     *
-     * @param game the Qwirkle game.
-     */
-    private static void playMultiple(Game game) {
-        int nbTiles = robustReadingInt("How many tiles do you want to place ? ");
-        while (nbTiles < 1 || nbTiles > 6) {
-            nbTiles = robustReadingInt(ANSI_ORANGE + "Number of tiles must be between 1 and 6, try again!" + ANSI_RESET);
-        }
-        int[] playMultipleTiles = new int[nbTiles * 3];
-        int indexTab = 0;
-        for (int i = 0; i < nbTiles; i++) {
-            int row = robustReadingInt("Enter the row where you want to place the tile " + (i + 1) + ": ");
-            int col = robustReadingInt("Enter the column where you want to place the tile: " + (i + 1) + ": ");
-            int tileIndex = robustReadingIndexes();
-            playMultipleTiles[indexTab] = row;
-            playMultipleTiles[indexTab + 1] = col;
-            playMultipleTiles[indexTab + 2] = tileIndex;
-            indexTab = indexTab + 3;
-        }
-        game.play(playMultipleTiles);
-        display(game.getGrid());
-    }
-
-    /**
-     * Asks for the number of players.
-     *
-     * @return the number of players.
+     * @return The number of players entered by the user.
      */
     private static int nbPlayers() {
         return robustReadingPlayers();
     }
 
     /**
-     * Asks for the names of the players.
+     * Executes a robust reading of the number of players,
+     * ensuring it follows the game rules.
      *
-     * @param nbPlayers number of players.
-     * @return a list with all the player's name;
+     * @return A valid number of players (between 2 and 4).
+     */
+    private static int robustReadingPlayers() {
+        Scanner scanner = new Scanner(System.in);
+        int number;
+        String regex = "[2-4]"; // This regex pattern will match any single digit that is either 2, 3, or 4.
+        displayMessage(ANSI_CYAN + "Enter the number of players (between 2 and 4): " + ANSI_RESET);
+        String input = scanner.nextLine();
+
+        while (!input.matches(regex)) {
+            invalidInput("Invalid input! Please enter a number between 2 and 4.");
+            input = scanner.nextLine();
+        }
+
+        number = Integer.parseInt(input);
+        return number;
+    }
+
+    /**
+     * Asks the user to enter the names of the players.
+     *
+     * @param nbPlayers The number of players.
+     * @return A list containing the names of all the players.
      */
     private static List<String> namePlayers(int nbPlayers) {
-        Scanner keyboard = new Scanner(System.in);
         List<String> playersList = new ArrayList<>();
         for (int i = 0; i < nbPlayers; i++) {
-            System.out.println("Enter the name of the player " + (i + 1) + ": ");
-            String name = keyboard.nextLine();
+            String name = robustReadingString("Enter the name of the player " + (i + 1) + ": ");
             playersList.add(name);
         }
         displayAllPlayers(playersList);
@@ -200,9 +146,9 @@ public class App {
     }
 
     /**
-     * Asks which player starts the game.
+     * Asks which player will start the game.
      *
-     * @param game the Qwirkle game.
+     * @param game The Qwirkle game instance.
      */
     private static void startPlayer(Game game) {
         String name = robustReadingString("Who is starting ? ");
@@ -216,213 +162,308 @@ public class App {
                 name = robustReadingString("This name doesn't exist! : \n" + "Who is starting ? ");
             } else {
                 validName = true;
-                game.setCurrentPlayer(i);
+                game.setStarterPlayer(i);
             }
         }
     }
 
     /**
-     * Robust reading of an integer.
+     * Performs a robust reading of a string from the user, excluding numbers.
      *
-     * @return an integer.
-     */
-    private static int robustReadingInt(String message) {
-        Scanner keyboard = new Scanner(System.in);
-        System.out.println(message);
-        while (!keyboard.hasNextInt()) {
-            System.out.println(ANSI_ORANGE + "Invalid number, try again!: " + ANSI_RESET);
-            keyboard.next();
-        }
-        return keyboard.nextInt();
-    }
-
-    /**
-     * Robust reading of the number of players.
-     * Checks that this number respects the rules of the game.
-     *
-     * @return a valid number of players.
-     */
-    private static int robustReadingPlayers() {
-        Scanner scanner = new Scanner(System.in);
-        int number;
-        String regex = "[2-4]"; // This regex pattern will match any single digit that is either 2, 3, or 4.
-
-        System.out.print("Enter the number of players (2-4): ");
-        String input = scanner.nextLine();
-
-        while (!input.matches(regex)) {
-            System.out.println(ANSI_ORANGE + "Invalid input! Please enter a number between 2 and 4." + ANSI_RESET);
-            input = scanner.nextLine();
-        }
-
-        number = Integer.parseInt(input);
-        return number;
-    }
-
-    /**
-     * Robust reading of a String.
-     *
-     * @return a String.
+     * @param message The message to display when prompting for the string.
+     * @return The string entered by the user.
      */
     private static String robustReadingString(String message) {
         Scanner keyboard = new Scanner(System.in);
-        System.out.println(message);
-        while (!keyboard.hasNextLine()) {
-            System.out.println(ANSI_ORANGE + "Invalid String, try again! : " + ANSI_RESET);
-            keyboard.next();
-        }
-        return keyboard.nextLine();
-    }
+        displayMessage(ANSI_CYAN + message + ANSI_RESET);
 
-    /**
-     * Robust reading of a String.
-     *
-     * @return a String representing the type of add.
-     */
-    private static String robustReadingAddType(String message) {
-        Scanner keyboard = new Scanner(System.in);
-
-        System.out.print(message);
-        String addType = keyboard.nextLine();
-        String regex = "[folmp]"; // Regular expression for matching the letters f, o, l, m, or p
-
-        while (!addType.toLowerCase().matches(regex)) {
-            if (yesOrNoRobustLecture(ANSI_ORANGE + "Do you need help (y or n)? : " + ANSI_RESET).equalsIgnoreCase("y")) {
-                displayHelp();
-            }
-            System.out.print(message);
-            addType = keyboard.nextLine();
-        }
-        return addType;
-    }
-
-    private static String yesOrNoRobustLecture(String message) {
-        Scanner keyboard = new Scanner(System.in);
-        String regex = "[yn]"; // Regular expression for matching the letters y or n
-
-        System.out.println(message);
-        String yesOrNo = keyboard.nextLine();
-
-        while (!yesOrNo.toLowerCase().matches(regex)) {
-            System.out.println(message);
-            yesOrNo = keyboard.nextLine();
-        }
-        return yesOrNo;
-    }
-
-
-    /**
-     * Robust reading of an index.
-     * Checks that the index respects the rules of the game.
-     *
-     * @return a valid index.
-     */
-    private static int robustReadingIndexes() {
-        Scanner keyboard = new Scanner(System.in);
-        String message = "Enter the index of the tile that you want to play: ";
-        int index;
-        String regex = "[0-5]"; // This regex pattern will match any single digit that is either 0, 1, 2, 3, 4, 5.
-
-        System.out.println(message);
         String input = keyboard.nextLine();
-        while (!input.matches(regex)) {
-            System.out.println(ANSI_ORANGE + "The index must be between 0 and 5 , try again! : " + ANSI_RESET);
-            System.out.println(message);
+        while (input.trim().isEmpty() || containsNumbers(input)) { //Ensures that the user cannot enter only whitespace as a valid input.
+            invalidInput("Invalid input! Please try again without numbers.");
             input = keyboard.nextLine();
         }
 
-        index = Integer.parseInt(input);
-        return index;
+        return input;
     }
 
     /**
-     * Robust reading of a direction.
+     * Checks if a string contains any numeric characters.
      *
-     * @return a valid direction.
+     * @param input The string to check.
+     * @return True if the string contains numbers, false otherwise.
      */
-    private static String robustReadingDirection() {
-        Scanner keyboard = new Scanner(System.in);
-        String message = "Enter the direction of your tiles placement (d, u, l, r): ";
-        String regex = "[dulr]"; // Regular expression for matching the letters d, u, l or r
+    private static boolean containsNumbers(String input) {
+        boolean containsNumber = false;
+        for (char c : input.toCharArray()) {
+            if (Character.isDigit(c)) {
+                containsNumber = true;
+            }
+        }
+        return containsNumber;
+    }
 
-        System.out.println(message);
-        String direction = keyboard.nextLine();
-        while (!direction.toLowerCase().matches(regex)) {
-            if (yesOrNoRobustLecture(ANSI_ORANGE + "Do you need help (y or n)? : " + ANSI_RESET).equalsIgnoreCase("y")) {
+    /**
+     * Performs a robust reading of a yes or no answer from the user.
+     *
+     * @param message The message to display when prompting for the answer.
+     * @return The valid yes or no answer entered by the user.
+     */
+    private static String yesOrNoRobustReading(String message) {
+        String regex = "(?i)[yn]"; // Regular expression pattern for matching the characters 'y' or 'n' (case-insensitive)
+        String yesOrNo = robustReadingString(message);
+
+        while (!yesOrNo.matches(regex)) {
+            yesOrNo = robustReadingString(message);
+        }
+
+        return yesOrNo;
+    }
+
+    /**
+     * Handles the addition of tiles based on the input provided.
+     *
+     * @param game  the Qwirkle game.
+     * @param input the input specifying the type of addition.
+     */
+    private static void add(Game game, String input) {
+        String invalidInputMessage = "Invalid input! Try again!";
+        String replayMessage = "Replay!";
+        String[] detailInput = input.split(" ");
+        String typeOfPlay = detailInput[0].toLowerCase();
+
+        switch (typeOfPlay) {
+            case "f":
+                if (!firstAdd(input, game)) {
+                    invalidInput(invalidInputMessage);
+                    tryToPlay(replayMessage, game);
+                }
+                break;
+            case "o":
+                if (!playOneTile(input, game)) {
+                    invalidInput(invalidInputMessage);
+                    tryToPlay(replayMessage, game);
+                }
+                break;
+            case "l":
+                if (!playLine(input, game)) {
+                    invalidInput(invalidInputMessage);
+                    tryToPlay(replayMessage, game);
+                }
+                break;
+            case "m":
+                if (!playTileAtPosition(input, game)) {
+                    invalidInput(invalidInputMessage);
+                    tryToPlay(replayMessage, game);
+                }
+                break;
+            case "p":
+                game.pass();
+                break;
+            default:
+                invalidInput(invalidInputMessage);
+                tryToPlay(replayMessage, game);
+                break;
+        }
+    }
+
+    /**
+     * Handles the user's attempt to play a move.
+     *
+     * @param message the message to display before prompting for input.
+     * @param game    the Qwirkle game.
+     */
+    private static void tryToPlay(String message, Game game) {
+        Scanner keyboard = new Scanner(System.in);
+        display(game.getGrid());
+        displayPlayer(game.getCurrentPlayerName(), game.getCurrentPlayerHand(), game.getCurrentPlayerScore());
+
+        displayMessage(message);
+
+        String regex = "(?i)[folmp]"; // Case-insensitive regular expression for matching the letters f, o, l, m, or p;
+        String input;
+        String[] detailInput;
+        String typeOfPlay;
+
+        do {
+            if (yesOrNoRobustReading(ANSI_ORANGE + "Do you need help (y or n)? : " + ANSI_RESET).equalsIgnoreCase("y")) {
                 displayHelp();
             }
-            System.out.println(message);
-            direction = keyboard.nextLine();
-        }
-        return direction;
+            displayMessage("> ");
+            input = keyboard.nextLine();
+            detailInput = input.split(" ");
+            typeOfPlay = detailInput[0];
+        } while (!typeOfPlay.matches(regex));
+
+        add(game, input);
     }
 
     /**
-     * Gives one of the value of the direction enumeration to the requested direction.
+     * Handles the first addition of tiles to the game grid.
      *
-     * @return the direction.
+     * @param input the user's input for the first play of tiles.
+     * @param game  the Qwirkle game.
+     * @return true if the input is valid and the tiles are successfully added, false otherwise.
      */
-    private static Direction direction() {
-        String direction = robustReadingDirection();
+    private static boolean firstAdd(String input, Game game) {
+        boolean validInput = true;
+        String regex = "(?i)^f [drul]( [0-5]){1,6}$"; // f [<direction>] <f1> [<f2> ...]; (case-insensitive);
+
+        if (input.matches(regex)) {
+            String[] detailInput = input.split(" ");
+            Direction direction = direction(detailInput[1]);
+            int[] indexes = new int[detailInput.length - 2];
+            for (int i = 2; i < detailInput.length; i++) {
+                indexes[i - 2] = Integer.parseInt(detailInput[i]);
+            }
+            displayStart();
+            game.first(direction, indexes);
+            display(game.getGrid());
+        } else {
+            validInput = false;
+        }
+        return validInput;
+    }
+
+    /**
+     * Plays one tile on the game grid.
+     *
+     * @param input the user's input for playing one tile.
+     * @param game  the Qwirkle game.
+     * @return true if the input is valid and the tile is successfully added, false otherwise.
+     */
+    private static boolean playOneTile(String input, Game game) {
+        boolean validInput = true;
+        String regex = "(?i)^o( ([0-9]|[1-8][0-9])){2} [0-5]$"; // o <row> <col> <i>; (case-insensitive);
+
+        if (input.matches(regex)) {
+            String[] detailInput = input.split(" ");
+            int row = Integer.parseInt(detailInput[1]);
+            int col = Integer.parseInt(detailInput[2]);
+            int tileIndex = Integer.parseInt(detailInput[3]);
+            game.play(row, col, tileIndex);
+            display(game.getGrid());
+        } else {
+            validInput = false;
+        }
+        return validInput;
+    }
+
+    /**
+     * Plays a line of tiles on the game grid.
+     *
+     * @param input the user's input for playing a line of tiles.
+     * @param game  the Qwirkle game.
+     * @return true if the input is valid and the tiles are successfully added, false otherwise.
+     */
+    private static boolean playLine(String input, Game game) {
+        boolean validInput = true;
+        String regex = "(?i)^l( ([0-9]|[1-8][0-9])){2} [drul]( [0-5]){1,6}$"; // l <row> <col> <direction> <i1> [<i2>];
+        // (case-insensitive);
+
+        if (input.matches(regex)) {
+            String[] detailInput = input.split(" ");
+            int row = Integer.parseInt(detailInput[1]);
+            int col = Integer.parseInt(detailInput[2]);
+            Direction direction = direction(detailInput[3]);
+            int[] indexes = new int[detailInput.length - 4];
+            for (int i = 4; i < detailInput.length; i++) {
+                indexes[i - 4] = Integer.parseInt(detailInput[i]);
+            }
+            game.play(row, col, direction, indexes);
+            display(game.getGrid());
+        } else {
+            validInput = false;
+        }
+        return validInput;
+    }
+
+    /**
+     * Plays tiles at specified positions on the game grid.
+     *
+     * @param input the user's input for playing tiles at positions.
+     * @param game  the Qwirkle game.
+     * @return true if the input is valid and the tiles are successfully played, false otherwise.
+     */
+    private static boolean playTileAtPosition(String input, Game game) {
+        boolean validInput = true;
+        String regex = "(?i)^m(( ([0-9]|[1-8][0-9])){2} [0-5]){1,6}$"; // m <row1> <col1> <i1> [<row2> <col2> <i2> ...];
+        // (case-insensitive);
+
+        if (input.matches(regex)) {
+            String[] detailInput = input.split(" ");
+            int[] detailTileAtPosition = new int[detailInput.length - 1];
+            int indexTab = 0;
+            for (int i = 1; i < detailInput.length; i += 3) {
+                int row = Integer.parseInt(detailInput[i]);
+                int col = Integer.parseInt(detailInput[i + 1]);
+                int tileIndex = Integer.parseInt(detailInput[i + 2]);
+                detailTileAtPosition[indexTab] = row;
+                detailTileAtPosition[indexTab + 1] = col;
+                detailTileAtPosition[indexTab + 2] = tileIndex;
+                indexTab = indexTab + 3;
+            }
+            game.play(detailTileAtPosition);
+            display(game.getGrid());
+        } else {
+            validInput = false;
+        }
+        return validInput;
+    }
+
+    /**
+     * Converts a string representation of a direction into a Direction enum value.
+     *
+     * @param direction The string representation of the direction
+     *                  ("d" for DOWN, "u" for UP, "l" for LEFT, "r" for RIGHT).
+     * @return The corresponding Direction enum value, or null if the input is invalid.
+     */
+    private static Direction direction(String direction) {
         return switch (direction.toLowerCase()) {
             case "d" -> Direction.DOWN;
             case "u" -> Direction.UP;
             case "l" -> Direction.LEFT;
             case "r" -> Direction.RIGHT;
-            default -> throw new RuntimeException(ANSI_YELLOW + "Invalid direction :(" + ANSI_RESET);
+            default -> null;
         };
     }
 
     /**
-     * Requests the indexes of the tiles to add.
+     * Determines the winner(s) with the highest score in the game.
      *
-     * @return an array of tiles indexes.
+     * @param game The current game instance.
+     * @return A list of the name(s) of the winner(s).
      */
-    private static int[] indexes() {
-        Scanner keyboard = new Scanner(System.in);
-        List<Integer> indexes = new ArrayList<>();
-        boolean more = true;
-        while (indexes.size() < 6 && more) {
-            int index = robustReadingIndexes();
-            indexes.add(index);
-            if (yesOrNoRobustLecture("Do you want to add more tiles ? (y or n)").equalsIgnoreCase("n")) {
-                more = false;
+    private static List<String> determineWinners(Game game) {
+        List<Integer> scores = new ArrayList<>();
+
+        for (int score : game.getPlayersScore()) {
+            scores.add(score);
+        }
+
+        Collections.sort(scores);
+        int maxScore = scores.get(scores.size() - 1);
+
+        List<String> winners = new ArrayList<>();
+
+        if (maxScore > 0) {
+            for (int i = 0; i < game.getPlayersScore().length; i++) {
+                if (game.getPlayersScore()[i] == maxScore) {
+                    winners.add(game.getPlayersName()[i]);
+                }
             }
         }
-        int[] indexesTab = new int[indexes.size()];
-        for (int i = 0; i < indexesTab.length; i++) {
-            indexesTab[i] = indexes.get(i);
-        }
-        return indexesTab;
+
+        return winners;
     }
 
     /**
-     * Checks who got the highest score
+     * Checks if the user wants to save the game.
      *
-     * @param game the current game;
-     * @return the name/s of the winner/s;
+     * @return {@code true} if the user wants to save the game, {@code false} otherwise.
      */
-    private static List<String> winner(Game game) {
-        int maxScore = 0;
-        List<String> nameWinner = new ArrayList<>();
-        for (int i = 0; i < game.getPlayersScore().length; i++) {
-            if (game.getPlayersScore()[i] >= maxScore) {
-                maxScore = game.getPlayersScore()[i];
-                nameWinner.add(game.getPlayersName()[i]);
-            }
-        }
-        return nameWinner;
-    }
-
-    private static boolean resumeGame() {
-        String message = ANSI_CYAN + "Do you want to resume a game (y or n)?" + ANSI_RESET;
-        return yesOrNoRobustLecture(message).equalsIgnoreCase("y");
-    }
-
     private static boolean saveGame() {
-        String message = ANSI_CYAN + "Do you want to save the game (y or n)?" + ANSI_RESET;
-        return yesOrNoRobustLecture(message).equalsIgnoreCase("y");
+        String message = ANSI_CYAN + "Do you want to save the game? (y or n)" + ANSI_RESET;
+        return yesOrNoRobustReading(message).equalsIgnoreCase("y");
     }
-
 
 }
