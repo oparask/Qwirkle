@@ -5,7 +5,6 @@ import g60085.qwirkle.model.Direction;
 import g60085.qwirkle.model.Game;
 import g60085.qwirkle.model.QwirkleException;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -30,14 +29,14 @@ public class App {
         displayTitle();
 
         // Resume a previously saved game;
-        if (resumeGame() && isSerializedFile()) {
+        if (resumeGame() && displaySerializedFiles()) {
             do {
                 try {
                     String filename = robustReadingString("Enter the name of the file: ");
                     game = Game.getFromFile(filename);
                     displayMessage(ANSI_GREEN + "The game was successfully deserialized!" + ANSI_RESET);
-                } catch (IOException | ClassNotFoundException e) {
-                    displayMessage(ANSI_ORANGE + "Error while deserializing the game: " + e + ANSI_RESET);
+                } catch (QwirkleException e) {
+                    displayMessage(ANSI_ORANGE + e.getMessage() + ANSI_RESET);
                 }
             } while (game == null && resumeGame());
         }
@@ -57,14 +56,13 @@ public class App {
             try {
                 if (game.isOver()) {
                     continueGame = false;
-                    endGame(determineWinners(game));
+                    displayGameOver(determineWinners(game));
                 } else {
                     if (Bag.getInstance().size() == 0) {
-                        displayGameAlmostOver();
+                        displayMessage(ANSI_YELLOW + "The bag is empty! " +
+                                "You are almost at the end of the game!" + ANSI_RESET);
                     }
-                    tryToPlay("Try to play! ", game);
-                    String quitGame = robustReadingString(ANSI_GREEN + "Enter 'q' if you want to quit" + ANSI_RESET);
-                    if (quitGame.equalsIgnoreCase("q")) {
+                    if (!tryToPlay("Try to play! ", game)) {
                         continueGame = false;
                         if (saveGame()) {
                             boolean gameIsSaved = false;
@@ -74,12 +72,12 @@ public class App {
                                     Game.write(game, filename);
                                     gameIsSaved = true;
                                     displayMessage(ANSI_GREEN + "The game was successfully serialized!" + ANSI_RESET);
-                                } catch (IOException e) {
-                                    displayMessage(ANSI_ORANGE + "Error while serializing the game: " + e + ANSI_RESET);
+                                } catch (QwirkleException e) {
+                                    displayMessage(ANSI_ORANGE + e.getMessage() + ANSI_RESET);
                                 }
                             } while (!gameIsSaved && saveGame());
                         }
-                        endGame(determineWinners(game));
+                        displayGameOver(determineWinners(game));
                     }
                 }
             } catch (QwirkleException e) {
@@ -121,7 +119,7 @@ public class App {
         String input = scanner.nextLine();
 
         while (!input.matches(regex)) {
-            invalidInput("Invalid input! Please enter a number between 2 and 4.");
+            displayInvalidInput("Invalid input! Please enter a number between 2 and 4.");
             input = scanner.nextLine();
         }
 
@@ -141,7 +139,7 @@ public class App {
             String name = robustReadingString("Enter the name of the player " + (i + 1) + ": ");
             playersList.add(name);
         }
-        displayAllPlayers(playersList);
+        displayPlayers(playersList);
         return playersList;
     }
 
@@ -179,7 +177,7 @@ public class App {
 
         String input = keyboard.nextLine();
         while (input.trim().isEmpty() || containsNumbers(input)) { //Ensures that the user cannot enter only whitespace as a valid input.
-            invalidInput("Invalid input! Please try again without numbers.");
+            displayInvalidInput("Invalid input! Please try again without numbers.");
             input = keyboard.nextLine();
         }
 
@@ -234,25 +232,25 @@ public class App {
         switch (typeOfPlay) {
             case "f":
                 if (!firstAdd(input, game)) {
-                    invalidInput(invalidInputMessage);
+                    displayInvalidInput(invalidInputMessage);
                     tryToPlay(replayMessage, game);
                 }
                 break;
             case "o":
                 if (!playOneTile(input, game)) {
-                    invalidInput(invalidInputMessage);
+                    displayInvalidInput(invalidInputMessage);
                     tryToPlay(replayMessage, game);
                 }
                 break;
             case "l":
                 if (!playLine(input, game)) {
-                    invalidInput(invalidInputMessage);
+                    displayInvalidInput(invalidInputMessage);
                     tryToPlay(replayMessage, game);
                 }
                 break;
             case "m":
                 if (!playTileAtPosition(input, game)) {
-                    invalidInput(invalidInputMessage);
+                    displayInvalidInput(invalidInputMessage);
                     tryToPlay(replayMessage, game);
                 }
                 break;
@@ -260,7 +258,7 @@ public class App {
                 game.pass();
                 break;
             default:
-                invalidInput(invalidInputMessage);
+                displayInvalidInput(invalidInputMessage);
                 tryToPlay(replayMessage, game);
                 break;
         }
@@ -269,17 +267,18 @@ public class App {
     /**
      * Handles the user's attempt to play a move.
      *
-     * @param message the message to display before prompting for input.
-     * @param game    the Qwirkle game.
+     * @param message The message to display before prompting for input.
+     * @param game    The Qwirkle game.
+     * @return True if the user wants to continue playing, false if they want to quit.
      */
-    private static void tryToPlay(String message, Game game) {
+    private static boolean tryToPlay(String message, Game game) {
         Scanner keyboard = new Scanner(System.in);
-        display(game.getGrid());
-        displayPlayer(game.getCurrentPlayerName(), game.getCurrentPlayerHand(), game.getCurrentPlayerScore());
 
+        displayGridView(game.getGrid());
+        displayPlayerInfo(game.getCurrentPlayerName(), game.getCurrentPlayerHand(), game.getCurrentPlayerScore());
         displayMessage(message);
 
-        String regex = "(?i)[folmp]"; // Case-insensitive regular expression for matching the letters f, o, l, m, or p;
+        String validCommandsRegex = "(?i)[folmpq]"; // Case-insensitive regular expression for matching the letters f, o, l, m, or p
         String input;
         String[] detailInput;
         String typeOfPlay;
@@ -288,13 +287,18 @@ public class App {
             if (yesOrNoRobustReading(ANSI_ORANGE + "Do you need help (y or n)? : " + ANSI_RESET).equalsIgnoreCase("y")) {
                 displayHelp();
             }
-            displayMessage("> ");
-            input = keyboard.nextLine();
+            displayEntrancePrompt();
+            input = keyboard.nextLine().trim();
             detailInput = input.split(" ");
             typeOfPlay = detailInput[0];
-        } while (!typeOfPlay.matches(regex));
+        } while (!typeOfPlay.matches(validCommandsRegex));
 
-        add(game, input);
+        if (input.equalsIgnoreCase("q")) {
+            return false; // User wants to quit
+        } else {
+            add(game, input);
+            return true; // User wants to continue playing
+        }
     }
 
     /**
@@ -315,9 +319,9 @@ public class App {
             for (int i = 2; i < detailInput.length; i++) {
                 indexes[i - 2] = Integer.parseInt(detailInput[i]);
             }
-            displayStart();
+            displayMessage(ANSI_GREEN + "Start!" + ANSI_RESET);
             game.first(direction, indexes);
-            display(game.getGrid());
+            displayGridView(game.getGrid());
         } else {
             validInput = false;
         }
@@ -341,7 +345,7 @@ public class App {
             int col = Integer.parseInt(detailInput[2]);
             int tileIndex = Integer.parseInt(detailInput[3]);
             game.play(row, col, tileIndex);
-            display(game.getGrid());
+            displayGridView(game.getGrid());
         } else {
             validInput = false;
         }
@@ -370,7 +374,7 @@ public class App {
                 indexes[i - 4] = Integer.parseInt(detailInput[i]);
             }
             game.play(row, col, direction, indexes);
-            display(game.getGrid());
+            displayGridView(game.getGrid());
         } else {
             validInput = false;
         }
@@ -403,7 +407,7 @@ public class App {
                 indexTab = indexTab + 3;
             }
             game.play(detailTileAtPosition);
-            display(game.getGrid());
+            displayGridView(game.getGrid());
         } else {
             validInput = false;
         }

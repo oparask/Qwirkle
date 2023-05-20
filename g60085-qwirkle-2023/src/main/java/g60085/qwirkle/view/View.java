@@ -130,7 +130,6 @@ public class View {
         System.out.println();
     }
 
-
     /**
      * Displays the name, hand, and score of the player.
      *
@@ -148,7 +147,6 @@ public class View {
         System.out.println();
         System.out.println();
     }
-
 
     /**
      * Displays the commands for the Qwirkle game.
@@ -190,7 +188,6 @@ public class View {
         }
         System.out.println(ANSI_RESET);
     }
-
 
     /**
      * Displays a game over message.
@@ -265,5 +262,11 @@ public class View {
         System.out.println();
     }
 
+    /**
+     * Prints a prompt symbol (> ) and expects something after;
+     */
+    public static void displayEntrancePrompt() {
+        System.out.print(ANSI_GREEN + "> " + ANSI_RESET);
+    }
 
 }

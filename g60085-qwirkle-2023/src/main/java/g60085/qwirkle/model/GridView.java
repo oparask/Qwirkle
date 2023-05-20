@@ -1,7 +1,5 @@
 package g60085.qwirkle.model;
 
-import java.util.Collections;
-
 /**
  * GridView represents a view on the grid that it will not be possible to modify.
  */
