@@ -6,32 +6,42 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Bag represents the bag of tiles in the game.
+ * Provides a single instance of the Bag class using the Singleton design pattern.
+ * The Bag instance represents a single tile bag in the game.
  */
 public class Bag implements Serializable {
     private final List<Tile> tiles;
     private static Bag instance;
 
     /**
-     * Creates an instance of the type Bag by creating 108 tiles.
-     * Since there are 6 colors and 6 shapes, it initializes 36 different tiles with 3 copies of each tile.
+     * Private constructor to prevent direct instantiation from outside the class.
+     * Initializes an instance of the Bag class by creating 108 tiles.
+     * Each tile consists of a combination of color and shape.
+     * There are 6 colors and 6 shapes, resulting in 36 different tiles.
+     * Each tile is added to the bag with 3 copies.
+     * The tiles are shuffled randomly to provide a randomized order.
      */
     private Bag() {
         this.tiles = new ArrayList<>();
-        for (int i = 0; i < Color.values().length; i++) {
-            for (int j = 0; j < Shape.values().length; j++) {
-                this.tiles.add(new Tile(Color.values()[i], Shape.values()[j]));
-                this.tiles.add(new Tile(Color.values()[i], Shape.values()[j]));
-                this.tiles.add(new Tile(Color.values()[i], Shape.values()[j]));
+
+        // Create tiles for each combination of color and shape
+        for (Color color : Color.values()) {
+            for (Shape shape : Shape.values()) {
+                // Add 3 copies of each tile to the bag
+                for (int i = 0; i < 3; i++) {
+                    this.tiles.add(new Tile(color, shape));
+                }
             }
         }
+
+        // Shuffle the tiles randomly
         Collections.shuffle(tiles);
     }
 
     /**
-     * Instantiate a single tile bag using the design pattern Singleton.
+     * Retrieves the instance of the Bag class.
      *
-     * @return the only instance of type Bag.
+     * @return The single instance of the Bag class.
      */
     public static Bag getInstance() {
         if (instance == null) {
@@ -41,39 +51,37 @@ public class Bag implements Serializable {
     }
 
     /**
-     * Allows access to tiles from the bag in other classes.
+     * Provides a way to retrieve a specified number of random tiles from the bag.
+     * The tiles are removed from the bag when retrieved.
      *
-     * @param n number of tiles requested.
-     * @return an array with the requested tiles, null if the bag is empty or
-     * an array of remaining tiles if there are not enough left.
+     * @param n The number of tiles requested.
+     * @return An array with the requested tiles, or an array of remaining tiles if there are not enough tiles left.
+     *  *         Returns null if the bag is empty.
+     * @throws QwirkleException If an invalid number of tiles is requested (must be between 1 and 6 inclusive).
      */
     public Tile[] getRandomTiles(int n) throws QwirkleException {
-        if (n == 0 || n > 6) {
-            throw new QwirkleException("Invalid number");
+        if (n <= 0 || n > 6) {
+            throw new QwirkleException("Invalid number of tiles requested. Must be between 1 and 6 (inclusive).");
         }
-        if (this.tiles == null) {
+
+        if (this.tiles.isEmpty()) {
             return null;
         }
-        Tile[] randomTiles;
-        if (n <= this.tiles.size()) {
-            randomTiles = new Tile[n];
-            for (int i = 0; i < randomTiles.length; i++) {
-                randomTiles[i] = tiles.remove(tiles.size() - 1); //returns the removed element
-            }
-        } else {
-            randomTiles = new Tile[tiles.size()];
-            for (int i = 0; i < randomTiles.length; i++) {
-                randomTiles[i] = tiles.remove(tiles.size() - 1);
-            }
+
+        int tilesToRetrieve = Math.min(n, this.tiles.size());
+        Tile[] randomTiles = new Tile[tilesToRetrieve];
+
+        for (int i = 0; i < tilesToRetrieve; i++) {
+            randomTiles[i] = tiles.remove(tiles.size() - 1);
         }
+
         return randomTiles;
     }
 
-    //For tests
     /**
-     * Gives access to the size of the tiles attribute.
+     * Retrieves the size of the bag of tiles.
      *
-     * @return the size of the bag of tiles.
+     * @return The size of the bag of tiles.
      */
     public int size() {
         return this.tiles.size();

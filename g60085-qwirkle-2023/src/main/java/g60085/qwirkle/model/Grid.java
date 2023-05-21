@@ -2,19 +2,28 @@ package g60085.qwirkle.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 
 /**
- * Grid represents the game grid.
+ * The `Grid` class represents the game grid in the Qwirkle game.
+ * It holds the tiles placed on the grid and provides operations for manipulating the grid.
+ * The grid is represented as a two-dimensional array of tiles.
+ * Each cell in the grid can hold a single tile object.
+ * The `Grid` class supports operations such as placing tiles, checking if the grid is empty,
+ * and accessing specific cells or tiles on the grid.
+ * It is serializable to support saving and loading grid state along with the game.
  */
 public class Grid implements Serializable {
     private Tile[][] line;
     private boolean isEmpty;
 
     /**
-     * Initializes the attribute tiles by creating an array of size 91x91.
+     * Initializes a new instance of the `Grid` class.
+     * The grid is created as a two-dimensional array with a size of 91x91.
+     * Initially, the grid is considered empty.
      */
     public Grid() {
         this.line = new Tile[91][91];
@@ -22,12 +31,11 @@ public class Grid implements Serializable {
     }
 
     /**
-     * Gives access to the attribute tiles.
+     * Gives access to the tile at the specified position in the game grid.
      *
-     * @param row the row of a tile in the array.
-     * @param col the column of a tile in the array.
-     * @return the tile located at the row and column passed as parameters
-     * or null if the requested position is outside the grid game.
+     * @param row The row index of the tile in the grid.
+     * @param col The column index of the tile in the grid.
+     * @return The tile located at the specified position, or null if the position is outside the grid.
      */
     public Tile get(int row, int col) {
         if (row > 91 || row < 0 || col > 91 || col < 0) {
@@ -37,69 +45,72 @@ public class Grid implements Serializable {
     }
 
     /**
-     * Adds the first tiles respecting the rules of the game by placing them “in the middle” of the game board.
-     * This method can only be used once when there are no tiles on the grid game.
+     * Adds the first set of tiles to the game grid, following the rules of the Qwirkle game.
+     * This method can only be used once when the grid is empty.
      *
-     * @param d    the direction of tiles placement.
-     * @param line tiles to add.
-     * @throws QwirkleException if it doesn't respect the rules of the Qwirkle game.
+     * @param direction The direction in which the tiles will be placed.
+     * @param line      The tiles to add to the grid.
+     * @return The total number of tiles added to the grid, which corresponds to the score obtained.
+     * @throws QwirkleException if the addition of tiles does not comply with the rules of the Qwirkle game.
      */
-    public int firstAdd(Direction d, Tile... line) throws QwirkleException {
-        // Checks that the grid is empty;
+    public int firstAdd(Direction direction, Tile... line) throws QwirkleException {
+        // Check if the grid is empty
         if (!isEmpty()) {
             throw new QwirkleException("The grid is not empty!");
         }
-        // Checks the line, tiles and direction;
+        // Check the line, tiles, and direction
         if (!validLine(line)) {
             throw new QwirkleException("Invalid number of tiles!");
         }
-        if (!validDirection(d)) {
+        if (!validDirection(direction)) {
             throw new QwirkleException("Invalid direction!");
         }
-        if (!validTile(line)) {
+        if (!isTileInit(line)) {
             throw new QwirkleException("Some tiles are not initialized!");
         }
-        // Checks if there is a common characteristic between tiles;
+        // Check if there is a common characteristic between tiles
         if (line.length > 1) {
             if (!validColorOrShape(line)) {
                 throw new QwirkleException("Tiles must share the same color or shape!");
             }
-            if (sameTile(line)) {
+            if (hasDuplicateTiles(line)) {
                 throw new QwirkleException("You cannot add the same tile!");
             }
         }
-        // We can add the tiles;
+        // Add the tiles to the grid
         int row = 45;
         int col = 45;
         this.line[row][col] = line[0];
         for (int i = 1; i < line.length; i++) {
-            row = row + d.getDeltaRow();
-            col = col + d.getDeltaCol();
+            row += direction.getDeltaRow();
+            col += direction.getDeltaCol();
             this.line[row][col] = line[i];
         }
-        this.isEmpty = false; // Set the "empty" attribute to false;
-        return (line.length) == 6 ? line.length + 6 : line.length;
+        this.isEmpty = false; // Set the "isEmpty" attribute to false
+        // Return the total number of tiles added to the grid
+        return line.length == 6 ? line.length + 6 : line.length;
     }
 
     /**
-     * Adds a tile to a certain position respecting the rules of the game.
+     * Adds a tile to the specified position on the grid, following the rules of the Qwirkle game.
      *
-     * @param row  the row of the tile that we want to add.
-     * @param col  the column of the tile that we want to add.
-     * @param tile the tile that we want to add.
-     * @throws QwirkleException if it doesn't respect the rules of the Qwirkle game.
+     * @param row  The row of the tile to be added.
+     * @param col  The column of the tile to be added.
+     * @param tile The tile to be added.
+     * @return The score obtained by adding the tile.
+     * @throws QwirkleException if the addition of the tile does not comply with the rules of the Qwirkle game.
      */
     public int add(int row, int col, Tile tile) throws QwirkleException {
         if (isEmpty()) {
             throw new QwirkleException("The grid game is empty! You must call the firstAdd method!");
         }
-        if (!validPosition(row, col, Direction.RIGHT, tile)) { // The direction doesn't matter;
+        if (!validPosition(row, col, Direction.RIGHT, tile)) {
             throw new QwirkleException("Position outside the grid!");
         }
         if (!validLine(tile)) {
             throw new QwirkleException("Invalid number of tiles!");
         }
-        if (!validTile(tile)) {
+        if (!isTileInit(tile)) {
             throw new QwirkleException("Some tiles are not initialized!");
         }
         if (existAlreadyTile(row, col, Direction.RIGHT, tile)) {
@@ -109,27 +120,31 @@ public class Grid implements Serializable {
             throw new QwirkleException("The tiles are not connected to another tile!");
         }
         if (!validRulesAdd(row, col, Direction.RIGHT, tile)) {
-            throw new QwirkleException("Does not respect the rules of qwirkle game!");
+            throw new QwirkleException("Does not respect the rules of Qwirkle game!");
         }
-        // We can add the tiles;
+
+        // Add the tile to the grid
         this.line[row][col] = tile;
+
+        // Calculate and return the score obtained
         return score(row, col, Direction.RIGHT, tile);
     }
 
     /**
-     * Adds multiple tiles at a certain position in a given direction.
+     * Adds multiple tiles at a specified position in the given direction, following the rules of the Qwirkle game.
      *
-     * @param row  the row of the first tile position.
-     * @param col  the column of the first tile position.
-     * @param d    the direction of tiles placement.
-     * @param line tiles to add.
-     * @throws QwirkleException if it doesn't respect the rules of the Qwirkle game.
+     * @param row  The row of the first tile position.
+     * @param col  The column of the first tile position.
+     * @param d    The direction of tile placement.
+     * @param line The tiles to be added.
+     * @return The score obtained by adding the tiles.
+     * @throws QwirkleException if the addition of tiles does not comply with the rules of the Qwirkle game.
      */
     public int add(int row, int col, Direction d, Tile... line) throws QwirkleException {
         if (isEmpty()) {
             throw new QwirkleException("The grid game is empty! You must call the firstAdd method!");
         }
-        if (!validPosition(row, col, d, line)) { // The direction doesn't matter;
+        if (!validPosition(row, col, d, line)) {
             throw new QwirkleException("Position outside the grid!");
         }
         if (!validLine(line)) {
@@ -138,7 +153,7 @@ public class Grid implements Serializable {
         if (!validDirection(d)) {
             throw new QwirkleException("Invalid direction!");
         }
-        if (!validTile(line)) {
+        if (!isTileInit(line)) {
             throw new QwirkleException("Some tiles are not initialized!");
         }
         if (existAlreadyTile(row, col, d, line)) {
@@ -148,22 +163,26 @@ public class Grid implements Serializable {
             throw new QwirkleException("The tiles are not connected to another tile!");
         }
         if (!validRulesAdd(row, col, d, line)) {
-            throw new QwirkleException("Does not respect the rules of qwirkle game!");
+            throw new QwirkleException("Does not respect the rules of Qwirkle game!");
         }
-        // We can add the tiles;
+
+        // Add the tiles to the grid
         for (int i = 0; i < line.length; i++) {
             int newRow = row + i * d.getDeltaRow();
             int newCol = col + i * d.getDeltaCol();
             this.line[newRow][newCol] = line[i];
         }
+
+        // Calculate and return the score obtained
         return score(row, col, d, line);
     }
 
     /**
-     * Adds tiles at "any" position on the grid.
+     * Adds tiles at any position on the grid, following the rules of the Qwirkle game.
      *
-     * @param line the tiles to add at any position.
-     * @throws QwirkleException if it doesn't respect the rules of the Qwirkle game.
+     * @param line The tiles to add at any position.
+     * @return The score obtained by adding the tiles.
+     * @throws QwirkleException if the addition of tiles does not comply with the rules of the Qwirkle game.
      */
     public int add(TileAtPosition... line) throws QwirkleException {
         if (line.length == 1) {
@@ -182,7 +201,7 @@ public class Grid implements Serializable {
             if (!validColorOrShape(lineTiles)) {
                 throw new QwirkleException("Tiles must share the same color or shape!");
             }
-            if (sameTile(lineTiles)) {
+            if (hasDuplicateTiles(lineTiles)) {
                 throw new QwirkleException("You cannot add the same tile!");
             }
             // For each tile;
@@ -198,7 +217,7 @@ public class Grid implements Serializable {
                 if (!validPosition(row, col, Direction.RIGHT, tile)) { // The direction doesn't matter;
                     throw new QwirkleException("Position outside the grid!");
                 }
-                if (!validTile(tile)) {
+                if (!isTileInit(tile)) {
                     throw new QwirkleException("Some tiles are not initialized!");
                 }
                 if (existAlreadyTile(row, col, Direction.RIGHT, tile)) {
@@ -211,6 +230,11 @@ public class Grid implements Serializable {
                 if (tileAtPositionSamePosition(sumRowCol)) {
                     throw new QwirkleException("You cannot put two tiles at the same position!");
                 }
+                // Qwirkle rules;
+                if (!validRulesAdd(row, col, Direction.RIGHT, tile)) {
+                    throw new QwirkleException("Does not respect the rules of qwirkle game!");
+                }
+
             }
             // We place the tiles in order to verify if tiles are adjacent;
             for (TileAtPosition tileAtPosition : line) {
@@ -224,24 +248,29 @@ public class Grid implements Serializable {
                 }
                 throw new QwirkleException("The tiles are not connected to another tile!");
             }
-            // Qwirkle rules;
-            for (TileAtPosition tileAtPosition : line) {
-                if (!validRulesAdd(tileAtPosition.row(), tileAtPosition.col(), Direction.RIGHT, tileAtPosition.tile())) {
-                    throw new QwirkleException("Does not respect the rules of qwirkle game!");
-                }
-            }
+
         }
         return scoreRulesAdd3(line);
     }
 
     /**
-     * @return true if the grid is empty, false otherwise;
+     * Checks if the grid is empty.
+     *
+     * @return true if the grid is empty, false otherwise.
      */
     public boolean isEmpty() {
         return this.isEmpty;
     }
 
-    //Checks that the tiles to add are adjacent to an existing tile on the grid;
+    /**
+     * Checks if the tiles to add are adjacent to an existing tile on the grid.
+     *
+     * @param row  the row of the first tile position.
+     * @param col  the column of the first tile position.
+     * @param d    the direction of tiles placement.
+     * @param line tiles to add.
+     * @return true if the tiles are adjacent to an existing tile, false otherwise.
+     */
     private boolean adjacentTiles(int row, int col, Direction d, Tile... line) {
         boolean adjacent = true;
         if ((this.line[row + (line.length * d.getDeltaRow())][col + (line.length * d.getDeltaCol())] == null)) {
@@ -264,15 +293,23 @@ public class Grid implements Serializable {
         return adjacent;
     }
 
-    //Checks that the horizontal and vertical tile line are composed of maximum 6 tiles;
+    /**
+     * Checks if the horizontal and vertical tile line are composed of a maximum of 6 tiles.
+     * Additionally, it verifies that the line does not contain duplicate tiles and that all tiles
+     * in the line share a common characteristic (color or shape).
+     *
+     * @param row  the row of the first tile position.
+     * @param col  the column of the first tile position.
+     * @param d    the direction of tiles placement.
+     * @param line tiles to add.
+     * @return true if the rules of adding tiles are valid, false otherwise.
+     */
     public boolean validRulesAdd(int row, int col, Direction d, Tile... line) {
         boolean validRules = true;
 
-        List<Tile> tilesFromTheLine = tilesFromTheLine(row, col, d, line); // List of all the tiles found on the line;
-        Tile[] tilesLineTab = tilesFromTheLine.toArray(Tile[]::new); // Converts the list into an array;
-        if (lineCompleted(tilesLineTab) || !validColorOrShape(tilesLineTab) || sameTile(tilesLineTab)) {
-            // If the line is already complete or if the tiles do not share a common characteristic
-            // or if there is the same tile twice;
+        List<Tile> tilesFromTheLine = tilesFromTheLine(row, col, d, line);
+        Tile[] tilesLineTab = tilesFromTheLine.toArray(Tile[]::new);
+        if (!doesNotExceedMaxTiles(tilesLineTab) || !validColorOrShape(tilesLineTab) || hasDuplicateTiles(tilesLineTab)) {
             validRules = false;
         }
 
@@ -280,10 +317,9 @@ public class Grid implements Serializable {
         while (indexLine < line.length && validRules) {
             int tileColumn = col + indexLine * d.getDeltaCol();
             int tileRow = row + indexLine * d.getDeltaRow();
-            // List of all the tiles found on the opposite line of each tile;
-            List<Tile> tilesFromOppLine = tilesFromTheLine(tileRow, tileColumn, d.diagonal(), line[indexLine]); // Diagonal direction;
+            List<Tile> tilesFromOppLine = tilesFromTheLine(tileRow, tileColumn, d.diagonal(), line[indexLine]);
             Tile[] tilesOppLineTab = tilesFromOppLine.toArray(Tile[]::new);
-            if (lineCompleted(tilesOppLineTab) || !validColorOrShape(tilesOppLineTab) || sameTile(tilesOppLineTab)) {
+            if (!doesNotExceedMaxTiles(tilesOppLineTab) || !validColorOrShape(tilesOppLineTab) || hasDuplicateTiles(tilesOppLineTab)) {
                 validRules = false;
             }
             tilesFromOppLine.clear();
@@ -292,32 +328,62 @@ public class Grid implements Serializable {
         return validRules;
     }
 
-    // Returns the tile line of the tiles passed in parameter;
+    /**
+     * Retrieves the tile line based on the given starting position and direction.
+     *
+     * @param row  the row of the starting tile position.
+     * @param col  the column of the starting tile position.
+     * @param d    the direction of the line.
+     * @param line the tiles to add.
+     * @return the list of tiles in the line.
+     */
     private List<Tile> tilesFromTheLine(int row, int col, Direction d, Tile... line) {
-        List<Tile> directionTiles = new ArrayList<>();
-        Collections.addAll(directionTiles, line); // Adds line(tiles to add) on the list;
+        List<Tile> directionTiles = new ArrayList<>(Arrays.asList(line));
         int colDirection = col + line.length * d.getDeltaCol();
         int rowDirection = row + line.length * d.getDeltaRow();
-        while (this.line[rowDirection][colDirection] != null) {
+        while (isTilePresent(rowDirection, colDirection)) {
             directionTiles.add(this.line[rowDirection][colDirection]);
-            colDirection = colDirection + d.getDeltaCol();
-            rowDirection = rowDirection + d.getDeltaRow();
+            colDirection += d.getDeltaCol();
+            rowDirection += d.getDeltaRow();
         }
         int oppCol = col + d.opposite().getDeltaCol();
         int oppRow = row + d.opposite().getDeltaRow();
-        while (this.line[oppRow][oppCol] != null) {
+        while (isTilePresent(oppRow, oppCol)) {
             directionTiles.add(this.line[oppRow][oppCol]);
-            oppCol = oppCol + d.opposite().getDeltaCol();
-            oppRow = oppRow + d.opposite().getDeltaRow();
+            oppCol += d.opposite().getDeltaCol();
+            oppRow += d.opposite().getDeltaRow();
         }
         return directionTiles;
     }
 
-    private boolean lineCompleted(Tile[] tiles) {
-        return tiles.length > 6;
+    /**
+     * Checks if a tile is present at the specified row and column coordinates.
+     *
+     * @param row the row coordinate.
+     * @param col the column coordinate.
+     * @return true if a tile is present, false otherwise.
+     */
+    private boolean isTilePresent(int row, int col) {
+        return this.line[row][col] != null;
     }
 
-    private boolean sameTile(Tile[] tiles) {
+    /**
+     * Checks if a line of tiles does not exceed the maximum number of tiles allowed.
+     *
+     * @param tiles the array of tiles in the line.
+     * @return true if the line does not exceed the maximum number of tiles, false otherwise.
+     */
+    private boolean doesNotExceedMaxTiles(Tile[] tiles) {
+        return tiles.length <= 6;
+    }
+
+    /**
+     * Checks if there are any duplicate tiles in the given array.
+     *
+     * @param tiles the array of tiles to check.
+     * @return true if there are duplicate tiles, false otherwise.
+     */
+    private boolean hasDuplicateTiles(Tile[] tiles) {
         boolean sameTile = false;
         int indexTile = 0;
         while (indexTile < tiles.length && !sameTile) {
@@ -333,27 +399,39 @@ public class Grid implements Serializable {
         return sameTile;
     }
 
+    /**
+     * Checks if all the tiles in the given array share either the same color or the same shape.
+     *
+     * @param line the array of tiles to check.
+     * @return true if all tiles share the same color or shape, false otherwise.
+     */
     private boolean validColorOrShape(Tile... line) {
         boolean validColorOrShape = false;
         int i = 1;
         while (i < line.length && line[0].color() == line[i].color()) {
             i++;
         }
-        if(i >= line.length){
+        if (i >= line.length) {
             validColorOrShape = true;
         }
-        if(!validColorOrShape){
+        if (!validColorOrShape) {
             int j = 1;
             while (j < line.length && line[0].shape() == line[j].shape()) {
                 j++;
             }
-            if(j >= line.length){
+            if (j >= line.length) {
                 validColorOrShape = true;
             }
         }
         return validColorOrShape;
     }
 
+    /**
+     * Checks if all the elements in the given list are the same.
+     *
+     * @param rowOrCol the list of row or column values to check.
+     * @return true if all elements are the same, false otherwise.
+     */
     private boolean sameRowOrCol(List<Integer> rowOrCol) {
         boolean sameRowOrCol = true;
         int indexRow = 0;
@@ -366,10 +444,23 @@ public class Grid implements Serializable {
         return sameRowOrCol;
     }
 
+    /**
+     * Checks if the list of row values or the list of column values contains the same value for all elements.
+     *
+     * @param row the list of row values.
+     * @param col the list of column values.
+     * @return true if either the row values or the column values are the same for all elements, false otherwise.
+     */
     private boolean tilesSameLine(List<Integer> row, List<Integer> col) {
         return sameRowOrCol(row) || sameRowOrCol(col);
     }
 
+    /**
+     * Checks if the list of sum of row and column values has any duplicate values.
+     *
+     * @param sumRowCol the list of sum of row and column values.
+     * @return true if there are duplicate values in the list, false otherwise.
+     */
     private boolean tileAtPositionSamePosition(List<Integer> sumRowCol) {
         boolean samePosition = false;
         int i = 0;
@@ -386,50 +477,55 @@ public class Grid implements Serializable {
         return samePosition;
     }
 
-    //Checks that the position of the first and last tile is valid:
-    //all "row" and "col" must be in the grid, i.e. 91*91;
+    /**
+     * Checks if the position of the first and last tile is valid.
+     *
+     * @param row  the row of the first tile position.
+     * @param col  the column of the first tile position.
+     * @param d    the direction of tiles placement.
+     * @param line the tiles to add.
+     * @return true if the position is valid, false otherwise.
+     */
     private boolean validPosition(int row, int col, Direction d, Tile... line) {
-        boolean valid = true;
         if (row > 89 || row < 1 || col > 89 || col < 1) {
-            return false;
+            return false;      // Check if the initial position is outside the grid
         }
-        switch (d) {
-            case LEFT -> {
-                if (col - line.length - 1 < 1) {
-                    valid = false;
-                }
-            }
-            case RIGHT -> {
-                if (col + line.length - 1 > 89) {
-                    valid = false;
-                }
-            }
-            case UP -> {
-                if (row - line.length - 1 < 1) {
-                    valid = false;
-                }
-            }
-            case DOWN -> {
-                if (row + line.length - 1 > 89) {
-                    valid = false;
-                }
-            }
-        }
-        return valid;
+
+        return switch (d) {
+            case LEFT -> col - line.length >= 0; // Check if the line fits within the grid on the left
+            case RIGHT -> col + line.length <= 90; // Check if the line fits within the grid on the right
+            case UP -> row - line.length >= 0; // Check if the line fits within the grid upwards
+            case DOWN -> row + line.length <= 90; // Check if the line fits within the grid downwards
+        };
     }
 
-    //Checks if the line is well initialized;
+    /**
+     * Checks if the line of tiles is well initialized.
+     *
+     * @param line the tiles to check.
+     * @return true if the line is well initialized, false otherwise.
+     */
     private boolean validLine(Tile... line) {
-        return line != null && line.length != 0 && line.length <= 6;
+        return line != null && line.length > 0 && line.length <= 6;
     }
 
-    //Checks if the direction is well initialized;
+    /**
+     * Checks if the direction is well initialized.
+     *
+     * @param d the direction to check.
+     * @return true if the direction is well initialized, false otherwise.
+     */
     private boolean validDirection(Direction d) {
         return d != null;
     }
 
-    //Checks if the tile are well initialized;
-    private boolean validTile(Tile... line) {
+    /**
+     * Checks if the tiles are well initialized.
+     *
+     * @param line the tiles to check.
+     * @return true if the tiles are well initialized, false otherwise.
+     */
+    private boolean isTileInit(Tile... line) {
         boolean valid = true;
         for (Tile tile : line) {
             if (tile == null) {
@@ -440,11 +536,19 @@ public class Grid implements Serializable {
         return valid;
     }
 
-    //Checks that at this position of the grid does not already exist a tile;
+    /**
+     * Checks if a tile already exists at the specified position on the grid.
+     *
+     * @param row  the row index of the position.
+     * @param col  the column index of the position.
+     * @param d    the direction of the line.
+     * @param line the tiles to add.
+     * @return true if a tile already exists at the position, false otherwise.
+     */
     private boolean existAlreadyTile(int row, int col, Direction d, Tile... line) {
         boolean existAlreadyTile = false;
-        int i =0;
-        while(i < line.length && !existAlreadyTile){
+        int i = 0;
+        while (i < line.length && !existAlreadyTile) {
             if (this.line[row + d.getDeltaRow() * i][col + d.getDeltaCol() * i] != null) {
                 existAlreadyTile = true;
             }
@@ -453,66 +557,85 @@ public class Grid implements Serializable {
         return existAlreadyTile;
     }
 
+    /**
+     * Calculates the score based on the tiles added to the grid.
+     *
+     * @param row  the row index of the position.
+     * @param col  the column index of the position.
+     * @param d    the direction of the line.
+     * @param line the tiles to add.
+     * @return the calculated score.
+     */
     private int score(int row, int col, Direction d, Tile... line) {
         int score = 0;
         List<Tile> tilesFromTheLine = tilesFromTheLine(row, col, d, line);
+
         if (tilesFromTheLine.size() > 1) {
-            score = score + tilesFromTheLine.size(); // If rules are respected;
+            score += tilesFromTheLine.size(); // If rules are respected
         }
         if (tilesFromTheLine.size() == 6) {
-            score = score + 6; // Qwirkle line;
+            score += 6; // Qwirkle line
         }
-        // List of all the tiles found on the opposite line of the tile passed as parameter;
+
+        // List of all the tiles found on the opposite line of the tile passed as a parameter
         for (int i = 0; i < line.length; i++) {
             int tileColumn = col + i * d.getDeltaCol();
             int tileRow = row + i * d.getDeltaRow();
-            List<Tile> tilesFromThOppositeLine = tilesFromTheLine(tileRow, tileColumn, d.diagonal(), line[i]);// Diagonal direction;
-            if (tilesFromThOppositeLine.size() > 1) {
-                score = score + tilesFromThOppositeLine.size(); // If rules are respected;
+            List<Tile> tilesFromOppositeLine = tilesFromTheLine(tileRow, tileColumn, d.diagonal(), line[i]); // Diagonal direction
+
+            if (tilesFromOppositeLine.size() > 1) {
+                score += tilesFromOppositeLine.size(); // If rules are respected
             }
-            if (tilesFromThOppositeLine.size() == 6) {
-                score = score + 6; // Qwirkle line;
+            if (tilesFromOppositeLine.size() == 6) {
+                score += 6; // Qwirkle line
             }
-            tilesFromThOppositeLine.clear();
+
+            tilesFromOppositeLine.clear();
         }
+
         return score;
     }
 
+    /**
+     * Calculates the score for adding tiles to the grid based on their positions.
+     *
+     * @param line the tiles with their positions to add.
+     * @return the calculated score.
+     */
     private int scoreRulesAdd3(TileAtPosition... line) {
         int score = 0;
         List<Integer> tilesRow = new ArrayList<>();
+
         for (TileAtPosition tileAtPosition : line) {
             int newRow = tileAtPosition.row();
             tilesRow.add(newRow);
             int newCol = tileAtPosition.col();
             Tile tile = tileAtPosition.tile();
-            score = score + score(newRow, newCol, Direction.RIGHT, tile);
-            // It doesn't matter the direction here;
+            score += score(newRow, newCol, Direction.RIGHT, tile); // It doesn't matter the direction here
         }
-        // Removes from the score the number of tiles that are repeated on the same line;
-        Direction d;
-        if (sameRowOrCol(tilesRow)) { // If horizontal line;
-            d = Direction.RIGHT;
-        } else {
-            d = Direction.UP; // If vertical line;
-        }
+
+        // Removes from the score the number of tiles that are repeated on the same line
+        Direction d = sameRowOrCol(tilesRow) ? Direction.RIGHT : Direction.UP;
         TileAtPosition tile = line[0];
         List<Tile> tilesToRemove = tilesFromTheLine(tile.row(), tile.col(), d, tile.tile());
-        score = score - (line.length - 1) * tilesToRemove.size();
+        score -= (line.length - 1) * tilesToRemove.size();
+
         return score;
     }
 
+    /**
+     * Checks if the given TileAtPosition is adjacent to the existing tiles in the grid.
+     *
+     * @param tilesRow       the list of row positions of the existing tiles.
+     * @param tilesCol       the list of column positions of the existing tiles.
+     * @param tileAtPosition the TileAtPosition to check for adjacency.
+     * @return true if the tile is adjacent to the existing tiles, false otherwise.
+     */
     private boolean adjacentTileAtPosition(List<Integer> tilesRow, List<Integer> tilesCol, TileAtPosition tileAtPosition) {
         boolean valid = true;
-        Direction d;
-        if (sameRowOrCol(tilesRow)) {  // If horizontal line;
-            d = Direction.RIGHT;
-        } else {
-            d = Direction.UP; // If vertical line;
-        }
-        // We place the tiles
-        int min;
-        int max;
+        Direction d = sameRowOrCol(tilesRow) ? Direction.RIGHT : Direction.UP;
+        int min, max;
+
         // Defines the min and max;
         if (d == Direction.RIGHT) {
             // We check the columns;
@@ -523,9 +646,9 @@ public class Grid implements Serializable {
             while (j < max && get(tileAtPosition.row(), j) != null) {
                 j++;
             }
-            if (j != max) {
-                valid = false;
-            }
+
+            valid = j == max;
+
         } else {
             // We check the rows;
             Collections.sort(tilesRow);
@@ -535,9 +658,8 @@ public class Grid implements Serializable {
             while (i < max && get(i, tileAtPosition.col()) != null) {
                 i++;
             }
-            if (i != max) {
-                valid = false;
-            }
+            valid = i == max;
+
         }
         return valid;
     }

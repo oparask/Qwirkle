@@ -1,13 +1,14 @@
 package g60085.qwirkle.model;
 
 /**
- * GridView represents a view on the grid that it will not be possible to modify.
+ * GridView represents a view on the game grid that provides read-only access to the grid.
+ * It allows retrieving tiles from specific positions in the grid and checking if the grid is empty.
  */
 public class GridView {
     private Grid grid;
 
     /**
-     * Initializes the attribute grid.
+     * Initializes the GridView with the game grid.
      *
      * @param grid the game grid.
      */
@@ -16,10 +17,10 @@ public class GridView {
     }
 
     /**
-     * Gives access to the grid game by accessing a given tile.
+     * Retrieves the tile at the specified row and column.
      *
-     * @param row tile row.
-     * @param col tile column.
+     * @param row the row index.
+     * @param col the column index.
      * @return the requested tile.
      */
     public Tile get(int row, int col) {
@@ -27,9 +28,12 @@ public class GridView {
     }
 
     /**
-     * @return true if the grid game is empty and false otherwise.
+     * Checks if the grid is empty.
+     *
+     * @return true if the grid is empty, false otherwise.
      */
     public boolean isEmpty() {
         return this.grid == null;
     }
 }
+

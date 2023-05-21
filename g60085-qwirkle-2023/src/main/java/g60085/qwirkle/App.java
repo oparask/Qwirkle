@@ -13,9 +13,13 @@ import java.util.Scanner;
 import static g60085.qwirkle.view.View.*;
 
 /**
- * App controls the application.
- * It manages user inputs, will take care of relaying the actions to the model
- * and will request the different displays at view.
+ * The App class serves as the main entry point for the application.
+ * It controls the application and manages its flow.
+ * The App class is responsible for:
+ * Handling user inputs and translating them into appropriate actions.
+ * Managing the game flow, including starting, pausing, and ending the game.
+ * Coordinating communication between the user interface, the game model, and the view.
+ * Requesting the view to display relevant information, such as the game state, scores, and messages.
  */
 public class App {
 
@@ -68,6 +72,7 @@ public class App {
                             boolean gameIsSaved = false;
                             do {
                                 try {
+                                    displaySerializedFiles();
                                     String filename = robustReadingString("Enter the name of the file: ");
                                     Game.write(game, filename);
                                     gameIsSaved = true;

@@ -7,7 +7,10 @@ import java.io.File;
 import java.util.List;
 
 /**
- * Contains only static methods to display different parts of the game in the console.
+ * View is a utility class that contains only static methods for displaying different parts of the game in the console,
+ * making it easier to understand and interact with the game through the console interface.
+ * All its methods are static, allowing direct access to the functionality without creating objects of the class.
+ * It includes methods for displaying the game grid, player hands, scores, and other relevant information.
  */
 public class View {
     public static final String ANSI_RESET = "\u001B[0m";
@@ -263,7 +266,7 @@ public class View {
     }
 
     /**
-     * Prints a prompt symbol (> ) and expects something after;
+     * Prints a prompt symbol (> ) and expects something after.
      */
     public static void displayEntrancePrompt() {
         System.out.print(ANSI_GREEN + "> " + ANSI_RESET);

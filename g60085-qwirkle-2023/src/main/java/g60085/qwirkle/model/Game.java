@@ -6,8 +6,11 @@ import java.util.Locale;
 
 
 /**
- * Game represents the facade of the model.
- * It is with this class that the view interacts.
+ * The `Game` class represents the facade of the model in the Qwirkle game.
+ * It encapsulates the game logic and provides a simplified interface for the view to interact with.
+ * The `Game` class manages the game state, including the grid, players, and current player.
+ * It allows for playing moves, switching players, and accessing game-related information.
+ * The `Game` class is serializable to support saving and loading game state.
  */
 public class Game implements Serializable {
     private Grid grid;
@@ -86,7 +89,6 @@ public class Game implements Serializable {
         currentPlayer.refill();
         changeCurrentPlayer();
     }
-
 
     /**
      * Attempts to play several aligned tiles for the current player.
@@ -174,7 +176,6 @@ public class Game implements Serializable {
     public int getCurrentPlayerScore() {
         return this.players[this.currentPlayer].getScore();
     }
-
 
     /**
      * Returns the scores of the players.

@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Player represents a player in the game.
+ * Player represents a player in the Qwirkle game.
  */
 public class Player implements Serializable {
     private String name;
@@ -14,9 +14,9 @@ public class Player implements Serializable {
     private int score;
 
     /**
-     * Initializes the name of the player.
+     * Initializes a player with the given name.
      *
-     * @param name representing his name or nickname.
+     * @param name the name or nickname of the player.
      */
     public Player(String name) {
         this.name = name;
@@ -25,56 +25,60 @@ public class Player implements Serializable {
     }
 
     /**
-     * @return the name or nickname of the player as String.
+     * Gets the name of the player.
+     *
+     * @return the name or nickname of the player.
      */
     public String getName() {
         return this.name;
     }
 
+
     /**
-     * @return the score of the player;
+     * Gets the score of the player.
+     *
+     * @return the score of the player.
      */
     public int getScore() {
         return this.score;
     }
 
     /**
-     * Gives access to the player's tiles without modifying them.
+     * Gets the hand of the player.
      *
-     * @return the hand of the player.
+     * @return an unmodifiable list of tiles representing the player's hand.
      */
     public List<Tile> getHand() {
         return Collections.unmodifiableList(this.tiles);
     }
 
     /**
-     * Fills the player's hand by completing the tile list for player to have 6 by drawing from tile bag 2.
+     * Refills the player's hand by drawing tiles from the tile bag.
+     * It fills the hand to have 6 tiles, if possible.
      */
     public void refill() {
         Bag bag = Bag.getInstance();
-        //System.out.println(bag);
-        //System.out.println(bag.size());
         Tile[] refill = bag.getRandomTiles(6 - this.tiles.size());
         Collections.addAll(this.tiles, refill);
     }
 
     /**
-     * Removes tiles from the player's hand.
+     * Removes the specified tiles from the player's hand.
      *
-     * @param ts tiles to remove.
+     * @param tiles the tiles to remove from the hand.
      */
-    public void remove(Tile... ts) {
-        for (Tile t : ts) {
+    public void remove(Tile... tiles) {
+        for (Tile t : tiles) {
             this.tiles.remove(this.tiles.indexOf(t));
         }
     }
 
     /**
-     * Adds the number of points to the score;
+     * Adds the specified value to the player's score.
      *
-     * @param value the number of points to add to the score;
+     * @param value the number of points to add to the score.
      */
     public void addScore(int value) {
-        this.score = this.score + value;
+        this.score += value;
     }
 }

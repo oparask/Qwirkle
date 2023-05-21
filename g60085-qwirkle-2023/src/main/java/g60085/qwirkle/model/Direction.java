@@ -13,10 +13,10 @@ public enum Direction {
     private int deltaCol;
 
     /**
-     * Initializes attribute values with the enumeration values passed in parameters.
+     * Initializes the direction with the specified row and column offsets.
      *
-     * @param deltaRow row offset.
-     * @param deltaCol column offset.
+     * @param deltaRow The row offset for the direction.
+     * @param deltaCol The column offset for the direction.
      */
     Direction(int deltaRow, int deltaCol) {
         this.deltaRow = deltaRow;
@@ -26,7 +26,7 @@ public enum Direction {
     /**
      * Gives access to the deltaRow attribute.
      *
-     * @return the deltaRow attribute.
+     * @return The deltaRow attribute.
      */
     public int getDeltaRow() {
         return this.deltaRow;
@@ -35,14 +35,16 @@ public enum Direction {
     /**
      * Gives access to the deltaCol attribute.
      *
-     * @return the deltaCol attribute.
+     * @return The deltaCol attribute.
      */
     public int getDeltaCol() {
         return this.deltaCol;
     }
 
     /**
-     * @return the opposite direction of the current one.
+     * Returns the opposite direction of the current one.
+     *
+     * @return The opposite direction.
      */
     public Direction opposite() {
         return switch (this) {
@@ -52,14 +54,16 @@ public enum Direction {
             case RIGHT -> LEFT;
         };
     }
+
     /**
-     * @return the diagonal direction of the current one.
+     * Returns the diagonal direction of the current one.
+     *
+     * @return The diagonal direction.
      */
     public Direction diagonal() {
         return switch (this) {
-            case UP,DOWN -> RIGHT;
+            case UP, DOWN -> RIGHT;
             case LEFT, RIGHT -> DOWN;
         };
     }
-
 }
