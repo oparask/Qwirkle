@@ -4,11 +4,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static g60085.qwirkle.model.Color.*;
 import static g60085.qwirkle.model.Direction.*;
+import static g60085.qwirkle.model.QwirkleTestUtil.*;
 import static g60085.qwirkle.model.Shape.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static g60085.qwirkle.model.QwirkleTestUtil.*;
 
 class GridTest {
 
@@ -248,8 +251,8 @@ class GridTest {
         grid.firstAdd(RIGHT, new Tile(BLUE, CROSS));
         Tile bluecross = new Tile(BLUE, STAR);
         Tile bluesquare = new Tile(BLUE, SQUARE);
-        grid.add(45, 46,DOWN,bluesquare, bluecross);
-        assertThrows(QwirkleException.class, () ->  grid.add(45, 46,DOWN,bluesquare, bluesquare));
+        grid.add(45, 46, DOWN, bluesquare, bluecross);
+        assertThrows(QwirkleException.class, () -> grid.add(45, 46, DOWN, bluesquare, bluesquare));
     }
 
     //Checks that the tiles you want to add respect the rules of the Qwrikle game:
@@ -279,24 +282,25 @@ class GridTest {
         var t6 = new Tile(RED, CROSS);
         //tiles not connected
         //grid.add(43, 45,UP, t1, t2, t3, t4, t5, t6);
-        assertThrows(QwirkleException.class, () -> grid.add(43, 45,UP, t1, t2, t3, t4, t5, t6));
+        assertThrows(QwirkleException.class, () -> grid.add(43, 45, UP, t1, t2, t3, t4, t5, t6));
         //vertical line already complete
         //grid.add(44, 45,UP, t1, t2, t3, t4, t5, t6);
-        assertThrows(QwirkleException.class, () -> grid.add(44, 45,UP, t1, t2, t3, t4, t5, t6));
+        assertThrows(QwirkleException.class, () -> grid.add(44, 45, UP, t1, t2, t3, t4, t5, t6));
         //not same color or shape
         var t7 = new Tile(BLUE, CROSS);
         //grid.add(44, 45,UP, t1, t2, t3, t4, t7);
-        assertThrows(QwirkleException.class, () -> grid.add(44, 45,UP, t1, t2, t3, t4, t7));
+        assertThrows(QwirkleException.class, () -> grid.add(44, 45, UP, t1, t2, t3, t4, t7));
         //same tile
         //grid.add(44, 45,UP, t1, t2, t3, t4, t6);
-        assertThrows(QwirkleException.class, () -> grid.add(44, 45,UP, t1, t2, t3, t4, t6));
+        assertThrows(QwirkleException.class, () -> grid.add(44, 45, UP, t1, t2, t3, t4, t6));
         //normal case
-        grid.add(44, 45,UP, t1, t2, t3, t4, t5);
+        grid.add(44, 45, UP, t1, t2, t3, t4, t5);
         //tile at this position
         //grid.add(44, 45,UP, t1, t2);
-        assertThrows(QwirkleException.class, () -> grid.add(44, 45,UP, t1, t2));
+        assertThrows(QwirkleException.class, () -> grid.add(44, 45, UP, t1, t2));
 
     }
+
     @Test
     void add_tiles_tests_DOWN() {
         grid.firstAdd(RIGHT, new Tile(RED, CROSS));
@@ -323,8 +327,9 @@ class GridTest {
         grid.add(46, 45, DOWN, t1, t2, t3, t4, t5);
         //tile at this position
         //grid.add(46, 45,DOWN, t1, t2);
-        assertThrows(QwirkleException.class, () -> grid.add(46, 45,DOWN, t1, t2));
+        assertThrows(QwirkleException.class, () -> grid.add(46, 45, DOWN, t1, t2));
     }
+
     //Checks that the horizontal and vertical tiles share the same characteristic, color or sahpe.
     @Test
     void add_tiles_notSameColorOrShape() {
@@ -470,6 +475,7 @@ class GridTest {
             grid.add(t1, t2);
         });
     }
+
     @Test
     void tileAtPosition_different_notConnected() {
         grid.firstAdd(RIGHT, new Tile(RED, SQUARE), new Tile(RED, DIAMOND));
@@ -479,6 +485,7 @@ class GridTest {
             grid.add(t1, t2);
         });
     }
+
     @Test
     void tileAtPosition_different_Connected() {
         grid.firstAdd(RIGHT, new Tile(RED, SQUARE), new Tile(RED, DIAMOND));
@@ -496,8 +503,9 @@ class GridTest {
         var t4 = new Tile(RED, STAR);
         var t5 = new Tile(RED, SQUARE);
         var t6 = new Tile(RED, CROSS);
-        assertEquals(12,  grid.firstAdd( DOWN, t1, t2, t3, t4, t5, t6));
+        assertEquals(12, grid.firstAdd(DOWN, t1, t2, t3, t4, t5, t6));
     }
+
     @Test
     void score_sonia_A() {
         var t1 = new Tile(RED, ROUND);
@@ -525,7 +533,7 @@ class GridTest {
         var t1 = new Tile(BLUE, ROUND);
         //assertEquals(4,  grid.add(45, 46, t1));
         var t2 = new TileAtPosition(45, 46, t1);
-        assertEquals(4,  grid.add(t2));
+        assertEquals(4, grid.add(t2));
     }
 
     @Test
@@ -542,10 +550,11 @@ class GridTest {
     @Test
     void score_sonia_E() {
         score_Vincent_D();
-        var t1 = new TileAtPosition(42, 44,new Tile(GREEN, STAR));
+        var t1 = new TileAtPosition(42, 44, new Tile(GREEN, STAR));
         var t2 = new TileAtPosition(45, 44, new Tile(GREEN, ROUND));
         assertEquals(7, grid.add(t2, t1));
     }
+
     @Test
     void score_Cédric_F() {
         score_sonia_E();
@@ -556,6 +565,7 @@ class GridTest {
         var t4 = new TileAtPosition(46, 48, t2);
         assertEquals(6, grid.add(t3, t4));
     }
+
     @Test
     void score_Elvire_G() {
         score_Cédric_F();
@@ -588,6 +598,7 @@ class GridTest {
         var t4 = new TileAtPosition(45, 43, t2);
         assertEquals(10, grid.add(t3, t4));
     }
+
     @Test
     void score_Cédric_J() {
         score_Sonia_I();
@@ -609,6 +620,7 @@ class GridTest {
         var t6 = new TileAtPosition(47, 46, t3);
         assertEquals(18, grid.add(t4, t5, t6));
     }
+
     @Test
     void score_Vincent_L() {
         score_Elvire_K();
@@ -622,452 +634,506 @@ class GridTest {
 
     //test NRI
 
-        @Test
-        void gridInitiallyEmpty() {
-            var g = new Grid();
-            for (int row = -45; row < 45; row++) {
-                for (int col = -45; col < 45; col++) {
-                    assertNull(get(g, row, col));
-                }
+    @Test
+    void gridInitiallyEmpty() {
+        var g = new Grid();
+        for (int row = -45; row < 45; row++) {
+            for (int col = -45; col < 45; col++) {
+                assertNull(get(g, row, col));
             }
         }
+    }
 
-        @Test
-        @DisplayName("get outside the grid should return null, not throw")
-        void canGetOutsideVirtualGrid() {
-            var g = new Grid();
-            assertDoesNotThrow(() -> get(g, -250, 500));
-            assertNull(get(g, -250, 500));
-        }
+    @Test
+    @DisplayName("get outside the grid should return null, not throw")
+    void canGetOutsideVirtualGrid() {
+        var g = new Grid();
+        assertDoesNotThrow(() -> get(g, -250, 500));
+        assertNull(get(g, -250, 500));
+    }
 
-        // simple adds
+    // simple adds
 
-        @Test
-        void addSimpleUP() {
-            var g = new Grid();
-            g.firstAdd(UP, TILE_RED_CROSS, TILE_RED_DIAMOND);
-            assertSame(TILE_RED_CROSS, get(g, 0, 0));
-            assertSame(TILE_RED_DIAMOND, get(g, -1, 0));
-            assertNull(get(g, 1, 0));
-            assertNull(get(g, 0, 1));
-            assertNull(get(g, 0, -1));
-        }
+    @Test
+    void addSimpleUP() {
+        var g = new Grid();
+        g.firstAdd(UP, TILE_RED_CROSS, TILE_RED_DIAMOND);
+        assertSame(TILE_RED_CROSS, get(g, 0, 0));
+        assertSame(TILE_RED_DIAMOND, get(g, -1, 0));
+        assertNull(get(g, 1, 0));
+        assertNull(get(g, 0, 1));
+        assertNull(get(g, 0, -1));
+    }
 
-        @Test
-        void addSimpleDOWN() {
-            var g = new Grid();
-            g.firstAdd(DOWN, TILE_RED_CROSS, TILE_RED_DIAMOND);
-            assertSame(TILE_RED_CROSS, get(g, 0, 0));
-            assertSame(TILE_RED_DIAMOND, get(g, 1, 0));
+    @Test
+    void addSimpleDOWN() {
+        var g = new Grid();
+        g.firstAdd(DOWN, TILE_RED_CROSS, TILE_RED_DIAMOND);
+        assertSame(TILE_RED_CROSS, get(g, 0, 0));
+        assertSame(TILE_RED_DIAMOND, get(g, 1, 0));
+        assertNull(get(g, -1, 0));
+        assertNull(get(g, 0, 1));
+        assertNull(get(g, 0, -1));
+    }
+
+    @Test
+    void addSimpleLEFT() {
+        var g = new Grid();
+        g.firstAdd(LEFT, TILE_RED_CROSS, TILE_RED_DIAMOND);
+        assertSame(TILE_RED_CROSS, get(g, 0, 0));
+        assertSame(TILE_RED_DIAMOND, get(g, 0, -1));
+        assertNull(get(g, 1, 0));
+        assertNull(get(g, -1, 0));
+        assertNull(get(g, 0, 1));
+    }
+
+    @Test
+    void addSimpleRIGHT() {
+        var g = new Grid();
+        g.firstAdd(RIGHT, TILE_RED_CROSS, TILE_RED_DIAMOND);
+        assertSame(TILE_RED_CROSS, get(g, 0, 0));
+        assertSame(TILE_RED_DIAMOND, get(g, 0, 1));
+        assertNull(get(g, 1, 0));
+        assertNull(get(g, -1, 0));
+        assertNull(get(g, 0, -1));
+    }
+
+    @Test
+    void addSimpleDoubleShouldThrow() {
+        var g = new Grid();
+        for (Direction d : Direction.values()) {
+            assertThrows(QwirkleException.class, () -> g.firstAdd(d, TILE_RED_CROSS, TILE_RED_CROSS));
+            assertNull(get(g, 0, 0));
             assertNull(get(g, -1, 0));
-            assertNull(get(g, 0, 1));
+            assertNull(get(g, 1, 0));
             assertNull(get(g, 0, -1));
-        }
-
-        @Test
-        void addSimpleLEFT() {
-            var g = new Grid();
-            g.firstAdd(LEFT, TILE_RED_CROSS, TILE_RED_DIAMOND);
-            assertSame(TILE_RED_CROSS, get(g, 0, 0));
-            assertSame(TILE_RED_DIAMOND, get(g, 0, -1));
-            assertNull(get(g, 1, 0));
-            assertNull(get(g, -1, 0));
             assertNull(get(g, 0, 1));
         }
 
-        @Test
-        void addSimpleRIGHT() {
-            var g = new Grid();
-            g.firstAdd(RIGHT, TILE_RED_CROSS, TILE_RED_DIAMOND);
-            assertSame(TILE_RED_CROSS, get(g, 0, 0));
-            assertSame(TILE_RED_DIAMOND, get(g, 0, 1));
-            assertNull(get(g, 1, 0));
-            assertNull(get(g, -1, 0));
-            assertNull(get(g, 0, -1));
-        }
+    }
 
-        @Test
-        void addSimpleDoubleShouldThrow() {
-            var g = new Grid();
-            for (Direction d : Direction.values()) {
-                assertThrows(QwirkleException.class, () -> g.firstAdd(d, TILE_RED_CROSS, TILE_RED_CROSS));
-                assertNull(get(g, 0, 0));
-                assertNull(get(g, -1, 0));
-                assertNull(get(g, 1, 0));
-                assertNull(get(g, 0, -1));
-                assertNull(get(g, 0, 1));
+    // firstAdd must be called first
+
+    @Test
+    void addFirstCannotBeCalledTwice() {
+        var g = new Grid();
+        g.firstAdd(UP, TILE_RED_CROSS, TILE_RED_DIAMOND);
+        assertThrows(QwirkleException.class, () -> g.firstAdd(DOWN, TILE_RED_CROSS, TILE_RED_DIAMOND));
+    }
+
+    @Test
+    void addFirstMustBeCalledFirst_dir() {
+        var g = new Grid();
+        assertThrows(QwirkleException.class, () -> add(g, 0, 0, DOWN, TILE_RED_CROSS, TILE_RED_DIAMOND));
+    }
+
+    @Test
+    void addFirstMustBeCalledFirst_tap() {
+        var g = new Grid();
+        assertThrows(QwirkleException.class, () -> g.add(createTileAtpos(0, 0, TILE_RED_CROSS)));
+    }
+
+    @Test
+    void addFirstMustBeCalledFirst_simple() {
+        var g = new Grid();
+        assertThrows(QwirkleException.class, () -> add(g, 0, 0, TILE_RED_CROSS));
+    }
+
+    // neighbours
+
+    @Test
+    void aTileMustHaveNeighbours() {
+        var g = new Grid();
+        g.firstAdd(UP, TILE_RED_CROSS);
+        assertThrows(QwirkleException.class, () -> add(g, 2, 0, TILE_RED_DIAMOND));
+        assertNull(get(g, 2, 0));
+    }
+
+
+    // overwriting
+
+    @Test
+    void canNotAddTwiceAtTheSamePlace_equalTile() {
+        var g = new Grid();
+        g.firstAdd(DOWN, TILE_RED_CROSS, TILE_RED_DIAMOND);
+        assertThrows(QwirkleException.class, () -> add(g, 1, 0, TILE_RED_DIAMOND_2));
+        assertSame(get(g, 1, 0), TILE_RED_DIAMOND);
+    }
+
+    @Test
+    void canNotAddTwiceAtTheSamePlace_differentTile_simple() {
+        var g = new Grid();
+        g.firstAdd(DOWN, TILE_RED_CROSS, TILE_RED_DIAMOND);
+        assertThrows(QwirkleException.class, () -> add(g, 1, 0, TILE_RED_PLUS));
+        assertSame(get(g, 1, 0), TILE_RED_DIAMOND);
+    }
+
+    @Test
+    void canNotAddTwiceAtTheSamePlace_differentTile_dir() {
+        var g = new Grid();
+        g.firstAdd(DOWN, TILE_RED_CROSS, TILE_RED_DIAMOND);
+        assertThrows(QwirkleException.class, () -> add(g, 0, 0, DOWN, TILE_RED_PLUS, TILE_RED_STAR));
+        assertSame(get(g, 0, 0), TILE_RED_CROSS);
+        assertSame(get(g, 1, 0), TILE_RED_DIAMOND);
+    }
+
+    @Test
+    void canNotAddTwiceAtTheSamePlace_differentTile_taps() {
+        var g = new Grid();
+        g.firstAdd(DOWN, TILE_RED_CROSS, TILE_RED_DIAMOND);
+        TileAtPosition tap1 = createTileAtpos(0, 0, TILE_RED_PLUS);
+        TileAtPosition tap2 = createTileAtpos(1, 0, TILE_RED_STAR);
+        assertThrows(QwirkleException.class, () -> g.add(tap1, tap2));
+        assertSame(TILE_RED_CROSS, get(g, 0, 0));
+        assertSame(TILE_RED_DIAMOND, get(g, 1, 0));
+    }
+
+
+    // alignment
+    @Test
+    void canNotAddInDifferentLines() {
+        var g = new Grid();
+        g.firstAdd(UP, TILE_RED_CROSS);
+        var tap1 = createTileAtpos(0, 1, TILE_RED_DIAMOND);
+        var tap2 = createTileAtpos(1, 0, TILE_RED_STAR);
+        assertThrows(QwirkleException.class, () -> g.add(tap1, tap2));
+        assertSame(TILE_RED_CROSS, get(g, 0, 0));
+        assertNull(get(g, 0, 1));
+        assertNull(get(g, 1, 0));
+    }
+
+    // must share common trait
+    @Test
+    void canNotAddIfNoCommonTrait_tap() {
+        var g = new Grid();
+        g.firstAdd(UP, TILE_RED_CROSS);
+        var tap1 = createTileAtpos(0, 1, TILE_YELLOW_DIAMOND);
+        assertThrows(QwirkleException.class, () -> g.add(tap1));
+        assertSame(TILE_RED_CROSS, get(g, 0, 0));
+        assertNull(get(g, 0, 1));
+        assertNull(get(g, 1, 0));
+    }
+
+    @Test
+    void canNotAddIfNoCommonTrait_simple() {
+        var g = new Grid();
+        g.firstAdd(UP, TILE_RED_CROSS);
+        assertThrows(QwirkleException.class, () -> add(g, 0, 1, TILE_YELLOW_DIAMOND));
+        assertSame(TILE_RED_CROSS, get(g, 0, 0));
+        assertNull(get(g, 0, 1));
+        assertNull(get(g, 1, 0));
+    }
+
+    @Test
+    void canNotAddIfNoCommonTrait_dir() {
+        var g = new Grid();
+        g.firstAdd(UP, TILE_RED_CROSS);
+        assertThrows(QwirkleException.class, () -> add(g, 0, 1, LEFT, TILE_YELLOW_DIAMOND));
+        assertSame(TILE_RED_CROSS, get(g, 0, 0));
+        assertNull(get(g, 0, 1));
+        assertNull(get(g, 1, 0));
+    }
+
+    @Test
+    void canNotCompleteToALineWithDifferentTraits_simple() {
+        var g = new Grid();
+        g.firstAdd(RIGHT, TILE_RED_CROSS, TILE_RED_STAR, TILE_RED_DIAMOND);
+
+        add(g, 1, 0, TILE_RED_DIAMOND_2);
+        add(g, 2, 0, TILE_RED_PLUS);
+
+        add(g, 1, 2, TILE_GREEN_DIAMOND);
+        add(g, 2, 2, TILE_YELLOW_DIAMOND);
+
+        // the "hole" in 2, 1 can never be filled because 2, 0 and 2, 2 share no trait
+        for (var color : Color.values()) {
+            for (var shape : Shape.values()) {
+                assertThrows(QwirkleException.class, () -> add(g, 2, 1, new Tile(color, shape)));
+                assertNull(get(g, 2, 1));
             }
-
         }
+    }
 
-        // firstAdd must be called first
+    @Test
+    void canNotCompleteToALineWithDifferentTraits_dir() {
+        var g = new Grid();
+        g.firstAdd(RIGHT, TILE_RED_CROSS, TILE_RED_STAR, TILE_RED_DIAMOND);
 
-        @Test
-        void addFirstCannotBeCalledTwice() {
-            var g = new Grid();
-            g.firstAdd(UP, TILE_RED_CROSS, TILE_RED_DIAMOND);
-            assertThrows(QwirkleException.class, () -> g.firstAdd(DOWN, TILE_RED_CROSS, TILE_RED_DIAMOND));
-        }
+        add(g, 1, 0, TILE_RED_DIAMOND_2);
+        add(g, 2, 0, TILE_RED_PLUS);
 
-        @Test
-        void addFirstMustBeCalledFirst_dir() {
-            var g = new Grid();
-            assertThrows(QwirkleException.class, () -> add(g, 0, 0, DOWN, TILE_RED_CROSS, TILE_RED_DIAMOND));
-        }
+        add(g, 1, 2, TILE_GREEN_DIAMOND);
+        add(g, 2, 2, TILE_YELLOW_DIAMOND);
 
-        @Test
-        void addFirstMustBeCalledFirst_tap() {
-            var g = new Grid();
-            assertThrows(QwirkleException.class, () -> g.add(createTileAtpos(0, 0, TILE_RED_CROSS)));
-        }
-
-        @Test
-        void addFirstMustBeCalledFirst_simple() {
-            var g = new Grid();
-            assertThrows(QwirkleException.class, () -> add(g, 0, 0, TILE_RED_CROSS));
-        }
-
-        // neighbours
-
-        @Test
-        void aTileMustHaveNeighbours() {
-            var g = new Grid();
-            g.firstAdd(UP, TILE_RED_CROSS);
-            assertThrows(QwirkleException.class, () -> add(g, 2, 0, TILE_RED_DIAMOND));
-            assertNull(get(g, 2, 0));
-        }
-
-
-        // overwriting
-
-        @Test
-        void canNotAddTwiceAtTheSamePlace_equalTile() {
-            var g = new Grid();
-            g.firstAdd(DOWN, TILE_RED_CROSS, TILE_RED_DIAMOND);
-            assertThrows(QwirkleException.class, () -> add(g, 1, 0, TILE_RED_DIAMOND_2));
-            assertSame(get(g, 1, 0), TILE_RED_DIAMOND);
-        }
-
-        @Test
-        void canNotAddTwiceAtTheSamePlace_differentTile_simple() {
-            var g = new Grid();
-            g.firstAdd(DOWN, TILE_RED_CROSS, TILE_RED_DIAMOND);
-            assertThrows(QwirkleException.class, () -> add(g, 1, 0, TILE_RED_PLUS));
-            assertSame(get(g, 1, 0), TILE_RED_DIAMOND);
-        }
-
-        @Test
-        void canNotAddTwiceAtTheSamePlace_differentTile_dir() {
-            var g = new Grid();
-            g.firstAdd(DOWN, TILE_RED_CROSS, TILE_RED_DIAMOND);
-            assertThrows(QwirkleException.class, () -> add(g, 0, 0, DOWN, TILE_RED_PLUS, TILE_RED_STAR));
-            assertSame(get(g, 0, 0), TILE_RED_CROSS);
-            assertSame(get(g, 1, 0), TILE_RED_DIAMOND);
-        }
-
-        @Test
-        void canNotAddTwiceAtTheSamePlace_differentTile_taps() {
-            var g = new Grid();
-            g.firstAdd(DOWN, TILE_RED_CROSS, TILE_RED_DIAMOND);
-            TileAtPosition tap1 = createTileAtpos(0, 0, TILE_RED_PLUS);
-            TileAtPosition tap2 = createTileAtpos(1, 0, TILE_RED_STAR);
-            assertThrows(QwirkleException.class, () -> g.add(tap1, tap2));
-            assertSame(TILE_RED_CROSS, get(g, 0, 0));
-            assertSame(TILE_RED_DIAMOND, get(g, 1, 0));
-        }
-
-
-        // alignment
-        @Test
-        void canNotAddInDifferentLines() {
-            var g = new Grid();
-            g.firstAdd(UP, TILE_RED_CROSS);
-            var tap1 = createTileAtpos(0, 1, TILE_RED_DIAMOND);
-            var tap2 = createTileAtpos(1, 0, TILE_RED_STAR);
-            assertThrows(QwirkleException.class, () -> g.add(tap1, tap2));
-            assertSame(TILE_RED_CROSS, get(g, 0, 0));
-            assertNull(get(g, 0, 1));
-            assertNull(get(g, 1, 0));
-        }
-
-        // must share common trait
-        @Test
-        void canNotAddIfNoCommonTrait_tap() {
-            var g = new Grid();
-            g.firstAdd(UP, TILE_RED_CROSS);
-            var tap1 = createTileAtpos(0, 1, TILE_YELLOW_DIAMOND);
-            assertThrows(QwirkleException.class, () -> g.add(tap1));
-            assertSame(TILE_RED_CROSS, get(g, 0, 0));
-            assertNull(get(g, 0, 1));
-            assertNull(get(g, 1, 0));
-        }
-
-        @Test
-        void canNotAddIfNoCommonTrait_simple() {
-            var g = new Grid();
-            g.firstAdd(UP, TILE_RED_CROSS);
-            assertThrows(QwirkleException.class, () -> add(g, 0, 1, TILE_YELLOW_DIAMOND));
-            assertSame(TILE_RED_CROSS, get(g, 0, 0));
-            assertNull(get(g, 0, 1));
-            assertNull(get(g, 1, 0));
-        }
-
-        @Test
-        void canNotAddIfNoCommonTrait_dir() {
-            var g = new Grid();
-            g.firstAdd(UP, TILE_RED_CROSS);
-            assertThrows(QwirkleException.class, () -> add(g, 0, 1, LEFT, TILE_YELLOW_DIAMOND));
-            assertSame(TILE_RED_CROSS, get(g, 0, 0));
-            assertNull(get(g, 0, 1));
-            assertNull(get(g, 1, 0));
-        }
-
-        @Test
-        void canNotCompleteToALineWithDifferentTraits_simple() {
-            var g = new Grid();
-            g.firstAdd(RIGHT, TILE_RED_CROSS, TILE_RED_STAR, TILE_RED_DIAMOND);
-
-            add(g, 1, 0, TILE_RED_DIAMOND_2);
-            add(g, 2, 0, TILE_RED_PLUS);
-
-            add(g, 1, 2, TILE_GREEN_DIAMOND);
-            add(g, 2, 2, TILE_YELLOW_DIAMOND);
-
-            // the "hole" in 2, 1 can never be filled because 2, 0 and 2, 2 share no trait
-            for (var color : Color.values()) {
-                for (var shape : Shape.values()) {
-                    assertThrows(QwirkleException.class, () -> add(g, 2, 1, new Tile(color, shape)));
+        // the "hole" in 2, 1 can never be filled because 2, 0 and 2, 2 share no trait
+        for (var color : Color.values()) {
+            for (var shape : Shape.values()) {
+                for (Direction dir : Direction.values()) {
+                    assertThrows(QwirkleException.class, () -> add(g, 2, 1, dir, new Tile(color, shape)));
                     assertNull(get(g, 2, 1));
                 }
             }
         }
+    }
 
-        @Test
-        void canNotCompleteToALineWithDifferentTraits_dir() {
-            var g = new Grid();
-            g.firstAdd(RIGHT, TILE_RED_CROSS, TILE_RED_STAR, TILE_RED_DIAMOND);
+    @Test
+    void canNotCompleteToALineWithDifferentTraits_tap() {
+        var g = new Grid();
+        g.firstAdd(RIGHT, TILE_RED_CROSS, TILE_RED_STAR, TILE_RED_DIAMOND);
 
-            add(g, 1, 0, TILE_RED_DIAMOND_2);
-            add(g, 2, 0, TILE_RED_PLUS);
+        add(g, 1, 0, TILE_RED_DIAMOND_2);
+        add(g, 2, 0, TILE_RED_PLUS);
 
-            add(g, 1, 2, TILE_GREEN_DIAMOND);
-            add(g, 2, 2, TILE_YELLOW_DIAMOND);
+        add(g, 1, 2, TILE_GREEN_DIAMOND);
+        add(g, 2, 2, TILE_YELLOW_DIAMOND);
 
-            // the "hole" in 2, 1 can never be filled because 2, 0 and 2, 2 share no trait
-            for (var color : Color.values()) {
-                for (var shape : Shape.values()) {
-                    for (Direction dir : Direction.values()) {
-                        assertThrows(QwirkleException.class, () -> add(g, 2, 1, dir, new Tile(color, shape)));
-                        assertNull(get(g, 2, 1));
-                    }
-                }
+        // the "hole" in 2, 1 can never be filled because 2, 0 and 2, 2 share no trait
+        for (var color : Color.values()) {
+            for (var shape : Shape.values()) {
+                assertThrows(QwirkleException.class, () -> g.add(createTileAtpos(2, 1, new Tile(color, shape))));
+                assertNull(get(g, 2, 1));
             }
         }
+    }
 
-        @Test
-        void canNotCompleteToALineWithDifferentTraits_tap() {
-            var g = new Grid();
-            g.firstAdd(RIGHT, TILE_RED_CROSS, TILE_RED_STAR, TILE_RED_DIAMOND);
+    // never identical
+    @Test
+    void canNotCompleteToALineWithIdenticalTiles_simple() {
+        var g = new Grid();
+        g.firstAdd(RIGHT, TILE_RED_CROSS, TILE_RED_STAR, TILE_RED_DIAMOND);
 
-            add(g, 1, 0, TILE_RED_DIAMOND_2);
-            add(g, 2, 0, TILE_RED_PLUS);
+        add(g, 1, 0, TILE_RED_SQUARE);
+        add(g, 2, 0, TILE_RED_PLUS);
 
-            add(g, 1, 2, TILE_GREEN_DIAMOND);
-            add(g, 2, 2, TILE_YELLOW_DIAMOND);
+        add(g, 1, 2, TILE_RED_ROUND);
+        add(g, 2, 2, TILE_RED_PLUS_2);
 
-            // the "hole" in 2, 1 can never be filled because 2, 0 and 2, 2 share no trait
-            for (var color : Color.values()) {
-                for (var shape : Shape.values()) {
-                    assertThrows(QwirkleException.class, () -> g.add(createTileAtpos(2, 1, new Tile(color, shape))));
+        // the "hole" in 2, 1 can never be filled because 2, 0 and 2, 2 are identical
+        for (var color : Color.values()) {
+            for (var shape : Shape.values()) {
+                assertThrows(QwirkleException.class, () -> add(g, 2, 1, new Tile(color, shape)));
+                assertNull(get(g, 2, 1));
+            }
+        }
+    }
+
+    @Test
+    void canNotCompleteToALineWithIdenticalTiles_tap() {
+        var g = new Grid();
+        g.firstAdd(RIGHT, TILE_RED_CROSS, TILE_RED_STAR, TILE_RED_DIAMOND);
+
+        add(g, 1, 0, TILE_RED_SQUARE);
+        add(g, 2, 0, TILE_RED_PLUS);
+
+        add(g, 1, 2, TILE_RED_ROUND);
+        add(g, 2, 2, TILE_RED_PLUS_2);
+
+        // the "hole" in 2, 1 can never be filled because 2, 0 and 2, 2 are identical
+        for (var color : Color.values()) {
+            for (var shape : Shape.values()) {
+                assertThrows(QwirkleException.class, () -> g.add(createTileAtpos(2, 1, new Tile(color, shape))));
+                assertNull(get(g, 2, 1));
+            }
+        }
+    }
+
+    @Test
+    void canNotCompleteToALineWithIdenticalTiles_dir() {
+        var g = new Grid();
+        g.firstAdd(RIGHT, TILE_RED_CROSS, TILE_RED_STAR, TILE_RED_DIAMOND);
+
+        add(g, 1, 0, TILE_RED_SQUARE);
+        add(g, 2, 0, TILE_RED_PLUS);
+
+        add(g, 1, 2, TILE_RED_ROUND);
+        add(g, 2, 2, TILE_RED_PLUS_2);
+
+        // the "hole" in 2, 1 can never be filled because 2, 0 and 2, 2 are identical
+        for (var color : Color.values()) {
+            for (var shape : Shape.values()) {
+                // there is only one tile but let's try to add it in all directions anyway
+                for (Direction direction : Direction.values()) {
+                    assertThrows(QwirkleException.class, () -> add(g, 2, 1, direction, new Tile(color, shape)));
                     assertNull(get(g, 2, 1));
                 }
             }
         }
+    }
 
-        // never identical
-        @Test
-        void canNotCompleteToALineWithIdenticalTiles_simple() {
-            var g = new Grid();
-            g.firstAdd(RIGHT, TILE_RED_CROSS, TILE_RED_STAR, TILE_RED_DIAMOND);
+    // various other tests, pertaining to filling existing holes
+    @Test
+    void canCompleteToALineLeftRight() {
+        var g = new Grid();
+        g.firstAdd(RIGHT, TILE_RED_CROSS, TILE_RED_STAR, TILE_RED_DIAMOND);
 
-            add(g, 1, 0, TILE_RED_SQUARE);
-            add(g, 2, 0, TILE_RED_PLUS);
+        add(g, 1, 0, TILE_GREEN_CROSS);
+        add(g, 2, 0, TILE_YELLOW_CROSS);
 
-            add(g, 1, 2, TILE_RED_ROUND);
-            add(g, 2, 2, TILE_RED_PLUS_2);
+        add(g, 1, 2, TILE_GREEN_DIAMOND);
+        add(g, 2, 2, TILE_YELLOW_DIAMOND);
 
-            // the "hole" in 2, 1 can never be filled because 2, 0 and 2, 2 are identical
-            for (var color : Color.values()) {
-                for (var shape : Shape.values()) {
-                    assertThrows(QwirkleException.class, () -> add(g, 2, 1, new Tile(color, shape)));
-                    assertNull(get(g, 2, 1));
-                }
-            }
-        }
+        add(g, 2, 1, TILE_YELLOW_PLUS);
+        assertSame(TILE_YELLOW_PLUS, get(g, 2, 1));
 
-        @Test
-        void canNotCompleteToALineWithIdenticalTiles_tap() {
-            var g = new Grid();
-            g.firstAdd(RIGHT, TILE_RED_CROSS, TILE_RED_STAR, TILE_RED_DIAMOND);
+    }
 
-            add(g, 1, 0, TILE_RED_SQUARE);
-            add(g, 2, 0, TILE_RED_PLUS);
+    @Test
+    void canCompleteToALineLeftRightUpDown() {
+        var g = new Grid();
+        g.firstAdd(RIGHT, TILE_RED_CROSS, TILE_RED_PLUS, TILE_RED_DIAMOND);
 
-            add(g, 1, 2, TILE_RED_ROUND);
-            add(g, 2, 2, TILE_RED_PLUS_2);
+        add(g, 1, 0, TILE_GREEN_CROSS);
+        add(g, 2, 0, TILE_YELLOW_CROSS);
 
-            // the "hole" in 2, 1 can never be filled because 2, 0 and 2, 2 are identical
-            for (var color : Color.values()) {
-                for (var shape : Shape.values()) {
-                    assertThrows(QwirkleException.class, () -> g.add(createTileAtpos(2, 1, new Tile(color, shape))));
-                    assertNull(get(g, 2, 1));
-                }
-            }
-        }
+        add(g, 1, 2, TILE_GREEN_DIAMOND);
+        add(g, 2, 2, TILE_YELLOW_DIAMOND);
 
-        @Test
-        void canNotCompleteToALineWithIdenticalTiles_dir() {
-            var g = new Grid();
-            g.firstAdd(RIGHT, TILE_RED_CROSS, TILE_RED_STAR, TILE_RED_DIAMOND);
+        add(g, 2, 1, TILE_YELLOW_PLUS);
+        add(g, 1, 1, TILE_GREEN_PLUS);
+        assertSame(TILE_GREEN_PLUS, get(g, 1, 1));
+    }
 
-            add(g, 1, 0, TILE_RED_SQUARE);
-            add(g, 2, 0, TILE_RED_PLUS);
+    @Test
+    @DisplayName("Complete a line leaving holes during intermediary steps")
+    void canCompleteALine_Left_Middle_Right() {
+        var g = new Grid();
+        g.firstAdd(RIGHT, TILE_RED_CROSS, TILE_RED_PLUS, TILE_RED_DIAMOND);
 
-            add(g, 1, 2, TILE_RED_ROUND);
-            add(g, 2, 2, TILE_RED_PLUS_2);
+        add(g, 1, 0, TILE_GREEN_CROSS);
+        add(g, 2, 0, TILE_YELLOW_CROSS);
 
-            // the "hole" in 2, 1 can never be filled because 2, 0 and 2, 2 are identical
-            for (var color : Color.values()) {
-                for (var shape : Shape.values()) {
-                    // there is only one tile but let's try to add it in all directions anyway
-                    for (Direction direction : Direction.values()) {
-                        assertThrows(QwirkleException.class, () -> add(g, 2, 1, direction, new Tile(color, shape)));
-                        assertNull(get(g, 2, 1));
-                    }
-                }
-            }
-        }
+        add(g, 1, 2, TILE_GREEN_DIAMOND);
+        add(g, 2, 2, TILE_YELLOW_DIAMOND);
 
-        // various other tests, pertaining to filling existing holes
-        @Test
-        void canCompleteToALineLeftRight() {
-            var g = new Grid();
-            g.firstAdd(RIGHT, TILE_RED_CROSS, TILE_RED_STAR, TILE_RED_DIAMOND);
+        TileAtPosition plus_left = createTileAtpos(2, -1, TILE_YELLOW_PLUS);
+        TileAtPosition round_center = createTileAtpos(2, 1, TILE_YELLOW_ROUND);
+        TileAtPosition star_right = createTileAtpos(2, 3, TILE_YELLOW_STAR);
+        assertDoesNotThrow(() -> {
+            g.add(plus_left, star_right, round_center); // make sur having the center tile last does not throw.
+        });
+        assertAtCorrectPosition(g, plus_left);
+        assertAtCorrectPosition(g, round_center);
+        assertAtCorrectPosition(g, star_right);
+    }
 
-            add(g, 1, 0, TILE_GREEN_CROSS);
-            add(g, 2, 0, TILE_YELLOW_CROSS);
+    @Test
+    @DisplayName("Complete a line leaving holes during intermediary steps")
+    void canCompleteALine_Left2_Left() {
+        var g = new Grid();
+        g.firstAdd(RIGHT, TILE_RED_CROSS, TILE_RED_PLUS, TILE_RED_DIAMOND);
 
-            add(g, 1, 2, TILE_GREEN_DIAMOND);
-            add(g, 2, 2, TILE_YELLOW_DIAMOND);
+        add(g, 1, 0, TILE_GREEN_CROSS);
+        add(g, 2, 0, TILE_YELLOW_CROSS);
 
-            add(g, 2, 1, TILE_YELLOW_PLUS);
-            assertSame(TILE_YELLOW_PLUS, get(g, 2, 1));
+        add(g, 1, 2, TILE_GREEN_DIAMOND);
+        add(g, 2, 2, TILE_YELLOW_DIAMOND);
 
-        }
-
-        @Test
-        void canCompleteToALineLeftRightUpDown() {
-            var g = new Grid();
-            g.firstAdd(RIGHT, TILE_RED_CROSS, TILE_RED_PLUS, TILE_RED_DIAMOND);
-
-            add(g, 1, 0, TILE_GREEN_CROSS);
-            add(g, 2, 0, TILE_YELLOW_CROSS);
-
-            add(g, 1, 2, TILE_GREEN_DIAMOND);
-            add(g, 2, 2, TILE_YELLOW_DIAMOND);
-
-            add(g, 2, 1, TILE_YELLOW_PLUS);
-            add(g, 1, 1, TILE_GREEN_PLUS);
-            assertSame(TILE_GREEN_PLUS, get(g, 1, 1));
-        }
-
-        @Test
-        @DisplayName("Complete a line leaving holes during intermediary steps")
-        void canCompleteALine_Left_Middle_Right() {
-            var g = new Grid();
-            g.firstAdd(RIGHT, TILE_RED_CROSS, TILE_RED_PLUS, TILE_RED_DIAMOND);
-
-            add(g, 1, 0, TILE_GREEN_CROSS);
-            add(g, 2, 0, TILE_YELLOW_CROSS);
-
-            add(g, 1, 2, TILE_GREEN_DIAMOND);
-            add(g, 2, 2, TILE_YELLOW_DIAMOND);
-
-            TileAtPosition plus_left = createTileAtpos(2, -1, TILE_YELLOW_PLUS);
-            TileAtPosition round_center = createTileAtpos(2, 1, TILE_YELLOW_ROUND);
-            TileAtPosition star_right = createTileAtpos(2, 3, TILE_YELLOW_STAR);
-            assertDoesNotThrow(() -> {
-                g.add(plus_left, star_right, round_center); // make sur having the center tile last does not throw.
-            });
-            assertAtCorrectPosition(g, plus_left);
-            assertAtCorrectPosition(g, round_center);
-            assertAtCorrectPosition(g, star_right);
-        }
-
-        @Test
-        @DisplayName("Complete a line leaving holes during intermediary steps")
-        void canCompleteALine_Left2_Left() {
-            var g = new Grid();
-            g.firstAdd(RIGHT, TILE_RED_CROSS, TILE_RED_PLUS, TILE_RED_DIAMOND);
-
-            add(g, 1, 0, TILE_GREEN_CROSS);
-            add(g, 2, 0, TILE_YELLOW_CROSS);
-
-            add(g, 1, 2, TILE_GREEN_DIAMOND);
-            add(g, 2, 2, TILE_YELLOW_DIAMOND);
-
-            TileAtPosition plus_left_left = createTileAtpos(2, -2, TILE_YELLOW_PLUS);
-            TileAtPosition round_left = createTileAtpos(2, -1, TILE_YELLOW_ROUND);
-            assertDoesNotThrow(() -> {
-                g.add(plus_left_left, round_left); // make sur having the "left" tile after the "left left" tile does not throw
-            });
-            assertAtCorrectPosition(g, plus_left_left);
-            assertAtCorrectPosition(g, round_left);
-        }
+        TileAtPosition plus_left_left = createTileAtpos(2, -2, TILE_YELLOW_PLUS);
+        TileAtPosition round_left = createTileAtpos(2, -1, TILE_YELLOW_ROUND);
+        assertDoesNotThrow(() -> {
+            g.add(plus_left_left, round_left); // make sur having the "left" tile after the "left left" tile does not throw
+        });
+        assertAtCorrectPosition(g, plus_left_left);
+        assertAtCorrectPosition(g, round_left);
+    }
 
 
-        @Test
-        void canNotCompleteALine_leaving_a_hole() {
-            var g = new Grid();
-            g.firstAdd(RIGHT, TILE_RED_CROSS, TILE_RED_PLUS, TILE_RED_DIAMOND);
+    @Test
+    void canNotCompleteALine_leaving_a_hole() {
+        var g = new Grid();
+        g.firstAdd(RIGHT, TILE_RED_CROSS, TILE_RED_PLUS, TILE_RED_DIAMOND);
 
-            add(g, 1, 0, TILE_GREEN_CROSS);
-            add(g, 2, 0, TILE_YELLOW_CROSS);
+        add(g, 1, 0, TILE_GREEN_CROSS);
+        add(g, 2, 0, TILE_YELLOW_CROSS);
 
-            add(g, 1, 2, TILE_GREEN_DIAMOND);
-            add(g, 2, 2, TILE_YELLOW_DIAMOND);
+        add(g, 1, 2, TILE_GREEN_DIAMOND);
+        add(g, 2, 2, TILE_YELLOW_DIAMOND);
 
-            TileAtPosition plus_left = createTileAtpos(2, -1, TILE_YELLOW_PLUS);
-            TileAtPosition star_right = createTileAtpos(2, 3, TILE_YELLOW_STAR);
-            assertThrows(QwirkleException.class, () -> {
-                g.add(plus_left, star_right);
-            });
-            assertNull(get(g, 2, -1));
-            assertNull(get(g, 2, 3));
-        }
+        TileAtPosition plus_left = createTileAtpos(2, -1, TILE_YELLOW_PLUS);
+        TileAtPosition star_right = createTileAtpos(2, 3, TILE_YELLOW_STAR);
+        assertThrows(QwirkleException.class, () -> {
+            g.add(plus_left, star_right);
+        });
+        assertNull(get(g, 2, -1));
+        assertNull(get(g, 2, 3));
+    }
 
-        // private methods
+    // private methods
 
-        private void add(Grid g, int row, int col, Tile tile) {
-            g.add(INITIAL_ROW + row, INITIAL_COL + col, tile);
-        }
+    private void add(Grid g, int row, int col, Tile tile) {
+        g.add(INITIAL_ROW + row, INITIAL_COL + col, tile);
+    }
 
-        private void add(Grid g, int row, int col, Direction d, Tile... line) {
-            g.add(INITIAL_ROW + row, INITIAL_COL + col, d, line);
-        }
+    private void add(Grid g, int row, int col, Direction d, Tile... line) {
+        g.add(INITIAL_ROW + row, INITIAL_COL + col, d, line);
+    }
 
-        private Tile get(Grid g, int row, int col) {
-            return g.get(INITIAL_ROW + row, INITIAL_COL + col);
-        }
+    private Tile get(Grid g, int row, int col) {
+        return g.get(INITIAL_ROW + row, INITIAL_COL + col);
+    }
 
-        private TileAtPosition createTileAtpos(int row, int col, Tile tile) {
-            return new TileAtPosition(INITIAL_ROW + row, INITIAL_COL + col, tile);
-        }
+    private TileAtPosition createTileAtpos(int row, int col, Tile tile) {
+        return new TileAtPosition(INITIAL_ROW + row, INITIAL_COL + col, tile);
+    }
 
-        private void assertAtCorrectPosition(Grid g, TileAtPosition tileAtPosition) {
-            int row = tileAtPosition.row();
-            int col = tileAtPosition.col();
-            assertSame(tileAtPosition.tile(), g.get(row, col));
-        }
+    private void assertAtCorrectPosition(Grid g, TileAtPosition tileAtPosition) {
+        int row = tileAtPosition.row();
+        int col = tileAtPosition.col();
+        assertSame(tileAtPosition.tile(), g.get(row, col));
+    }
+
+
+    //tests for test
+    @Test
+    public void NoPlayerWithZeroScore() {
+        List<String> names = new ArrayList<>();
+        names.add("Arina");
+        names.add("Olivia");
+        Game game = new Game(names);
+
+        boolean result = game.isOver();
+
+        assertFalse(result);
+    }
+    @Test
+    public void gameNotOver_onePlayerPassed() {
+        List<String> names = new ArrayList<>();
+        names.add("Arina");
+        names.add("Olivia");
+        Game game = new Game(names);
+        game.pass();
+
+        boolean result = game.isOver();
+
+        assertFalse(result);
+    }
+
+    @Test
+    public void gameIsOver_onePlayerWithZeroScore() {
+        List<String> names = new ArrayList<>();
+        names.add("Arina");
+        names.add("Olivia");
+        Game game = new Game(names);
+        game.getPlayers()[0].setScore(0);
+        game.getPlayers()[1].setScore(5);
+
+        boolean result = game.isOver();
+
+        assertTrue(result);
+    }
+
+    @Test
+    public void gameIsOver_MultiplePlayersWithZeroScore() {
+        List<String> names = new ArrayList<>();
+        names.add("Arina");
+        names.add("Olivia");
+        Game game = new Game(names);
+        game.getPlayers()[0].setScore(0);
+        game.getPlayers()[1].setScore(0);
+
+        boolean result = game.isOver();
+
+        assertTrue(result);
+    }
 
 }

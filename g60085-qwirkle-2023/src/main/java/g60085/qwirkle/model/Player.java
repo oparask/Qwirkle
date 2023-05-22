@@ -14,14 +14,14 @@ public class Player implements Serializable {
     private int score;
 
     /**
-     * Initializes a player with the given name.
+     * Initializes a player with the given name and a starting score of 6.
      *
      * @param name the name or nickname of the player.
      */
     public Player(String name) {
         this.name = name;
         this.tiles = new ArrayList<>();
-        this.score = 0;
+        this.score = 6;
     }
 
     /**
@@ -80,5 +80,15 @@ public class Player implements Serializable {
      */
     public void addScore(int value) {
         this.score += value;
+    }
+
+
+    /**
+     * Set the score.
+     * @param i the score.
+     */
+    //for tests
+    public void setScore(int i) {
+        this.score = i;
     }
 }

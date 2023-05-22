@@ -232,18 +232,28 @@ public class Game implements Serializable {
      * Passes the turn to the next player when the current player is unable to play a move.
      */
     public void pass() {
+        Player currentPlayer = this.players[this.currentPlayer];
+        currentPlayer.addScore(-1);
         changeCurrentPlayer();
     }
 
     /**
      * Checks if the game is over.
      *
-     * @return true if the game is over: either one of the players has played all their tiles
-     * or none of the players can add tiles to the existing lines;
+     * @return true if the game is over: either one of the players has reached 0 points, or
+     * one of the players has played all their tiles,
+     * or none of the players can add tiles to the existing lines.
      */
     public boolean isOver() {
         boolean isOver = false;
         Bag bag = Bag.getInstance();
+        // Check if any player has 0 points
+        for (Player player : this.players) {
+            if (player.getScore() == 0) {
+                isOver = true; // Game is over
+                break;
+            }
+        }
         if (bag.size() == 0) { // no more tiles in the bag
             // Game over if one of the players has played all their tiles
             for (Player player : this.players) {
@@ -330,5 +340,12 @@ public class Game implements Serializable {
         }
     }
 
+    //for tests
+    /**
+     * @return the array of players.
+     */
+    public Player[] getPlayers() {
+        return players;
+    }
 }
 
